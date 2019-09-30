@@ -300,13 +300,24 @@
       
         
           
-            <p>title :  redis<br>                              <em>.</em><br>                          <em>.-``__ ‘’-.</em><br>                     <em>.-``    <code>.</code></em>.  ‘’-._<br>                 .-<code>.-```.  ```\/    _.,_ &#39;&#39;-._        
-                (    &#39;      ,       .-`  | `,    )     
-                |`-._`-...-` __...-.</code>-.<em>|’<code>_.-&#39;|     
-                |</code>-.</em>   <code>._    /     _.-&#39;    |</code>-._    <code>-._</code>-./  <em>.-‘    _.-‘<br>                |<code>-._</code>-.</em>    <code>-.__.-&#39;    _.-&#39;_.-&#39;|       
-                |</code>-.<em>`-.</em>        <em>.-‘</em>.-‘    |<br>                 <code>-._</code>-.<em>`-.__.-‘</em>.-‘    <em>.-‘<br>                |<code>-._</code>-.</em>    <code>-.__.-&#39;    _.-&#39;_.-&#39;|       
-                |</code>-.<em>`-.</em>        <em>.-‘</em>.-‘    |<br>                 <code>-._</code>-.<em>`-.__.-‘</em>.-‘    <em>.-‘<br>                     `-.</em>    <code>-.__.-&#39;    _.-&#39;</code>-._        <em>.-‘<br>                             `-._</em>.-‘                    </p>
-<p>#什么是redis？或者对redis的了解？<br>    redis是一个开源的数据结构存储系统，现在通常被用作缓存系统。它支持多种数据结构，有String,hash,list,set和zset。<br>    redis内置了复制，lua脚本，lru驱动事件，事业和磁盘持久化。通过redis的sentinel模式和cluster模式提供了高可用。</p>
+            <p>title: this is my first blog</p>
+<pre><code>              _._                        
+          _.-``__ &apos;&apos;-._                  
+     _.-``    `.  `_.  &apos;&apos;-._           
+ .-`` .-```.  ```\/    _.,_ &apos;&apos;-._        
+(    &apos;      ,       .-`  | `,    )     
+|`-._`-...-` __...-.``-._|&apos;` _.-&apos;|     
+|    `-._   `._    /     _.-&apos;    |     
+ `-._    `-._  `-./  _.-&apos;    _.-&apos;        
+|`-._`-._    `-.__.-&apos;    _.-&apos;_.-&apos;|       
+|    `-._`-._        _.-&apos;_.-&apos;    |       
+ `-._    `-._`-.__.-&apos;_.-&apos;    _.-&apos;        
+|`-._`-._    `-.__.-&apos;    _.-&apos;_.-&apos;|       
+|    `-._`-._        _.-&apos;_.-&apos;    |       
+ `-._    `-._`-.__.-&apos;_.-&apos;    _.-&apos;        
+     `-._    `-.__.-&apos;    _.-&apos;            
+         `-._        _.-&apos;                
+             `-.__.-&apos;                    </code></pre><p>#什么是redis？或者对redis的了解？<br>    redis是一个开源的数据结构存储系统，现在通常被用作缓存系统。它支持多种数据结构，有String,hash,list,set和zset。<br>    redis内置了复制，lua脚本，lru驱动事件，事业和磁盘持久化。通过redis的sentinel模式和cluster模式提供了高可用。</p>
 <p>#redis支持的数据类型<br>    redis主要支持String,hash,list,set和zset，也就是sortedSet，就是有序的集合，在我平时的开发中，String，hash和zset这几种类型用的比较多。</p>
 <p>#缓存的使用场景<br>        在我们系统中，一些简单的信息，客户端上展示给用户看的信息，或者开关类的开关通常使用String类型来保存，需要保证对象的话就会用hash进行保存，还有一些场景，商品需要运营要求的顺序展示的就会<br>    用sorted set进行保存。 </p>
 <p>#redis的过期策略和内存淘汰机制<br>        redis的过期淘汰策略主要分两种：定期删除和惰性删除。<br>    定期删除就是说redis会每隔一段时间就随机抽取一批key，检查里面是否有已过期的key，如果有的话就删除。<br>    惰性删除就是在redis获取key时判断这个key是否已过期，如果已过期就删除这个key。</p>
