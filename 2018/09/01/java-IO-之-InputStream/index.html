@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;    Java io部分的知识是比较重要的一部分内容，io是理解nio的基础，nio又是理解netty的基础。 相信看到java io体系的结构图的时候都会感叹他的庞大 &amp;emsp;    &amp;emsp;    在网上查阅相关资料的时候，也没有一个很详细的理解，大部分都是陈列一下api的用法，所以在这里将自己对io的理解记录下来。 &amp;emsp;    &amp;emsp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java IO 之 InputStream">
+<meta property="og:url" content="http://yoursite.com/2018/09/01/java-IO-之-InputStream/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;    Java io部分的知识是比较重要的一部分内容，io是理解nio的基础，nio又是理解netty的基础。 相信看到java io体系的结构图的时候都会感叹他的庞大 &amp;emsp;    &amp;emsp;    在网上查阅相关资料的时候，也没有一个很详细的理解，大部分都是陈列一下api的用法，所以在这里将自己对io的理解记录下来。 &amp;emsp;    &amp;emsp;">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/09/01/java-IO-之-InputStream/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/01/java-IO-之-InputStream/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/01/java-IO-之-InputStream/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/01/java-IO-之-InputStream/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/01/java-IO-之-InputStream/5.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/01/java-IO-之-InputStream/6.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/01/java-IO-之-InputStream/7.png">
+<meta property="og:updated_time" content="2019-10-03T11:19:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java IO 之 InputStream">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    Java io部分的知识是比较重要的一部分内容，io是理解nio的基础，nio又是理解netty的基础。 相信看到java io体系的结构图的时候都会感叹他的庞大 &amp;emsp;    &amp;emsp;    在网上查阅相关资料的时候，也没有一个很详细的理解，大部分都是陈列一下api的用法，所以在这里将自己对io的理解记录下来。 &amp;emsp;    &amp;emsp;">
+<meta name="twitter:image" content="http://yoursite.com/2018/09/01/java-IO-之-InputStream/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/09/01/java-IO-之-InputStream/">
+
+
+
+
+
+  <title>java IO 之 InputStream | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/01/java-IO-之-InputStream/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java IO 之 InputStream</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-01T16:17:40+08:00">
+                2018-09-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;    Java io部分的知识是比较重要的一部分内容，io是理解nio的基础，nio又是理解netty的基础。</p>
+<p>相信看到java io体系的结构图的时候都会感叹他的庞大<br><img src="/2018/09/01/java-IO-之-InputStream/1.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    在网上查阅相关资料的时候，也没有一个很详细的理解，大部分都是陈列一下api的用法，所以在这里将自己对io的理解记录下来。</p>
+<p>&emsp;    &emsp;    InputStream也就是io中的输入流，用来处理字节对象，也叫字节流，他将数据以字节的形式读取到内存中。</p>
+<p>&emsp;    &emsp;    InputStream是一个抽象类，最主要的一个方法就是read（）方法，无参就是一个字节一个字节的进行读取数据，使用byte[]作为参数时，则是将读取的字节保存到节数组中。<br><img src="/2018/09/01/java-IO-之-InputStream/2.png" alt="数据类型示意图"></p>
+<p>我们平时接触到的都是他的子类，这里主要通过以下几个类来学习InputStream。<br><img src="/2018/09/01/java-IO-之-InputStream/3.png" alt="数据类型示意图"></p>
+<h1 id="FileInputStream"><a href="#FileInputStream" class="headerlink" title="FileInputStream"></a>FileInputStream</h1><p>&emsp;    &emsp;    FileInputStream是用于接收文件数据的输入流，他可以读取文件内容到内存中。</p>
+<p>看一下它的两个主要的构造方法：</p>
+<ul>
+<li>入参为文件完整的路径</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public FileInputStream(String name) throws FileNotFoundException &#123;</span><br><span class="line">    this(name != null ? new File(name) : null);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>入参为File类型</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public FileInputStream(File file) throws FileNotFoundException &#123;</span><br><span class="line">    String name = (file != null ? file.getPath() : null);</span><br><span class="line">    SecurityManager security = System.getSecurityManager();</span><br><span class="line">    if (security != null) &#123;</span><br><span class="line">        security.checkRead(name);</span><br><span class="line">    &#125;</span><br><span class="line">    if (name == null) &#123;</span><br><span class="line">        throw new NullPointerException();</span><br><span class="line">    &#125;</span><br><span class="line">    if (file.isInvalid()) &#123;</span><br><span class="line">        throw new FileNotFoundException(&quot;Invalid file path&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    fd = new FileDescriptor();</span><br><span class="line">    fd.incrementAndGetUseCount();</span><br><span class="line">    this.path = name;</span><br><span class="line">    open(name);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再看下read（）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public int read() throws IOException &#123;</span><br><span class="line">    Object traceContext = IoTrace.fileReadBegin(path);</span><br><span class="line">    int b = 0;</span><br><span class="line">    try &#123;</span><br><span class="line">        b = read0();</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">        IoTrace.fileReadEnd(traceContext, b == -1 ? 0 : 1);</span><br><span class="line">    &#125;</span><br><span class="line">    return b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>private native int read0() throws IOException;</p>
+</blockquote>
+<p>这是无参的read（）,一次读取一个字节，方法返回一个int类型的数据，代表字节对应的ASCLL码。</p>
+<p><strong>read(byte[]):</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public int read(byte b[]) throws IOException &#123;</span><br><span class="line">    Object traceContext = IoTrace.fileReadBegin(path);</span><br><span class="line">    int bytesRead = 0;</span><br><span class="line">    try &#123;</span><br><span class="line">        bytesRead = readBytes(b, 0, b.length);</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">        IoTrace.fileReadEnd(traceContext, bytesRead == -1 ? 0 : bytesRead);</span><br><span class="line">    &#125;</span><br><span class="line">    return bytesRead;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>private native int readBytes(byte b[], int off, int len) throws IOException;</p>
+</blockquote>
+<p>和read（）不同的是这个方法支持传入一个字节数组用来保存读取的字节，也就是说如果你声明了一个new byte[1024],那么每次读取的字节数就将是1024个，他们全都保存在这个字节数组中,同时该方法也会返回一个int，表示实际上读取到的字节数。</p>
+<p>了解了上面这些，我们写一个实例来看下效果，随便写一个txt文件，用FileInputStream看看是否可以读取全部内容：</p>
+<p>Txt内容：</p>
+<p>就放五个字母 abcde来测试下</p>
+<p>测试类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">package io;</span><br><span class="line"> </span><br><span class="line">import java.io.File;</span><br><span class="line">import java.io.FileInputStream;</span><br><span class="line">import java.io.FileNotFoundException;</span><br><span class="line">import java.io.IOException;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * 测试inputStream中的read的字节</span><br><span class="line"> */</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author 18092106</span><br><span class="line"> * @create 2018-08-31 15:18</span><br><span class="line"> **/</span><br><span class="line">public class TestInputStreamReadMethod &#123;</span><br><span class="line"> </span><br><span class="line">    public void testReadOneByteOnce() &#123;</span><br><span class="line">        try(FileInputStream fis = new FileInputStream(new File(&quot;E:\\code\\leetcode\\read.txt&quot;)))&#123;</span><br><span class="line">            int hasRead = 0;</span><br><span class="line">            int index = 0;</span><br><span class="line">            while ((hasRead = fis.read()) != -1) &#123;</span><br><span class="line">                index++;</span><br><span class="line">                System.out.println(&quot;read()方法第&quot; + index + &quot;次读取的字节是&quot; + hasRead);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; catch (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void testReadBytesOnce()&#123;</span><br><span class="line">        try (FileInputStream fis = new FileInputStream(new File(&quot;E:\\code\\leetcode\\read.txt&quot;))) &#123;</span><br><span class="line">            byte[] bytes = new byte[2];</span><br><span class="line">            int hasRead = 0;</span><br><span class="line">            int index = 0;</span><br><span class="line">            while((hasRead = fis.read(bytes)) != -1)&#123;</span><br><span class="line">                index++;</span><br><span class="line">                System.out.print(&quot;read（byte [])第&quot; + index + &quot;次读取读取了&quot; + hasRead + &quot;个字节,byte[]中存放的字节数量是&quot; + bytes.length + &quot;，分别是：&quot;);</span><br><span class="line">                for (byte b:bytes) &#123;</span><br><span class="line">                    System.out.print(b + &quot; &quot;);</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println();</span><br><span class="line">            &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">        &#125; catch (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        new TestInputStreamReadMethod().testReadOneByteOnce();</span><br><span class="line">        new TestInputStreamReadMethod().testReadBytesOnce();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br><img src="/2018/09/01/java-IO-之-InputStream/4.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    我们分别测试了两种方式，可以看到read（）一共执行了5次才读取完文件，read（byte[]）中我们用了一个byte[2]来存放数据，一共读了三次，最后一次实际上只读了一个字节，但是byte里面还是有两个字节，这又是为什么呢？</p>
+<p>&emsp;    &emsp;    我们用一个图来简单解释下这个过程：<br><img src="/2018/09/01/java-IO-之-InputStream/5.png" alt="数据类型示意图"></p>
+<p>第一次读取a和b,a放入byte[0],b放入byte[1];</p>
+<p>第二次读取c和d,c放入byte[0],d放入byte[1];</p>
+<p>第三次读取e,e放入byte[0], byte[1]没有修改。</p>
+<h1 id="ByteArrayInputStream"><a href="#ByteArrayInputStream" class="headerlink" title="ByteArrayInputStream"></a>ByteArrayInputStream</h1><p>&emsp;    &emsp;    ByteArrayInputStream从命名就可以看出它是用来接收字节数组类型的数据，他的用法和FileInputStream基本类似。</p>
+<h1 id="FilterInputStream-装饰器模式"><a href="#FilterInputStream-装饰器模式" class="headerlink" title="FilterInputStream(装饰器模式)"></a>FilterInputStream(装饰器模式)</h1><p>&emsp;    &emsp;    在java io流的设计中使用到了两种设计模式，这里的FilterInputStream就是用到其中的装饰器模式，我们看下他的源码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">protected FilterInputStream(InputStream in) &#123;</span><br><span class="line">    this.in = in;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是它的构造函数，可以接收一个输入流作为参数</p>
+<p>再看下read（）方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public int read() throws IOException &#123;</span><br><span class="line">    return in.read();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public int read(byte b[]) throws IOException &#123;</span><br><span class="line">    return read(b, 0, b.length);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public int read(byte b[], int off, int len) throws IOException &#123;</span><br><span class="line">    return in.read(b, off, len);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>可以看到，它并没有实现任何自己的方法，所有的方法都是调用的构造函数中传入的输入流的方法，真正的实现都在它的子类中，子类继承FilterInputStream，然后重写对应的方法，实现相应的功能，这就是装饰器起到的作用，我们也把这种需要其他节点流作为参数的流叫做处理流。</p>
+<p><strong>*装饰器模式：装饰模式是在不必改变原类文件和使用继承的情况下，动态的扩展一个对象的功能。它是通过创建一个包装对象，也就是装饰来包裹真实的对象。</strong></p>
+<h1 id="BufferedInputStream"><a href="#BufferedInputStream" class="headerlink" title="BufferedInputStream"></a>BufferedInputStream</h1><p>&emsp;    &emsp;    BufferedInputStream就是继承了FilterInputStream的一个处理流，它需要一个节点流作为构造函数的参数才能发挥作用，目的是为了优化原有的节点流，他也被叫做字节缓冲流，我们一起看下BufferedInputStream的源码来学习一下：</p>
+<p>构造方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public BufferedInputStream(InputStream in) &#123;</span><br><span class="line">    this(in, defaultBufferSize);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public BufferedInputStream(InputStream in, int size) &#123;</span><br><span class="line">    super(in);</span><br><span class="line">    if (size &lt;= 0) &#123;</span><br><span class="line">        throw new IllegalArgumentException(&quot;Buffer size &lt;= 0&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    buf = new byte[size];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到它需要另一个输入流作为参数传入，也就是被装饰的对象，还有一个构造方法提供了一个int类型的参数，我们先放着，后面会介绍。</p>
+<p><strong>read(byte[]):</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">public synchronized int read(byte b[], int off, int len)</span><br><span class="line">    throws IOException</span><br><span class="line">&#123;</span><br><span class="line">    getBufIfOpen(); // Check for closed stream</span><br><span class="line">    if ((off | len | (off + len) | (b.length - (off + len))) &lt; 0) &#123;</span><br><span class="line">        throw new IndexOutOfBoundsException();</span><br><span class="line">    &#125; else if (len == 0) &#123;</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    int n = 0;</span><br><span class="line">    for (;;) &#123;</span><br><span class="line">        int nread = read1(b, off + n, len - n);</span><br><span class="line">        if (nread &lt;= 0)</span><br><span class="line">            return (n == 0) ? nread : n;</span><br><span class="line">        n += nread;</span><br><span class="line">        if (n &gt;= len)</span><br><span class="line">            return n;</span><br><span class="line">        // if not closed but no bytes available, return</span><br><span class="line">        InputStream input = in;</span><br><span class="line">        if (input != null &amp;&amp; input.available() &lt;= 0)</span><br><span class="line">            return n;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到主要读取的方法是read1()，我们看下read1（）:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">private int read1(byte[] b, int off, int len) throws IOException &#123;</span><br><span class="line">    int avail = count - pos;</span><br><span class="line">    if (avail &lt;= 0) &#123;</span><br><span class="line">        /* If the requested length is at least as large as the buffer, and</span><br><span class="line">           if there is no mark/reset activity, do not bother to copy the</span><br><span class="line">           bytes into the local buffer.  In this way buffered streams will</span><br><span class="line">           cascade harmlessly. */</span><br><span class="line">        if (len &gt;= getBufIfOpen().length &amp;&amp; markpos &lt; 0) &#123;</span><br><span class="line">            return getInIfOpen().read(b, off, len);</span><br><span class="line">        &#125;</span><br><span class="line">        fill();</span><br><span class="line">        avail = count - pos;</span><br><span class="line">        if (avail &lt;= 0) return -1;</span><br><span class="line">    &#125;</span><br><span class="line">    int cnt = (avail &lt; len) ? avail : len;</span><br><span class="line">    System.arraycopy(getBufIfOpen(), pos, b, off, cnt);</span><br><span class="line">    pos += cnt;</span><br><span class="line">    return cnt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到 这边有一个判断：</p>
+<blockquote>
+<p>if (len &gt;= getBufIfOpen().length &amp;&amp; markpos &lt; 0) {</p>
+</blockquote>
+<p>我们看下getBuffIfOpen():</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">private byte[] getBufIfOpen() throws IOException &#123;</span><br><span class="line">    byte[] buffer = buf;</span><br><span class="line">    if (buffer == null)</span><br><span class="line">        throw new IOException(&quot;Stream closed&quot;);</span><br><span class="line">    return buffer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里面的buf对象就是上面我们第二个构造函数的size构造出来的一个字节数组，如果没有传，那么使用默认的一个值</p>
+<blockquote>
+<p>private static int defaultBufferSize = 8192;</p>
+</blockquote>
+<p>也就是一个大小为8192的字节数据 byte[8192],4K大小，我们继续看刚刚的判断：</p>
+<blockquote>
+<pre><code>if (len &gt;= getBufIfOpen().length &amp;&amp; markpos &lt; 0) {</code></pre></blockquote>
+<p>这个len就是我们使用BufferedInputStream时自己构造的字节数据的大小，如果我们构造的大小比默认的大了，就使用传入的输入流自身的read(byte[])的方法，如果没有默认的大，那么会调用一个fill()方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">private void fill() throws IOException &#123;</span><br><span class="line">    byte[] buffer = getBufIfOpen();</span><br><span class="line">    if (markpos &lt; 0)</span><br><span class="line">        pos = 0;            /* no mark: throw away the buffer */</span><br><span class="line">    else if (pos &gt;= buffer.length)  /* no room left in buffer */</span><br><span class="line">        if (markpos &gt; 0) &#123;  /* can throw away early part of the buffer */</span><br><span class="line">            int sz = pos - markpos;</span><br><span class="line">            System.arraycopy(buffer, markpos, buffer, 0, sz);</span><br><span class="line">            pos = sz;</span><br><span class="line">            markpos = 0;</span><br><span class="line">        &#125; else if (buffer.length &gt;= marklimit) &#123;</span><br><span class="line">            markpos = -1;   /* buffer got too big, invalidate mark */</span><br><span class="line">            pos = 0;        /* drop buffer contents */</span><br><span class="line">        &#125; else &#123;            /* grow buffer */</span><br><span class="line">            int nsz = pos * 2;</span><br><span class="line">            if (nsz &gt; marklimit)</span><br><span class="line">                nsz = marklimit;</span><br><span class="line">            byte nbuf[] = new byte[nsz];</span><br><span class="line">            System.arraycopy(buffer, 0, nbuf, 0, pos);</span><br><span class="line">            if (!bufUpdater.compareAndSet(this, buffer, nbuf)) &#123;</span><br><span class="line">                // Can&apos;t replace buf if there was an async close.</span><br><span class="line">                // Note: This would need to be changed if fill()</span><br><span class="line">                // is ever made accessible to multiple threads.</span><br><span class="line">                // But for now, the only way CAS can fail is via close.</span><br><span class="line">                // assert buf == null;</span><br><span class="line">                throw new IOException(&quot;Stream closed&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            buffer = nbuf;</span><br><span class="line">        &#125;</span><br><span class="line">    count = pos;</span><br><span class="line">    int n = getInIfOpen().read(buffer, pos, buffer.length - pos);</span><br><span class="line">    if (n &gt; 0)</span><br><span class="line">        count = n + pos;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最核心的就是这个：</p>
+<blockquote>
+<p>int n = getInIfOpen().read(buffer, pos, buffer.length - pos);</p>
+</blockquote>
+<p>还是调用输入流自身的read(byte[])方法，但是这个字节数据会使用BufferedInputStream中默认的那个，也就是byte[8192],通过这种字节数组作为缓冲区，每次都从这里取数据，不够了就再去取8192个字节数的数据回来。</p>
+<p>说了这么多理论，我们还是直接用代码来测试一下，验证一下我们的说法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">package io;</span><br><span class="line"> </span><br><span class="line">import java.io.*;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author 18092106</span><br><span class="line"> * @create 2018-08-31 19:11</span><br><span class="line"> **/</span><br><span class="line">public class TestBufferedInputStream &#123;</span><br><span class="line"> </span><br><span class="line">    public void useFileInputSream()&#123;</span><br><span class="line">        try (FileInputStream fis = new FileInputStream(new File(&quot;D:\\安装包\\软件安装包.rar&quot;))) &#123;</span><br><span class="line">            byte[] bytes = new byte[1024];</span><br><span class="line">            int hasRead;</span><br><span class="line">            long startTime = System.currentTimeMillis();</span><br><span class="line">            while((hasRead = fis.read(bytes)) != -1)&#123;&#125;</span><br><span class="line">            long endTime = System.currentTimeMillis();</span><br><span class="line">            System.out.println(&quot;文件大小1.8G，FileInputStream用时：&quot; + (endTime - startTime));</span><br><span class="line">        &#125; catch (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void useBufferedInputStream()&#123;</span><br><span class="line">        try (FileInputStream fis = new FileInputStream(new File(&quot;D:\\安装包\\软件安装包.rar&quot;));</span><br><span class="line">             BufferedInputStream bis = new BufferedInputStream(fis)) &#123;</span><br><span class="line">            byte[] bytes = new byte[1024];</span><br><span class="line">            int hasRead;</span><br><span class="line">             long startTime = System.currentTimeMillis();</span><br><span class="line">            while((hasRead = bis.read(bytes)) != -1)&#123;&#125;</span><br><span class="line">            long endTime = System.currentTimeMillis();</span><br><span class="line">            System.out.println(&quot;文件大小1.8G，bufferedInputSream用时：&quot; + (endTime - startTime));</span><br><span class="line">        &#125; catch (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        new TestBufferedInputStream().useBufferedInputStream();</span><br><span class="line">        new TestBufferedInputStream().useFileInputSream();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br><img src="/2018/09/01/java-IO-之-InputStream/6.png" alt="数据类型示意图"></p>
+<p>我们选择的节点流是FileInputStream，用FileInputStream和BufferedInputStream分别读取一个同一个文件，比较他们的用时。在声明的字节数组大小为1024时，可以明显的看到BufferedInputStream的效率高很多，我们修改下声明的字节数组的大小为8192，也就是BufferedInputStream中默认大小，再来看看结果:<br><img src="/2018/09/01/java-IO-之-InputStream/7.png" alt="数据类型示意图"></p>
+<p>可以看到在这种情况下，反而FileInputStream的效率更高了，这个也和我们看源码得到的结论一致，总结下来就是：</p>
+<p>&emsp;    &emsp;    BufferedInputStream内部构造了一个8192大小的字节数组用作缓冲区，如果每次读取的字节数组小于这个默认的，那么就使用这个默认的字节数组来进行i/O访问，通过减少访问次数提高效率，当每次读取的字节数组大于这个默认的时候，还是调用传入的输入流本身的方法，这种情况由于内部的判断等原因，反而输入流的效率会更高。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/07/java基础之注解/" rel="next" title="java基础之注解">
+                <i class="fa fa-chevron-left"></i> java基础之注解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/12/12/设计模式之策略模式/" rel="prev" title="设计模式之策略模式">
+                设计模式之策略模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#FileInputStream"><span class="nav-number">1.</span> <span class="nav-text">FileInputStream</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ByteArrayInputStream"><span class="nav-number">2.</span> <span class="nav-text">ByteArrayInputStream</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FilterInputStream-装饰器模式"><span class="nav-number">3.</span> <span class="nav-text">FilterInputStream(装饰器模式)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BufferedInputStream"><span class="nav-number">4.</span> <span class="nav-text">BufferedInputStream</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
