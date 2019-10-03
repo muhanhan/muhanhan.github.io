@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;    看下list的类图: list介绍&amp;emsp;    &amp;emsp;    list，java中的有序集合，内部用数组实现，每个元素都有对应的索引，可以存放重复数据。 list的几种主要实现&amp;emsp;    &amp;emsp;    list的主要实现有ArrayList,Vectory,Stack和LinkedList。&amp;emsp;    &amp;emsp;    我">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java集合框架（二）List">
+<meta property="og:url" content="http://yoursite.com/2018/06/29/java集合框架（二）List/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;    看下list的类图: list介绍&amp;emsp;    &amp;emsp;    list，java中的有序集合，内部用数组实现，每个元素都有对应的索引，可以存放重复数据。 list的几种主要实现&amp;emsp;    &amp;emsp;    list的主要实现有ArrayList,Vectory,Stack和LinkedList。&amp;emsp;    &amp;emsp;    我">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/06/29/java集合框架（二）List/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/29/java集合框架（二）List/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/29/java集合框架（二）List/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/29/java集合框架（二）List/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/29/java集合框架（二）List/5.png">
+<meta property="og:updated_time" content="2019-10-03T07:25:56.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java集合框架（二）List">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    看下list的类图: list介绍&amp;emsp;    &amp;emsp;    list，java中的有序集合，内部用数组实现，每个元素都有对应的索引，可以存放重复数据。 list的几种主要实现&amp;emsp;    &amp;emsp;    list的主要实现有ArrayList,Vectory,Stack和LinkedList。&amp;emsp;    &amp;emsp;    我">
+<meta name="twitter:image" content="http://yoursite.com/2018/06/29/java集合框架（二）List/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/06/29/java集合框架（二）List/">
+
+
+
+
+
+  <title>java集合框架（二）List | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/29/java集合框架（二）List/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java集合框架（二）List</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-29T14:16:50+08:00">
+                2018-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;    看下list的类图:<br><img src="/2018/06/29/java集合框架（二）List/1.png" alt="数据类型示意图"></p>
+<h1 id="list介绍"><a href="#list介绍" class="headerlink" title="list介绍"></a>list介绍</h1><p>&emsp;    &emsp;    list，java中的有序集合，内部用数组实现，每个元素都有对应的索引，可以存放重复数据。</p>
+<h1 id="list的几种主要实现"><a href="#list的几种主要实现" class="headerlink" title="list的几种主要实现"></a>list的几种主要实现</h1><p>&emsp;    &emsp;    list的主要实现有ArrayList,Vectory,Stack和LinkedList。<br>&emsp;    &emsp;    我们还是通过具体实例来学习。</p>
+<h2 id="ArrayList-也被称为动态数组，可以动态改变数组的大小。"><a href="#ArrayList-也被称为动态数组，可以动态改变数组的大小。" class="headerlink" title="ArrayList:也被称为动态数组，可以动态改变数组的大小。"></a>ArrayList:也被称为动态数组，可以动态改变数组的大小。</h2><p>&emsp;    &emsp;    测试类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">	package com.ljw.ColleactionAndMap;</span><br><span class="line"> </span><br><span class="line">import java.util.ArrayList;</span><br><span class="line">import java.util.UUID;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/6/28.</span><br><span class="line"> */</span><br><span class="line">public class TestArrayList &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        ArrayList arrayList = new ArrayList();</span><br><span class="line">        arrayList.add(&quot;jack&quot;);</span><br><span class="line">        arrayList.add(&quot;jack&quot;);</span><br><span class="line">        arrayList.add(&quot;tom&quot;);</span><br><span class="line">        arrayList.add(&quot;jerry&quot;);</span><br><span class="line">        arrayList.add(&quot;null&quot;);</span><br><span class="line"> </span><br><span class="line">        System.out.println(arrayList); //有序 可以保存重复数据 可以插入null</span><br><span class="line"> </span><br><span class="line">        arrayList.set(0,&quot;tony&quot;);</span><br><span class="line">        System.out.println(arrayList);  //通过索引修改对应位置的数据</span><br><span class="line"> </span><br><span class="line">        arrayList.add(0,&quot;pony&quot;);</span><br><span class="line">        System.out.println(arrayList);  //在执行索引出增加数据，索引之后的数据顺延</span><br><span class="line"> </span><br><span class="line">        arrayList.ensureCapacity(20); //执行生成的arraylist 的大小</span><br><span class="line">        arrayList.trimToSize();   //将arraylist的大小设置为实际大小，释放空间</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    运行结果：<br><img src="/2018/06/29/java集合框架（二）List/2.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    通过上面例子，可以看到arraylist按照插入数据的顺序保存数据，同时也支持通过索引直接修改/增加数据，在指定索引处增加数据时，这个索引后面的数据的索引依次顺延。除此以外，arraylist还有自己独有的两个方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public void ensureCapacity(int minCapacity) &#123;</span><br><span class="line">    int minExpand = (elementData != EMPTY_ELEMENTDATA)</span><br><span class="line">        // any size if real element table</span><br><span class="line">        ? 0</span><br><span class="line">        // larger than default for empty table. It&apos;s already supposed to be</span><br><span class="line">        // at default size.</span><br><span class="line">        : DEFAULT_CAPACITY;</span><br><span class="line"> </span><br><span class="line">    if (minCapacity &gt; minExpand) &#123;</span><br><span class="line">        ensureExplicitCapacity(minCapacity);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个支持自己手动设置arraylist的默认容量.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public void trimToSize() &#123;</span><br><span class="line">    modCount++;</span><br><span class="line">    if (size &lt; elementData.length) &#123;</span><br><span class="line">        elementData = Arrays.copyOf(elementData, size);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    这个方法可以将arraylist的大小设置为实际占用的大小，可以用来释放多占用的空间。</p>
+<p>&emsp;    &emsp;    Java中set，list和queue都实现了iterable接口，代表这些集合对象都可以用迭代器来对集合中的数据进行迭代。在list中，他有一个自己独有的迭代器，listiterator，和iterator相比，它还支持往前迭代。</p>
+<p>&emsp;    &emsp;    Arraylist中判断数据是否相同的依据是equals（）方法是否返回true。</p>
+<p><strong>ArrayList总结：</strong><br>&emsp;    &emsp;    1. arraylist内部用数组实现，是一个动态数组，默认分配一个容量为10的空间，每次扩容1.5倍；<br>&emsp;    &emsp;    2. arraylist有序，通过索引可以直接操作数据；<br>&emsp;    &emsp;    3. arraylist是线程不安全的。</p>
+<h2 id="Vector"><a href="#Vector" class="headerlink" title="Vector:"></a>Vector:</h2><p>Vector的用法和arraylist基本一致，从jdk1.0开始就有的一个集合。<br>*Vector是线程安全的，因此性能上没有arraylist好。</p>
+<h2 id="Stack"><a href="#Stack" class="headerlink" title="Stack:"></a>Stack:</h2><p>&emsp;    &emsp;    Stack是Vector的一个子类，模拟了栈的数据结构，栈主要的特点就是后进先出（FILO）,可以将它理解一个瓶子，先放进去的东西在最下面，最后放进去的在最上面，离瓶口最近。<br><img src="/2018/06/29/java集合框架（二）List/3.png" alt="数据类型示意图"></p>
+<p>通过代码认识下stack：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.ColleactionAndMap;</span><br><span class="line"> </span><br><span class="line">import java.util.Stack;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/6/29.</span><br><span class="line"> */</span><br><span class="line">public class TestStack &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        Stack stack = new Stack();</span><br><span class="line">        stack.add(&quot;jack&quot;);</span><br><span class="line">        stack.add(&quot;jack&quot;);</span><br><span class="line">        stack.add(&quot;tom&quot;);</span><br><span class="line">        stack.add(&quot;jerry&quot;);</span><br><span class="line">        stack.add(null);</span><br><span class="line"> </span><br><span class="line">        System.out.println(stack);</span><br><span class="line"> </span><br><span class="line">        System.out.println(stack.peek());</span><br><span class="line">        System.out.println(stack.push(&quot;pony&quot;));</span><br><span class="line">        System.out.println(stack);</span><br><span class="line">        System.out.println(stack.pop());</span><br><span class="line">        System.out.println(stack); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br><img src="/2018/06/29/java集合框架（二）List/4.png" alt="数据类型示意图"></p>
+<p>Stack大部分方法都是和list的用法差不多，主要介绍下这三个方法：</p>
+<ul>
+<li>Object peek(); 返回栈的第一个元素。</li>
+<li>Object pop(); 将栈的第一个元素出栈并返回。</li>
+<li>void push(Object item) 将元素入栈，这个元素位于栈顶</li>
+</ul>
+<h2 id="LinkedList："><a href="#LinkedList：" class="headerlink" title="LinkedList："></a>LinkedList：</h2><p>&emsp;    &emsp;    LinkedList既实现了list接口，又实现了queue接口，我们在queue中在介绍它。</p>
+<h1 id="arraylist，vector底层实现分析"><a href="#arraylist，vector底层实现分析" class="headerlink" title="arraylist，vector底层实现分析"></a>arraylist，vector底层实现分析</h1><p>&emsp;    &emsp;    先看下arraylist下的构造方法：<br>&emsp;    &emsp;    他有三个构造方法：</p>
+<blockquote>
+<p>private static final Object[] EMPTY_ELEMENTDATA = {};</p>
+</blockquote>
+<blockquote>
+<p>private transient Object[] elementData;</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> public ArrayList(int initialCapacity) &#123;</span><br><span class="line">    super();</span><br><span class="line">    if (initialCapacity &lt; 0)</span><br><span class="line">        throw new IllegalArgumentException(&quot;Illegal Capacity: &quot;+</span><br><span class="line">                                           initialCapacity);</span><br><span class="line">    this.elementData = new Object[initialCapacity];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> public ArrayList() &#123;</span><br><span class="line">    super();</span><br><span class="line">    this.elementData = EMPTY_ELEMENTDATA;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public ArrayList(Collection&lt;? extends E&gt; c) &#123;</span><br><span class="line">    elementData = c.toArray();</span><br><span class="line">    size = elementData.length;</span><br><span class="line">    // c.toArray might (incorrectly) not return Object[] (see 6260652)</span><br><span class="line">    if (elementData.getClass() != Object[].class)</span><br><span class="line">        elementData = Arrays.copyOf(elementData, size, Object[].class);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    可以看到如果我们使用无参构造方法来实例化一个arraylist，他是会分配一个空的Object [],这个解释了为什么arraylist可以放不同类型的对象，因为Object是所有对象的父类。<br>&emsp;    &emsp;    当我们在arraylist中执行add（）操作时，其实arraylist每次都是一个新的对象，我们写一个测试类看下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.ColleactionAndMap;</span><br><span class="line"> </span><br><span class="line">import java.util.ArrayList;</span><br><span class="line">import java.util.HashSet;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/6/26.</span><br><span class="line"> */</span><br><span class="line">public class Test &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        ArrayList arrayList = new ArrayList();</span><br><span class="line">        ArrayList arrayList2 = new ArrayList();</span><br><span class="line">        ArrayList arrayList3 = new ArrayList(20);</span><br><span class="line"> </span><br><span class="line">        System.out.println(arrayList.hashCode() + &quot;===&quot; + arrayList2.hashCode() + &quot;===&quot; + arrayList3.hashCode());</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">        arrayList.add(&quot;jack&quot;);</span><br><span class="line">        System.out.println(arrayList.hashCode());</span><br><span class="line">        arrayList.add(&quot;jack&quot;);</span><br><span class="line">        System.out.println(arrayList.hashCode());</span><br><span class="line">        arrayList.add(&quot;tom&quot;);</span><br><span class="line">        System.out.println(arrayList.hashCode());</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看一下上面的代码，想一下结果。<br>&emsp;    &emsp;    运行结果：<br><img src="/2018/06/29/java集合框架（二）List/5.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    结果和你想的是一样的么，从结果中我们可以看到，通过构造方法实例出的arraylist对象，他们的hashcode都是一样的，也就是说每次new的都是同一个对象，但执行完add（）操作以后，每次add完的arraylist的hashcode都不同，这说明每次的arraylist都是不同的对象，我们看下arraylist的add（）源代码来分析下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public boolean add(E e) &#123;</span><br><span class="line">    ensureCapacityInternal(size + 1);  // Increments modCount!!</span><br><span class="line">    elementData[size++] = e;</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">private void ensureCapacityInternal(int minCapacity) &#123;</span><br><span class="line">    if (elementData == EMPTY_ELEMENTDATA) &#123;</span><br><span class="line">        minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    ensureExplicitCapacity(minCapacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">private void ensureExplicitCapacity(int minCapacity) &#123;</span><br><span class="line">    modCount++;</span><br><span class="line"> </span><br><span class="line">    // overflow-conscious code</span><br><span class="line">    if (minCapacity - elementData.length &gt; 0)</span><br><span class="line">        grow(minCapacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">private void grow(int minCapacity) &#123;</span><br><span class="line">    // overflow-conscious code</span><br><span class="line">    int oldCapacity = elementData.length;</span><br><span class="line">    int newCapacity = oldCapacity + (oldCapacity &gt;&gt; 1);</span><br><span class="line">    if (newCapacity - minCapacity &lt; 0)</span><br><span class="line">        newCapacity = minCapacity;</span><br><span class="line">    if (newCapacity - MAX_ARRAY_SIZE &gt; 0)</span><br><span class="line">        newCapacity = hugeCapacity(minCapacity);</span><br><span class="line">    // minCapacity is usually close to size, so this is a win:</span><br><span class="line">    elementData = Arrays.copyOf(elementData, newCapacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    在调用的最后一个方法中，我们看到了Arrays.copyOf()方法，在之前介绍数组的时候，曾经说过，数组在初始化的时候要声明大小，不可扩容。但是可以通过arrays工具类中的copyof生成一个由原数组数据的新数组来变相的达到扩容的目的。在add（）中，每次最后都会通过Arrays.copyOf()生成一个新的数组存放数据，所以我们可以看到arraylist的hashcode在一直变化，那么为什么每次new的都是同一个对象呢，看一下上面贴出来的arraylist的构造方法，可以看到，它最终使用的都是一个定义好的静态常量Object[]对象，因为对象没有发生过变化，所以它的hashcode也不会发生变化。<br>&emsp;    &emsp;    再说下arraylist的扩容，还是看下add（）方法，在最后调用的方法中，会对数组目前的实际大小做判断，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">private void grow(int minCapacity) &#123;</span><br><span class="line">    // overflow-conscious code</span><br><span class="line">    int oldCapacity = elementData.length;</span><br><span class="line">    int newCapacity = oldCapacity + (oldCapacity &gt;&gt; 1);</span><br><span class="line">    if (newCapacity - minCapacity &lt; 0)</span><br><span class="line">        newCapacity = minCapacity;</span><br><span class="line">    if (newCapacity - MAX_ARRAY_SIZE &gt; 0)</span><br><span class="line">        newCapacity = hugeCapacity(minCapacity);</span><br><span class="line">    // minCapacity is usually close to size, so this is a win:</span><br><span class="line">    elementData = Arrays.copyOf(elementData, newCapacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    也就是这个方法实现扩容，会比较数据实际的大小，当超过默认容量是，会增加0.5倍的容量，最后复制一个新的容量的数组。<br>通过这个方法，我们也就可以理解arraylist中ensureCapacity(int minCapacity)和trimToSize()这两个方法的作用了，当arraylist中要插入很多数据时，自己手动设置容量，可以避免多次扩容带来的性能影响，再通过trimToSize()释放掉多余的空间。<br>&emsp;    &emsp;    再看下Vector里面源码：</p>
+<blockquote>
+<p>protected Object[] elementData;</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public Vector() &#123;</span><br><span class="line">    this(10);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public Vector(int initialCapacity) &#123;</span><br><span class="line">    this(initialCapacity, 0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public Vector(int initialCapacity, int capacityIncrement) &#123;</span><br><span class="line">    super();</span><br><span class="line">    if (initialCapacity &lt; 0)</span><br><span class="line">        throw new IllegalArgumentException(&quot;Illegal Capacity: &quot;+</span><br><span class="line">                                           initialCapacity);</span><br><span class="line">    this.elementData = new Object[initialCapacity];</span><br><span class="line">    this.capacityIncrement = capacityIncrement;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到和arraylist一样，vector的默认容量也是10，看下add（）方法的源码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public synchronized boolean add(E e) &#123;</span><br><span class="line">    modCount++;</span><br><span class="line">    ensureCapacityHelper(elementCount + 1);</span><br><span class="line">    elementData[elementCount++] = e;</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">private void ensureCapacityHelper(int minCapacity) &#123;</span><br><span class="line">    // overflow-conscious code</span><br><span class="line">    if (minCapacity - elementData.length &gt; 0)</span><br><span class="line">        grow(minCapacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">private void grow(int minCapacity) &#123;</span><br><span class="line">    // overflow-conscious code</span><br><span class="line">    int oldCapacity = elementData.length;</span><br><span class="line">    int newCapacity = oldCapacity + ((capacityIncrement &gt; 0) ?</span><br><span class="line">                                     capacityIncrement : oldCapacity);</span><br><span class="line">    if (newCapacity - minCapacity &lt; 0)</span><br><span class="line">        newCapacity = minCapacity;</span><br><span class="line">    if (newCapacity - MAX_ARRAY_SIZE &gt; 0)</span><br><span class="line">        newCapacity = hugeCapacity(minCapacity);</span><br><span class="line">    elementData = Arrays.copyOf(elementData, newCapacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，它最后也是使用的Arrays.copyOf(),有区别的是他扩容的方式和arraylist不同:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int newCapacity = oldCapacity + ((capacityIncrement &gt; 0) ?</span><br><span class="line">                                 capacityIncrement : oldCapacity);</span><br></pre></td></tr></table></figure>
+<p>它每次都会在原来的基础扩展一倍。</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><ol>
+<li>list中放的都是对象，不会存放基本数据类型，我们看到的基本数据类型的数据，在添加的时候都会被它的包装类进行包装；</li>
+<li>arraylist和vector内部使用数组实现，所以随机访问数据方便较好，linkedlist内部内部使用双向链表实现，随机访问数据较差，但是插入、删除性能较好；</li>
+<li>arraylist和linkedlist都是线程不安全的，vector是线程安全的。</li>
+</ol>
+<p><strong>使用注意：</strong></p>
+<ol>
+<li>需要迭代集合时，arraylist和vector使用get方式来便利较好，linkedlist通过iterator来迭代较好；</li>
+<li>如果需要频繁的插入，删除数据，使用linkedlist较好，因为它使用链表实现，而vectory和arraylist需要不断对数组进行扩容，耗费时间。</li>
+<li>arraylist和linkedlist都是线程不安全的，vector是线程安全的,如果要求线程安全，可以使用vector。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/21/设计模式之工厂模式/" rel="next" title="设计模式之工厂模式">
+                <i class="fa fa-chevron-left"></i> 设计模式之工厂模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/15/java基础之数据类型/" rel="prev" title="java基础之数据类型">
+                java基础之数据类型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#list介绍"><span class="nav-number">1.</span> <span class="nav-text">list介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#list的几种主要实现"><span class="nav-number">2.</span> <span class="nav-text">list的几种主要实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ArrayList-也被称为动态数组，可以动态改变数组的大小。"><span class="nav-number">2.1.</span> <span class="nav-text">ArrayList:也被称为动态数组，可以动态改变数组的大小。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Vector"><span class="nav-number">2.2.</span> <span class="nav-text">Vector:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Stack"><span class="nav-number">2.3.</span> <span class="nav-text">Stack:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LinkedList："><span class="nav-number">2.4.</span> <span class="nav-text">LinkedList：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#arraylist，vector底层实现分析"><span class="nav-number">3.</span> <span class="nav-text">arraylist，vector底层实现分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">4.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
