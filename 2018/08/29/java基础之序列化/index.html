@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;    最近几天重新看了下序列化部分的内容，今天将它整理出来。 什么是序列化/反序列化&amp;emsp;    &amp;emsp;    序列化是java开发中经常可以听到的一个词，那么究竟什么是序列化呢？简单来理解的话就是：将java对象转换成字节序列以二进制数据的形式保存在本地的操作就叫做序列化，将二进制数据还原成java对象的过程就叫反序列化。 &amp;emsp;    &amp;em">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java基础之序列化">
+<meta property="og:url" content="http://yoursite.com/2018/08/29/java基础之序列化/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;    最近几天重新看了下序列化部分的内容，今天将它整理出来。 什么是序列化/反序列化&amp;emsp;    &amp;emsp;    序列化是java开发中经常可以听到的一个词，那么究竟什么是序列化呢？简单来理解的话就是：将java对象转换成字节序列以二进制数据的形式保存在本地的操作就叫做序列化，将二进制数据还原成java对象的过程就叫反序列化。 &amp;emsp;    &amp;em">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/08/29/java基础之序列化/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/29/java基础之序列化/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/29/java基础之序列化/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/29/java基础之序列化/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/29/java基础之序列化/5.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/29/java基础之序列化/6.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/29/java基础之序列化/7.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/29/java基础之序列化/8.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/29/java基础之序列化/9.png">
+<meta property="og:updated_time" content="2019-10-03T15:01:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java基础之序列化">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    最近几天重新看了下序列化部分的内容，今天将它整理出来。 什么是序列化/反序列化&amp;emsp;    &amp;emsp;    序列化是java开发中经常可以听到的一个词，那么究竟什么是序列化呢？简单来理解的话就是：将java对象转换成字节序列以二进制数据的形式保存在本地的操作就叫做序列化，将二进制数据还原成java对象的过程就叫反序列化。 &amp;emsp;    &amp;em">
+<meta name="twitter:image" content="http://yoursite.com/2018/08/29/java基础之序列化/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/08/29/java基础之序列化/">
+
+
+
+
+
+  <title>java基础之序列化 | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/29/java基础之序列化/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java基础之序列化</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-29T23:57:23+08:00">
+                2018-08-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;    最近几天重新看了下序列化部分的内容，今天将它整理出来。</p>
+<h1 id="什么是序列化-反序列化"><a href="#什么是序列化-反序列化" class="headerlink" title="什么是序列化/反序列化"></a>什么是序列化/反序列化</h1><p>&emsp;    &emsp;    序列化是java开发中经常可以听到的一个词，那么究竟什么是序列化呢？简单来理解的话就是：将java对象转换成字节序列以二进制数据的形式保存在本地的操作就叫做序列化，将二进制数据还原成java对象的过程就叫反序列化。</p>
+<p>&emsp;    &emsp;    我们画一个图来说明下：<br><img src="/2018/08/29/java基础之序列化/1.png" alt="数据类型示意图"></p>
+<h1 id="怎么让对象序列化-反序列化"><a href="#怎么让对象序列化-反序列化" class="headerlink" title="怎么让对象序列化/反序列化"></a>怎么让对象序列化/反序列化</h1><p>&emsp;    &emsp;    虽然序列化的目的是为了操作java对象，但并不是所有的java对象都可以进行序列化，想要实现序列化首需实现Serializable接口或者Externalizable接口，本文主要介绍Serializable接口。</p>
+<p>&emsp;    &emsp;    我们先来看下java.io.Serializable接口：<br><img src="/2018/08/29/java基础之序列化/2.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    可以看到这个接口仅仅是个标记，代表这个类可以序列化，没有任何方法，通过上面的@see注解可以知道它和对象处理流有关。</p>
+<p>&emsp;    &emsp;    现在我们已经知道只要一个类实现了Serializable接口，就代表这个类可以序列化，那么通过什么操作可以将这个java对象以二进制数据的形式保存到本地呢？就是上面@see提到的对象处理流ObjectStream,我们写一个实例来了解一下整个过程：</p>
+<p>可序列化的java对象：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.serialzable;</span><br><span class="line"> </span><br><span class="line">import java.io.Serializable;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author liu.jiawei</span><br><span class="line"> * @create 2018-08-29 22:52</span><br><span class="line"> **/</span><br><span class="line">public class Dog implements Serializable&#123;</span><br><span class="line"> </span><br><span class="line">    public String type;</span><br><span class="line"> </span><br><span class="line">    public String name;</span><br><span class="line"> </span><br><span class="line">    public int age;</span><br><span class="line"> </span><br><span class="line">    public Dog(String type, String name, int age) &#123;</span><br><span class="line">        this.type = type;</span><br><span class="line">        this.name = name;</span><br><span class="line">        this.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public String getType() &#123;</span><br><span class="line">        return type;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setType(String type) &#123;</span><br><span class="line">        this.type = type;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public String getName() &#123;</span><br><span class="line">        return name;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setName(String name) &#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public int getAge() &#123;</span><br><span class="line">        return age;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setAge(int age) &#123;</span><br><span class="line">        this.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>序列化过程：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.serialzable;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">import java.io.*;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author liu.jiawei</span><br><span class="line"> * @create 2018-08-29 22:29</span><br><span class="line"> **/</span><br><span class="line">public class TestSerializeDog &#123;</span><br><span class="line"> </span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        File file = new File(&quot;Dog.txt&quot;);</span><br><span class="line">        try (FileOutputStream fis = new FileOutputStream(file);</span><br><span class="line">             ObjectOutputStream oos = new ObjectOutputStream(fis)) &#123;</span><br><span class="line">            Dog dog = new Dog(&quot;藏獒&quot;, &quot;旺财&quot;, 1);</span><br><span class="line">            oos.writeObject(dog);</span><br><span class="line">        &#125; catch (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br><img src="/2018/08/29/java基础之序列化/3.png" alt="数据类型示意图"></p>
+<p>可以看到通过ObjectOutputStream这个对象处理流，可以实现java对象的序列化，处理流需要基于节点流发挥作用，ObjectOutputStream需要配合FileOutputStream一起使用。</p>
+<p>看了序列化的过程，我们再将保存dog对象的文件重新还原成java对象：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.serialzable;</span><br><span class="line"> </span><br><span class="line">import java.io.*;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author liu.jiawei</span><br><span class="line"> * @create 2018-08-29 23:01</span><br><span class="line"> **/</span><br><span class="line">public class TestDeserializeDog &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        File file = new File(&quot;/Users/liujiawei/ztesoft/JSYD/leetcode/dog.txt&quot;);</span><br><span class="line">        try (FileInputStream fis = new FileInputStream(file);</span><br><span class="line">             ObjectInputStream ois = new ObjectInputStream(fis)) &#123;</span><br><span class="line">            Dog dog = (Dog) ois.readObject();</span><br><span class="line">            System.out.println(dog.getType() + &quot;===&quot; + dog.getName() + &quot;===&quot; + dog.getAge());</span><br><span class="line">        &#125; catch (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; catch (ClassNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>&emsp;    &emsp;    以看到，与序列化过程基本相似，只是ObjectOutputStream换成了ObjectInputStream,writeObject换成了readObject,类型强转程了需要的java 对象，这样就将之前的二进制数据还原成了对应的java对象。</p>
+<p>&emsp;    &emsp;    还是上面的图来说明下过程：<br><img src="/2018/08/29/java基础之序列化/4.png" alt="数据类型示意图"></p>
+<h1 id="序列化中的注意细节"><a href="#序列化中的注意细节" class="headerlink" title="序列化中的注意细节"></a>序列化中的注意细节</h1><h2 id="serialVersionUID"><a href="#serialVersionUID" class="headerlink" title="serialVersionUID"></a>serialVersionUID</h2><p>通过上面的两个例子，我们已经大概了解序列化和反序列化的过程，还有些细节需要我们注意，还是上面的dog对象，我们增加一个成员变量：</p>
+<blockquote>
+<p>public int height;</p>
+</blockquote>
+<p>再重新执行一下刚刚的反序列化的代码，是不是觉得很奇怪，这个两者有什么联系么？我们运行下代码：<br><img src="/2018/08/29/java基础之序列化/5.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    是不是运行出错了,看它的报错提示我们可以知道有两个id不同导致了报错，这个id是干什么的呢？</p>
+<p>&emsp;    &emsp;    这里面涉及到一个概念叫序列id（serialVersionUID），这个jvm在序列化操作文件时用来判断的一个变量，一般来说同一个class文件在不同情况编译的出来的serialVersionUID都是不同的，这就会导致了上面的那个情况，所以我们在声明一个java类是可序列化的时候，同时会定义一个静态常量serialVersionUID，idea可以对class生成对应的serialVersionUID，或者直接加上：</p>
+<blockquote>
+<p>public  static final long serialVersionUID = 1L;</p>
+</blockquote>
+<p>*多个class可以用同一个serialVersionUID，并不影响判断。</p>
+<p>我们在Dog类中加上serialVersionUID，重新执行反序列化过程，可以正常执行。</p>
+<h2 id="transient"><a href="#transient" class="headerlink" title="transient"></a>transient</h2><p> &emsp;    &emsp;    一个可序列化的java对象，有些时候，我们并不想暴露所有的成员变量，只需要在对应的变量前加上transient关键字，那么这个变量就不会被被序列化了，在反序列化的时候也就只能获取对应类型的默认值了。</p>
+<p>&emsp;    &emsp;    我们将Dog类中的年龄字段隐藏：</p>
+<blockquote>
+<p>public transient int age;</p>
+</blockquote>
+<p>重新执行下反序列化过程，看下运行结果有没有不同：<br><img src="/2018/08/29/java基础之序列化/6.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    可以看到，我们虽然反序列化了对象，但是并没有拿到隐藏的字段的值。</p>
+<h1 id="序列化思考"><a href="#序列化思考" class="headerlink" title="序列化思考"></a>序列化思考</h1><ol>
+<li><p>子类没有实现序列化接口，基类实现，子类可以序列化么？</p>
+</li>
+<li><p>子类实现序列化接口，基类没有实现，子类可以序列化么？</p>
+</li>
+<li><p>内部类实现序列化接口，外部类没有实现，内部类可以序列化么？</p>
+</li>
+</ol>
+<p>&emsp;    &emsp;    废话不多说，直接上代码来一个个测试下：</p>
+<h2 id="情况1"><a href="#情况1" class="headerlink" title="情况1"></a>情况1</h2><p><strong>子类：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.serialzable;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author liu.jiawei</span><br><span class="line"> * @create 2018-08-29 23:35</span><br><span class="line"> **/</span><br><span class="line">public class Man extends Person&#123;</span><br><span class="line"> </span><br><span class="line">    public String name;</span><br><span class="line"> </span><br><span class="line">    public Man(String sex) &#123;</span><br><span class="line">        super(sex);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public String getName() &#123;</span><br><span class="line">        return name;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setName(String name) &#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>基类：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.serialzable;</span><br><span class="line"> </span><br><span class="line">import java.io.Serializable;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author liu.jiawei</span><br><span class="line"> * @create 2018-08-29 23:34</span><br><span class="line"> **/</span><br><span class="line">public class Person implements Serializable &#123;</span><br><span class="line">    public String sex;</span><br><span class="line"> </span><br><span class="line">    public Person(String sex) &#123;</span><br><span class="line">        this.sex = sex;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>序列化：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.serialzable;</span><br><span class="line"> </span><br><span class="line">import java.io.FileNotFoundException;</span><br><span class="line">import java.io.FileOutputStream;</span><br><span class="line">import java.io.IOException;</span><br><span class="line">import java.io.ObjectOutputStream;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author liu.jiawei</span><br><span class="line"> * @create 2018-08-29 23:36</span><br><span class="line"> **/</span><br><span class="line">public class TestSerializeMan &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(&quot;man.txt&quot;))) &#123;</span><br><span class="line">            oos.writeObject(new Man(&quot;man&quot;));</span><br><span class="line">        &#125; catch (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>运行结果：</strong><br><img src="/2018/08/29/java基础之序列化/7.png" alt="数据类型示意图"></p>
+<p><strong>结论：可以</strong></p>
+<h2 id="情况2"><a href="#情况2" class="headerlink" title="情况2"></a>情况2</h2><p><strong>子类：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.serialzable;</span><br><span class="line"> </span><br><span class="line">import java.io.Serializable;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author liu.jiawei</span><br><span class="line"> * @create 2018-08-29 23:39</span><br><span class="line"> **/</span><br><span class="line">public class Cat extends Animal implements Serializable&#123;</span><br><span class="line"> </span><br><span class="line">    public String name;</span><br><span class="line"> </span><br><span class="line">    public String getName() &#123;</span><br><span class="line">        return name;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setName(String name) &#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public Cat(String type) &#123;</span><br><span class="line">        super(type);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public Cat(String type, String name) &#123;</span><br><span class="line">        super(type);</span><br><span class="line">        this.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>基类：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.serialzable;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author liu.jiawei</span><br><span class="line"> * @create 2018-08-29 23:39</span><br><span class="line"> **/</span><br><span class="line">public class Animal &#123;</span><br><span class="line">    public String type;</span><br><span class="line"> </span><br><span class="line">    public Animal(String type) &#123;</span><br><span class="line">        this.type = type;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>序列化：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.serialzable;</span><br><span class="line"> </span><br><span class="line">import java.io.FileNotFoundException;</span><br><span class="line">import java.io.FileOutputStream;</span><br><span class="line">import java.io.IOException;</span><br><span class="line">import java.io.ObjectOutputStream;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author liu.jiawei</span><br><span class="line"> * @create 2018-08-29 23:40</span><br><span class="line"> **/</span><br><span class="line">public class TestSerializeCat &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(&quot;cat.txt&quot;))) &#123;</span><br><span class="line">            oos.writeObject(new Cat(&quot;波斯猫&quot;));</span><br><span class="line">        &#125; catch (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>运行结果：</strong><br><img src="/2018/08/29/java基础之序列化/8.png" alt="数据类型示意图"></p>
+<p><strong>结论：可以</strong></p>
+<h2 id="情况3"><a href="#情况3" class="headerlink" title="情况3"></a>情况3</h2><p><strong>包含内部类的外部类：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.serialzable;</span><br><span class="line"> </span><br><span class="line">import com.ljw.ColleactionAndMap.T;</span><br><span class="line"> </span><br><span class="line">import java.io.*;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author liu.jiawei</span><br><span class="line"> * @create 2018-08-29 23:43</span><br><span class="line"> **/</span><br><span class="line">public class TestInnerClass &#123;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    class Dog implements Serializable&#123;</span><br><span class="line">        public String name;</span><br><span class="line"> </span><br><span class="line">        public String getName() &#123;</span><br><span class="line">            return name;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        public void setName(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        public Dog(String name) &#123;</span><br><span class="line">            this.name = name;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(&quot;ddd.txt&quot;))) &#123;</span><br><span class="line">            TestInnerClass testInnerClass = new TestInnerClass();</span><br><span class="line">            TestInnerClass.Dog dog = testInnerClass.new Dog(&quot;旺财&quot;);</span><br><span class="line">            oos.writeObject(dog);</span><br><span class="line">        &#125; catch (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>运行结果：</strong><br><img src="/2018/08/29/java基础之序列化/9.png" alt="数据类型示意图"></p>
+<p><strong>结论：不可以，外部类也必须实现序列化接口。</strong></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/07/java基础之注解/" rel="next" title="java基础之注解">
+                <i class="fa fa-chevron-left"></i> java基础之注解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/01/java-IO-之-InputStream/" rel="prev" title="java IO 之 InputStream">
+                java IO 之 InputStream <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是序列化-反序列化"><span class="nav-number">1.</span> <span class="nav-text">什么是序列化/反序列化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#怎么让对象序列化-反序列化"><span class="nav-number">2.</span> <span class="nav-text">怎么让对象序列化/反序列化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#序列化中的注意细节"><span class="nav-number">3.</span> <span class="nav-text">序列化中的注意细节</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#serialVersionUID"><span class="nav-number">3.1.</span> <span class="nav-text">serialVersionUID</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#transient"><span class="nav-number">3.2.</span> <span class="nav-text">transient</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#序列化思考"><span class="nav-number">4.</span> <span class="nav-text">序列化思考</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#情况1"><span class="nav-number">4.1.</span> <span class="nav-text">情况1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#情况2"><span class="nav-number">4.2.</span> <span class="nav-text">情况2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#情况3"><span class="nav-number">4.3.</span> <span class="nav-text">情况3</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
