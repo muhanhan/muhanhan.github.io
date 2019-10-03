@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;    在我们日常的开发过程中，会经常遇到注解，比如重写方法时的@Override,使用springmvc中用到的@Controller,@Autherwide,@RequestMapping等等，注解在代码中就好像一个标签，通过这个标签我们或者编译器可以获取制定的信息，也可以通过这个注解来实现特定的功能。 认识注解java预置注解（jdk7）&amp;emsp;    &amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java基础之注解">
+<meta property="og:url" content="http://yoursite.com/2018/08/07/java基础之注解/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;    在我们日常的开发过程中，会经常遇到注解，比如重写方法时的@Override,使用springmvc中用到的@Controller,@Autherwide,@RequestMapping等等，注解在代码中就好像一个标签，通过这个标签我们或者编译器可以获取制定的信息，也可以通过这个注解来实现特定的功能。 认识注解java预置注解（jdk7）&amp;emsp;    &amp;">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/08/07/java基础之注解/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/07/java基础之注解/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/07/java基础之注解/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/07/java基础之注解/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/07/java基础之注解/5.png">
+<meta property="og:image" content="http://yoursite.com/2018/08/07/java基础之注解/6.png">
+<meta property="og:updated_time" content="2019-10-03T09:16:48.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java基础之注解">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    在我们日常的开发过程中，会经常遇到注解，比如重写方法时的@Override,使用springmvc中用到的@Controller,@Autherwide,@RequestMapping等等，注解在代码中就好像一个标签，通过这个标签我们或者编译器可以获取制定的信息，也可以通过这个注解来实现特定的功能。 认识注解java预置注解（jdk7）&amp;emsp;    &amp;">
+<meta name="twitter:image" content="http://yoursite.com/2018/08/07/java基础之注解/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/08/07/java基础之注解/">
+
+
+
+
+
+  <title>java基础之注解 | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/07/java基础之注解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java基础之注解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-07T23:08:24+08:00">
+                2018-08-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;    在我们日常的开发过程中，会经常遇到注解，比如重写方法时的@Override,使用springmvc中用到的@Controller,@Autherwide,@RequestMapping等等，注解在代码中就好像一个标签，通过这个标签我们或者编译器可以获取制定的信息，也可以通过这个注解来实现特定的功能。</p>
+<h1 id="认识注解"><a href="#认识注解" class="headerlink" title="认识注解"></a>认识注解</h1><h2 id="java预置注解（jdk7）"><a href="#java预置注解（jdk7）" class="headerlink" title="java预置注解（jdk7）"></a>java预置注解（jdk7）</h2><p>&emsp;    &emsp;    java提供了几个内置的注解：</p>
+<h3 id="Deprecated"><a href="#Deprecated" class="headerlink" title="@Deprecated"></a>@Deprecated</h3><p>使用这个注解修饰的方法表示这个方法已过时，不建议被使用，在被调用时，编译器会在这个方法上加上横线以区分：<br><img src="/2018/08/07/java基础之注解/1.png" alt="数据类型示意图"></p>
+<h3 id="SuppressWarnings"><a href="#SuppressWarnings" class="headerlink" title="@SuppressWarnings"></a>@SuppressWarnings</h3><p>SuppressWarnings这个注解可以用于屏蔽编译器的一些提示，比如用Deprecated修饰的方法在使用的时候不希望看到编译器给出的横线的提示，就可以通过</p>
+<p>@SuppressWarnings(“deprecation”)或者@SuppressWarnings(value = “deprecation”)来屏蔽：<br><img src="/2018/08/07/java基础之注解/2.png" alt="数据类型示意图"></p>
+<h3 id="Override"><a href="#Override" class="headerlink" title="@Override"></a>@Override</h3><p>重写方法，一般继承父类 重写父类的方法时会使用到。</p>
+<h3 id="SafeVarags-堆污染"><a href="#SafeVarags-堆污染" class="headerlink" title="@SafeVarags 堆污染"></a>@SafeVarags 堆污染</h3><p>&emsp;    &emsp;    @SafeVarags是jdk7以后增加的一个注解，用来标记堆污染的情况，所谓的堆污染就是将一个不带范型的对象赋给了一个带范型的对象。我们看一个具体的实例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public static void faultyMethod (List&lt;String&gt;... listStrArray)&#123;</span><br><span class="line">    List[] listArray = listStrArray;</span><br><span class="line">    List&lt;Integer&gt; myList = new ArrayList&lt;Integer&gt;() ;</span><br><span class="line">    myList.add(100) ;</span><br><span class="line">    listArray[0] = myList;</span><br><span class="line">    String s = listStrArray[0].get(0) ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面这段代码在语义上有错误，但是编译上又可以通过，只有在运行的时候才会提示一场，但其实在给listArray赋值的时候就已经发生了堆污染，在jdk7的语法检查中，对这种情况编译器会给出提示：<br><img src="/2018/08/07/java基础之注解/3.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    要想消除这个提示，主要有两个方法：</p>
+<ol>
+<li>通过@SuppressWarnings(“unchecked”)</li>
+<li>通过@SafeVarags</li>
+</ol>
+<h2 id="元注解"><a href="#元注解" class="headerlink" title="元注解"></a>元注解</h2><p>如果点进上面的几个注解查看源代码，可以发现在这个注解中还使用到了其他注解，这些用来声明注解时使用的注解被称作元注解。</p>
+<p>java目前共有四个元注解：</p>
+<h3 id="Target"><a href="#Target" class="headerlink" title="@Target"></a>@Target</h3><p>用于指定该注解使用的位置，是在包上，还是方法上</p>
+<h3 id="Retention"><a href="#Retention" class="headerlink" title="@Retention"></a>@Retention</h3><p>用于指定注解生效的作用域，源码/编译／运行时</p>
+<h3 id="Inherited"><a href="#Inherited" class="headerlink" title="@Inherited"></a>@Inherited</h3><p>该注解可被子类继承</p>
+<h3 id="Documented"><a href="#Documented" class="headerlink" title="@Documented"></a>@Documented</h3><p>可以被javadoc工具编译成api</p>
+<h1 id="注解的组成"><a href="#注解的组成" class="headerlink" title="注解的组成"></a>注解的组成</h1><p>我们看几个java中注解的源码：<br><img src="/2018/08/07/java基础之注解/4.png" alt="数据类型示意图"><br><img src="/2018/08/07/java基础之注解/5.png" alt="数据类型示意图"></p>
+<h2 id="Retention的枚举值："><a href="#Retention的枚举值：" class="headerlink" title="Retention的枚举值："></a><strong>Retention的枚举值：</strong></h2><ul>
+<li>RetentionPolicy.SOURCE:该注解保留在源码阶段，编译时就会被丢弃，不会加载到jvm中；</li>
+<li>RetentionPolicy.CLASS：该注解保留到编译时，但是不会加载到jvm中；</li>
+<li>RetentionPolicy.RUNTIME：该注解保留到运行状态，加载至jvm中；</li>
+</ul>
+<h2 id="Target的枚举值："><a href="#Target的枚举值：" class="headerlink" title="Target的枚举值："></a>Target的枚举值：</h2><p>ElementType.TYPE:可以作用在类型上，如类，接口，枚举</p>
+<ul>
+<li>ElementType.FIELD：可以作用在成员变量上</li>
+<li>ElementType.METHOD：可以作用在方法上</li>
+<li>ElementType.PARAMETER：可以作用在参数上</li>
+<li>ElementType.CONSTRUCTOR：可以作用在构造器上</li>
+<li>ElementType.LOCAL_VARIABLE：可以作用在局部变量上</li>
+<li>ElementType.ANNOTATION_TYPE：可以作用在注解上</li>
+<li>ElementType.PACKAGE：可以作用在包上</li>
+</ul>
+<h2 id="注解的内容："><a href="#注解的内容：" class="headerlink" title="注解的内容："></a>注解的内容：</h2><p>&emsp;    &emsp;    注解中内容只有成员变量没有方法，而且成员是以无参无异常的形式存在的，成员变量的类型只能是基本数据类型、类、接口和枚举。</p>
+<p>通过default 默认值 可以设置默认值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">@Target(ElementType.METHOD)</span><br><span class="line">public @interface MyAnnotation &#123;</span><br><span class="line">    int id() default 1;</span><br><span class="line">    String name() default &quot;&quot;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    *如果注解中只有一个变量，那么可以将名称设置为value，这样在使用这个注解时可以通过@AnnotationName(“”)的形式设置值而不需要@AnnotationName(value = “”)。</p>
+<p>&emsp;    &emsp;    没有内容的注解也被叫做标识注解。</p>
+<p>&emsp;    &emsp;    如果注解有成员变量，那么在使用时这样赋值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@MyAnnotation(id=1,name = &quot;jack&quot;)</span><br><span class="line">public void test()&#123;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="自定义注解的使用"><a href="#自定义注解的使用" class="headerlink" title="自定义注解的使用"></a>自定义注解的使用</h1><p>&emsp;    &emsp;    在上面我们了解了jdk预置注解的功能，注解的组成，也自定义了注解，但是却并不知道注解是怎样何时发挥作用，我们用一个例子来看下自定义注解的声明及使用：</p>
+<p>&emsp;    &emsp;    我们自定义一个Test注解，作用在方法上，在运行时有效，通过这个注解希望可以判断方法中是否有异常抛出：</p>
+<p>TestAnnotation:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.Annotation;</span><br><span class="line"> </span><br><span class="line">import java.lang.annotation.ElementType;</span><br><span class="line">import java.lang.annotation.Retention;</span><br><span class="line">import java.lang.annotation.RetentionPolicy;</span><br><span class="line">import java.lang.annotation.Target;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/8/7.</span><br><span class="line"> */</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * 检查方法执行是否有异常</span><br><span class="line"> */</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">@Target(ElementType.METHOD)</span><br><span class="line">public @interface Test &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.Annotation;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/8/7.</span><br><span class="line"> */</span><br><span class="line"> </span><br><span class="line">public class TestAnnotationClass &#123;</span><br><span class="line"> </span><br><span class="line">    @Test</span><br><span class="line">    public void getCount()&#123;</span><br><span class="line">        System.out.println(1 / 0);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    这个时候我们就碰到了上面的问题，在什么时候什么地方来解析注解，通过什么方式进行解析？</p>
+<p>&emsp;    &emsp;    答案就是反射,我们通过反射来实现注解解析，比如上面的注解作用在方法上，那么就通过反射获取类中的所有的方法，检查是否使用了@Test,然后执行方法看是否有异常输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">	package com.ljw.Annotation;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/8/7.</span><br><span class="line"> */</span><br><span class="line"> </span><br><span class="line">import java.lang.reflect.Method;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * use reflect to scan target class and test method with @Test</span><br><span class="line"> */</span><br><span class="line"> </span><br><span class="line">public class TestUtil &#123;</span><br><span class="line"> </span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line"> </span><br><span class="line">        TestAnnotationClass target = new TestAnnotationClass();</span><br><span class="line"> </span><br><span class="line">        Class clazz = TestAnnotationClass.class;</span><br><span class="line"> </span><br><span class="line">        for (Method m : clazz.getMethods()) &#123;</span><br><span class="line">            if (m.isAnnotationPresent(Test.class)) &#123;</span><br><span class="line">                m.setAccessible(true);</span><br><span class="line">                try &#123;</span><br><span class="line">                    m.invoke(target);</span><br><span class="line">                &#125; catch (Exception e) &#123;</span><br><span class="line">                    System.out.println(m.getName() + &quot;method throw exception : &quot; + e.getCause().getMessage());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br><img src="/2018/08/07/java基础之注解/6.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    可以看到，输出了方法有除数为0的异常。</p>
+<p>&emsp;    &emsp;    框架和反射是紧密结合的，通过反射才能实现对注解的解析。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/06/java基础之反射/" rel="next" title="java基础之反射">
+                <i class="fa fa-chevron-left"></i> java基础之反射
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/12/12/设计模式之策略模式/" rel="prev" title="设计模式之策略模式">
+                设计模式之策略模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#认识注解"><span class="nav-number">1.</span> <span class="nav-text">认识注解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#java预置注解（jdk7）"><span class="nav-number">1.1.</span> <span class="nav-text">java预置注解（jdk7）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Deprecated"><span class="nav-number">1.1.1.</span> <span class="nav-text">@Deprecated</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SuppressWarnings"><span class="nav-number">1.1.2.</span> <span class="nav-text">@SuppressWarnings</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Override"><span class="nav-number">1.1.3.</span> <span class="nav-text">@Override</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SafeVarags-堆污染"><span class="nav-number">1.1.4.</span> <span class="nav-text">@SafeVarags 堆污染</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#元注解"><span class="nav-number">1.2.</span> <span class="nav-text">元注解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Target"><span class="nav-number">1.2.1.</span> <span class="nav-text">@Target</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Retention"><span class="nav-number">1.2.2.</span> <span class="nav-text">@Retention</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inherited"><span class="nav-number">1.2.3.</span> <span class="nav-text">@Inherited</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Documented"><span class="nav-number">1.2.4.</span> <span class="nav-text">@Documented</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#注解的组成"><span class="nav-number">2.</span> <span class="nav-text">注解的组成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Retention的枚举值："><span class="nav-number">2.1.</span> <span class="nav-text">Retention的枚举值：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Target的枚举值："><span class="nav-number">2.2.</span> <span class="nav-text">Target的枚举值：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注解的内容："><span class="nav-number">2.3.</span> <span class="nav-text">注解的内容：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#自定义注解的使用"><span class="nav-number">3.</span> <span class="nav-text">自定义注解的使用</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
