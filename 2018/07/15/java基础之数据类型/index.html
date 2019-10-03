@@ -99,7 +99,7 @@
 <meta property="og:image" content="http://yoursite.com/2018/07/15/java基础之数据类型/11.png">
 <meta property="og:image" content="http://yoursite.com/2018/07/15/java基础之数据类型/12.png">
 <meta property="og:image" content="http://yoursite.com/2018/07/15/java基础之数据类型/13.png">
-<meta property="og:updated_time" content="2019-10-03T02:56:44.000Z">
+<meta property="og:updated_time" content="2019-10-03T07:46:09.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java基础之数据类型">
 <meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    java中有两种数据类型：基本数据类型和引用数据类型。我们用一张图简单概括下，有一个直观的印象:&amp;emsp;    &amp;emsp;    下面具体介绍八大数据类型。 整型（定点数）：byte:1个字节大小，占用内存8位，大小范围是-2^72^7-1；short:2个字节大小，占用内存16位,大小范围是-2^152^15-1；int:4个字节大小，占用内存32位">
@@ -375,7 +375,12 @@
 <p>也就是2^7，但是这个负数，所以其实是-2^7,也就是-128</p>
 <p>所以byte的取值范围是-2^7~2^7-1.<br>其他类型同理，这里不做分析。</p>
 <p>int是平时使用最多的整型，通常给出的整数也会默认是int类型，但是有以下两种情况需要注意：<br>1.如果把较小的整数（在byte或者short范围内）赋给一个byte或者short，系统会自动把这个数据当成byte或者short处理；<br>2.如果把一个超过int范围的数据赋给long，系统不会自动处理，需要自己在数据最后加上L,用来表明他的数据类型。</p>
-<h1 id="字符型："><a href="#字符型：" class="headerlink" title="字符型："></a>字符型：</h1><p>字符型数据占两个字节的大小。<br>字符型数据用来表示单个的字符，使用单引号’’来表示。<br>字符型数据一般有三种表示形式：<br>（1）使用‘a’这种形式；<br>（2）使用转义字符‘\n’这种；<br>（3）使用Unicode字符集表示‘\uXXXX’,XXXX是一个十六进制的数；</p>
+<h1 id="字符型："><a href="#字符型：" class="headerlink" title="字符型："></a>字符型：</h1><p>字符型数据占两个字节的大小。<br>字符型数据用来表示单个的字符，使用单引号’’来表示。<br>字符型数据一般有三种表示形式：</p>
+<ol>
+<li>使用‘a’这种形式；</li>
+<li>使用转义字符‘\n’这种；</li>
+<li>使用Unicode字符集表示‘\uXXXX’,XXXX是一个十六进制的数；</li>
+</ol>
 <p>附上常用转义字符：<br><img src="/2018/07/15/java基础之数据类型/6.png" alt="数据类型示意图"></p>
 <p>&emsp;    &emsp;    计算机存储char类似的数据时，实际上也是储存的编码值，也就是0～65335之间的一个整数值，所以char类型的数据可以参与整数类型之间的计算。</p>
 <h1 id="浮点型："><a href="#浮点型：" class="headerlink" title="浮点型："></a>浮点型：</h1><p>浮点型数据可以分为单精度float类型和双精度double类型数据。<br><strong>float</strong>占4个字节，也就是32位；<br><strong>double</strong>占8个字节，也就是64位。<br>但是浮点数区别于定点数，并不是除了标志位以后都可以填充数据，对于float来说，它虽然占用了32位，但是这32位是这样分配的:<br><img src="/2018/07/15/java基础之数据类型/7.png" alt="数据类型示意图"></p>
@@ -408,7 +413,12 @@
 <p>&emsp;    &emsp;    int类型占内存的32位，所以128在内存中是这样表示的：<br><img src="/2018/07/15/java基础之数据类型/12.png" alt="数据类型示意图"></p>
 <p>&emsp;    &emsp;    而byte只占内存的8位，所以128赋给byte以后，byte变成了这样：<br><img src="/2018/07/15/java基础之数据类型/13.png" alt="数据类型示意图"></p>
 <p>最高位是1，代表负数，上面说过计算机用补码的形式存在的，负数则是反码+1，所以我们先减1，得到：01111111，再取反得到10000000，也就是128，因为标志位为1，是负数，所以得到-128。</p>
-<h2 id="表达类类型的自动提升："><a href="#表达类类型的自动提升：" class="headerlink" title="表达类类型的自动提升："></a>表达类类型的自动提升：</h2><p>当一个算数表达式中包含多个数据类型的时候，整个表达式的数据类型会被自动提升，java有以下的规则：<br>（1）byte,short和char都会被自动提升为int类型；<br>（2）整个算数表达式的类型会自动提升到当前最高等级的类型；<br>*当有字符串参与表达式的时候，与字符串相连的会被转为字符串类型。</p>
+<h2 id="表达类类型的自动提升："><a href="#表达类类型的自动提升：" class="headerlink" title="表达类类型的自动提升："></a>表达类类型的自动提升：</h2><p>当一个算数表达式中包含多个数据类型的时候，整个表达式的数据类型会被自动提升，java有以下的规则：</p>
+<ol>
+<li>byte,short和char都会被自动提升为int类型；</li>
+<li>整个算数表达式的类型会自动提升到当前最高等级的类型；</li>
+</ol>
+<p>*当有字符串参与表达式的时候，与字符串相连的会被转为字符串类型。</p>
 
       
     </div>

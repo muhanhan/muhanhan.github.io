@@ -79,14 +79,19 @@
 
 
 
+<meta name="description" content="&amp;emsp;    &amp;emsp;    我们知道成员变量根据是否使用static修饰符修饰分为类变量和实例变量。Java的异常处理机制可以让程序有更好的容错性，提高程序的健壮性。在程序运行出现意外情况时，系统通过生成Exception对象来通知程序。将业务功能代码和错误处理代码分离，提高可读性。 java异常继承体系&amp;emsp;    &amp;emsp;    Java将程序中的意外情况分为两种：Err">
 <meta property="og:type" content="article">
 <meta property="og:title" content="java基础之异常处理机制">
 <meta property="og:url" content="http://yoursite.com/2019/10/02/java基础之异常处理机制/index.html">
 <meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;    我们知道成员变量根据是否使用static修饰符修饰分为类变量和实例变量。Java的异常处理机制可以让程序有更好的容错性，提高程序的健壮性。在程序运行出现意外情况时，系统通过生成Exception对象来通知程序。将业务功能代码和错误处理代码分离，提高可读性。 java异常继承体系&amp;emsp;    &amp;emsp;    Java将程序中的意外情况分为两种：Err">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-02T01:37:18.000Z">
+<meta property="og:image" content="http://yoursite.com/2019/10/02/java基础之异常处理机制/1.png">
+<meta property="og:updated_time" content="2019-10-03T07:45:59.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java基础之异常处理机制">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    我们知道成员变量根据是否使用static修饰符修饰分为类变量和实例变量。Java的异常处理机制可以让程序有更好的容错性，提高程序的健壮性。在程序运行出现意外情况时，系统通过生成Exception对象来通知程序。将业务功能代码和错误处理代码分离，提高可读性。 java异常继承体系&amp;emsp;    &amp;emsp;    Java将程序中的意外情况分为两种：Err">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/02/java基础之异常处理机制/1.png">
 
 
 
@@ -299,6 +304,28 @@
           </span>
 
           
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -326,7 +353,54 @@
       
 
       
-        
+        <p>&emsp;    &emsp;    我们知道成员变量根据是否使用static修饰符修饰分为类变量和实例变量。Java的异常处理机制可以让程序有更好的容错性，提高程序的健壮性。在程序运行出现意外情况时，系统通过生成Exception对象来通知程序。将业务功能代码和错误处理代码分离，提高可读性。</p>
+<h1 id="java异常继承体系"><a href="#java异常继承体系" class="headerlink" title="java异常继承体系"></a>java异常继承体系</h1><p>&emsp;    &emsp;    Java将程序中的意外情况分为两种：Error(错误)和Exception(异常)，都继承自父类Throwable.</p>
+<p>&emsp;    &emsp;    Error一般都是与虚拟机相关，如虚拟机错误，系统崩溃，IOError等，不需要开发人员进行处理。</p>
+<p>&emsp;    &emsp;    Exception又可以分为编译时异常(CheckedException)和运行时异常(RuntimeException)，编译时异常是在编译过程就可以被发现的问题，需要开发人员解决这类异常以后才能继续开发，而运行时异常则是程序运行过程中才会被发现的问题，所以运行时异常也被称为UnCheckedException,常见的RuntimeException有IndexOutOfBoundsException,NullPointerExceptiond等。用一张图简单概括下：<br><img src="/2019/10/02/java基础之异常处理机制/1.png" alt="数据类型示意图"></p>
+<h1 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h1><p>&emsp;    &emsp;    对于编译时异常，需要开发人员在代码中进行解决，一般有两种处理方式，第一种使用try{}catch(){}finally{}代码块组合来捕获异常，第二种通过throws关键字将异常抛出交由调用者处理或者交给jvm进行处理。</p>
+<ol>
+<li><strong>try catch finally代码块</strong><br>&emsp;    &emsp;    对于那些编译时可能会发生的异常，可以使用如下形式进行处理：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">try&#123;</span><br><span class="line">    //操作</span><br><span class="line">&#125;</span><br><span class="line">catch (IndexOutOfBoundsException e)&#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">    System.out.println(e.getMessage());</span><br><span class="line">&#125;catch (Exception e)&#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">    System.out.println(e.getMessage());</span><br><span class="line">&#125;</span><br><span class="line">finally &#123;</span><br><span class="line">    //结束操作 如释放连接 关闭资源等</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p><strong>有几个注意点：</strong></p>
+<ol>
+<li>catch可以跟多个异常，每次都只会走其中一个catch分支，当走了其中一个catch分支以后，后面的分支都不会再走，所以需要按照小异常-》大异常的顺序来写；</li>
+<li>finally代码块中的代码一定会被执行，除非在try{}后者catch(){}中调用System.exit()退出了虚拟机，通常在finally会处理之前的资源对象，比如打开连接，因为异常没有正常关闭，在finally可以统一进行处理。</li>
+</ol>
+<h2 id="jdk7以后的try（）"><a href="#jdk7以后的try（）" class="headerlink" title="jdk7以后的try（）"></a>jdk7以后的try（）</h2><p>&emsp;    &emsp;    jdk7以后，对很多类进行了改写，实现了AutoCloseable接口，不再需要自己手动对资源进行操作，包括try{}代码块也做了修改，可以在后面接一下圆括号，将资源在这里面声明，如果finally代码块的操作只是处理这种资源，那么就可以省略不写了。举个例子：</p>
+<p>&emsp;    &emsp;    用jdbc获取数据库连接：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Connection conn = null;</span><br><span class="line">try &#123;</span><br><span class="line">    conn = DriverManager.getConnection(&quot;&quot;);</span><br><span class="line">&#125; catch (SQLException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;</span><br><span class="line">finally &#123;</span><br><span class="line">    if(conn != null)&#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            conn.close();</span><br><span class="line">        &#125; catch (SQLException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面这段代码就是之前正常处理的一个逻辑，获取连接，最后关闭连接，我们再来看下jdk7以后的写法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">try(Connection conn = DriverManager.getConnection(&quot;&quot;))&#123;</span><br><span class="line">        // 操作</span><br><span class="line">&#125; catch (SQLException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    将需要关闭的资源放在try后面的圆括号中进行处理，这样的资源类只要实现了AutoCloseable接口，就可以自己关闭，不需要手动控制了。</p>
+<p>*同样的，jdk7以后catch中支持通过|符号连接多个异常。</p>
+<ol start="2">
+<li><strong>throws</strong><br>&emsp;    &emsp;    除了通过try{}catch(){}finally{}对异常进行捕获处理以外，java还可以通过throws关键字增加方法签名的方式对异常进行抛出处理，抛出的异常可以由调用者捕获来进行处理，也可以选择继续抛出，交给jvm进行处理。</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public void getConnection() throws SQLException &#123;</span><br><span class="line">    Connection connection = DriverManager.getConnection(&quot;&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<ol start="3">
+<li><strong>通过throw主动抛出异常</strong></li>
+</ol>
+<p>&emsp;    &emsp;    根据不同业务的需求，有时候代码看起来没有问题，只是不符合我们实际的需求，这种情况需要抛出异常时就需要通过throw关键字来实现了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">	</span><br><span class="line">int[] a = &#123;1,2,3,4&#125;;</span><br><span class="line"> </span><br><span class="line">try&#123;</span><br><span class="line">    a[1] = 3;</span><br><span class="line">    throw new IndexOutOfBoundsException();</span><br><span class="line">&#125;catch (IndexOutOfBoundsException e)&#123;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    举个简单的例子，往数组中添加数据，因为有可能会发生数组下标越界的情况，尽管编译器没有提示异常，我们还是可以主动抛出这个异常。</p>
+<p>&emsp;    &emsp;    需要注意的是如果抛出的异常是编译时异常，那么需要对抛出的异常进行处理，如果抛出的异常时运行时异常，那么不需要处理。</p>
+<h1 id="自定义异常"><a href="#自定义异常" class="headerlink" title="自定义异常"></a>自定义异常</h1><p>&emsp;    &emsp;    除了那些已经提供的异常以外，java还支持自定义异常，通过只需要继承Exception类就可以了。</p>
+<p>&emsp;    &emsp;    举个简单的场景，通过用户输入的年龄来做判断，大于200岁的逻辑上就判断这个是非法的，我们用自定义异常实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">	package com.ljw.Exception;</span><br><span class="line"> </span><br><span class="line">import java.security.spec.ECFieldF2m;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/24.</span><br><span class="line"> */</span><br><span class="line">public class IllegalAgeException extends Exception&#123;</span><br><span class="line">    public IllegalAgeException() &#123;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public IllegalAgeException(String message) &#123;</span><br><span class="line">        super(message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>自定义异常必须直接或间接继承Exception，如果想自定义一个运行时异常，那就继承RuntimeException,一般都是直接继承Exception, 然后实现基本的构造函数即可，使用的时候和其他异常也没有区别：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[] args) throws IllegalAgeException &#123;</span><br><span class="line"> </span><br><span class="line">    int age = 200;</span><br><span class="line">    </span><br><span class="line">    if(age &gt;= 200)&#123;</span><br><span class="line">        throw new IllegalAgeException(&quot;年龄不符合要求&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    使用时使用throw直接抛出即可。</p>
+<p>&emsp;    &emsp;    在实际的使用用，还有一个异常链的概念，使用到了责任链的设计模式，会在设计模式中具体介绍。</p>
+
       
     </div>
     
@@ -414,8 +488,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -466,6 +549,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#java异常继承体系"><span class="nav-number">1.</span> <span class="nav-text">java异常继承体系</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异常处理"><span class="nav-number">2.</span> <span class="nav-text">异常处理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#jdk7以后的try（）"><span class="nav-number">2.1.</span> <span class="nav-text">jdk7以后的try（）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#自定义异常"><span class="nav-number">3.</span> <span class="nav-text">自定义异常</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       

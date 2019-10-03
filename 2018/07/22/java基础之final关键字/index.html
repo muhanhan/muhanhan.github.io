@@ -87,7 +87,7 @@
 <meta property="og:description" content="&amp;emsp;    &amp;emsp;    final是java中常见的关键字之一，从字面意思来看，使用final修饰的内容通常都是确定好的内容，不需要再改变值。我们从final可以修饰的对象来了解final。 final修饰变量&amp;emsp;    &amp;emsp;    final可以修饰成员变量和局部变量，但是两者用法有一些细微区别。 final修饰成员变量&amp;emsp;    &amp;emsp;    我们">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/07/22/java基础之final关键字/1.png">
-<meta property="og:updated_time" content="2019-10-03T07:15:46.000Z">
+<meta property="og:updated_time" content="2019-10-03T07:46:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java基础之final关键字">
 <meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    final是java中常见的关键字之一，从字面意思来看，使用final修饰的内容通常都是确定好的内容，不需要再改变值。我们从final可以修饰的对象来了解final。 final修饰变量&amp;emsp;    &amp;emsp;    final可以修饰成员变量和局部变量，但是两者用法有一些细微区别。 final修饰成员变量&amp;emsp;    &amp;emsp;    我们">
@@ -357,17 +357,34 @@
 <h1 id="final修饰变量"><a href="#final修饰变量" class="headerlink" title="final修饰变量"></a>final修饰变量</h1><p>&emsp;    &emsp;    final可以修饰成员变量和局部变量，但是两者用法有一些细微区别。</p>
 <h2 id="final修饰成员变量"><a href="#final修饰成员变量" class="headerlink" title="final修饰成员变量"></a>final修饰成员变量</h2><p>&emsp;    &emsp;    我们知道成员变量根据是否使用static修饰符修饰分为类变量和实例变量。</p>
 <p>&emsp;    &emsp;    使用final修饰类变量时，只能在：</p>
-<p>1.声明处<br>2.静态代码块<br>这两个地方对类变量进行初始化，其他任何地方对它进行赋值都是非法的。</p>
-<p>&emsp;    &emsp;    使用final修饰实例变量时，只能在：<br>1.声明处<br>2.代码块<br>3.构造器中<br>&emsp;    &emsp;    这三个地方进行初始化，因为final类型的值初始化以后不可变，所以使用final修饰的实例变量无法提供对应的setter方法。</p>
-<h2 id="final修饰局部变量"><a href="#final修饰局部变量" class="headerlink" title="final修饰局部变量"></a>final修饰局部变量</h2><p>&emsp;    &emsp;    局部变量有三种场景：<br>1.代码块中<br>2.方法内部<br>3.方法的形参<br>&emsp;    &emsp;用final修饰形参时，通过调用该方法时给这个参数赋值且后续不可变，修饰其他两种情况时，可以在声明处完成初始化工作，也可以在其他地方给这个变量进行赋值，但也只能赋值一次。</p>
+<ol>
+<li>声明处</li>
+<li>静态代码块<br>这两个地方对类变量进行初始化，其他任何地方对它进行赋值都是非法的。</li>
+</ol>
+<p>&emsp;    &emsp;    使用final修饰实例变量时，只能在：</p>
+<ol>
+<li>声明处</li>
+<li>代码块</li>
+<li>构造器中<br>&emsp;    &emsp;    这三个地方进行初始化，因为final类型的值初始化以后不可变，所以使用final修饰的实例变量无法提供对应的setter方法。</li>
+</ol>
+<h2 id="final修饰局部变量"><a href="#final修饰局部变量" class="headerlink" title="final修饰局部变量"></a>final修饰局部变量</h2><p>&emsp;    &emsp;    局部变量有三种场景：</p>
+<ol>
+<li>代码块中</li>
+<li>方法内部</li>
+<li>方法的形参<br>&emsp;    &emsp;用final修饰形参时，通过调用该方法时给这个参数赋值且后续不可变，修饰其他两种情况时，可以在声明处完成初始化工作，也可以在其他地方给这个变量进行赋值，但也只能赋值一次。</li>
+</ol>
 <h1 id="宏变量的概念"><a href="#宏变量的概念" class="headerlink" title="宏变量的概念"></a>宏变量的概念</h1><p>&emsp;    &emsp;    java中有一个概念叫做“宏变量”，就是说有一个变量的值在编译时就可以确定下来，编译器就会将代码中所有用到这个变量的地方直接替换成对应的值。</p>
 <p>&emsp;    &emsp;    final一个重要的用途就是用来定义宏变量。</p>
 <p>&emsp;    &emsp;    对于final修饰的变量，不管是成员变量还是局部变量，只要满足以下三个条件，这个变量就可以称为直接量，也就是一个宏变量：</p>
-<pre><code>1. 使用final修饰；
-
-2. 在定义final时指定了初始值；
-
-3. 在编译时可以确定下来。</code></pre><p>&emsp;    &emsp;    可能大家会对第三条有疑问，什么情况才算是编译时可以确定下来。我们可以举个简单的例子：</p>
+<ol>
+<li><p>使用final修饰；</p>
+</li>
+<li><p>在定义final时指定了初始值；</p>
+</li>
+<li><p>在编译时可以确定下来。</p>
+</li>
+</ol>
+<p>&emsp;    &emsp;    可能大家会对第三条有疑问，什么情况才算是编译时可以确定下来。我们可以举个简单的例子：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">	package com.ljw.field;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/20.</span><br><span class="line"> */</span><br><span class="line">public class TestFinal &#123;</span><br><span class="line"> </span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        final String s = &quot;123&quot;;</span><br><span class="line">        final String s1 = &quot;12&quot; + &quot;3&quot;;</span><br><span class="line">        final String s2 = &quot;12&quot; + String.valueOf(3);</span><br><span class="line"> </span><br><span class="line">        System.out.println(s == s1);</span><br><span class="line">        System.out.println(s == s2);</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>&emsp;    &emsp;    我们可以看到，s,s1,s2三个变量的内容实际上都是“123”，但是我们从运行结果可以看到：<br><img src="/2018/07/22/java基础之final关键字/1.png" alt="数据类型示意图"></p>
@@ -379,7 +396,12 @@
 <p>&emsp;    &emsp;    java中还有不可变类的说法，就是说一个类的实例变量创建以后不可以被改变，基本数据的包装类和String类都是不可变类。</p>
 <p>&emsp;    &emsp;    在介绍String,StringBuilder和StringBuffer的时候，我们说过String是一个不可变类，因为不管是通过+操作符或者concat()对字符串进行拼接，每次返回的都是一个新的string对象，最主要的还是类本身对实例变量没有提供修改的setter方法。</p>
 <p>&emsp;    &emsp;    参照这几个不可变类的规则，可以对不可变类进行简单的总结：</p>
-<p>1.实例变量使用private 和 final进行修饰；<br>2.只提供getter方法；<br>3。通过构造器来对实例变量进行初始化；<br>4.有必要的话，可以重写Object类的equals（）和hashCode()方法</p>
+<ol>
+<li>实例变量使用private 和 final进行修饰；</li>
+<li>只提供getter方法；</li>
+<li>通过构造器来对实例变量进行初始化；</li>
+<li>有必要的话，可以重写Object类的equals（）和hashCode()方法</li>
+</ol>
 <h1 id="final总结"><a href="#final总结" class="headerlink" title="final总结"></a>final总结</h1><p>&emsp;    &emsp;    <strong>使用final关键字主要就是两个目的：设计和效率，比如方法不想被重写，类不想被继承，这就是处于设计的目的使用fianl，比如通过final定义宏变量，方法使用fianl也会使调用专为内嵌调用，这就是处于效率的考虑。</strong></p>
 
       
