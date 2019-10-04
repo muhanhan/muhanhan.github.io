@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;    Java io中通过InputStream字节输入流用来将数据读取到内存中，同时也提供了字节输出流OutputStream用来从内存中读取数据。 &amp;emsp;    &amp;emsp;    和InputStream结构类似，我们也通过以下几个类来了解OutputStream。 OutPutStreamOutputStream抽象类中主要提供了三个方法： 输出单个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java IO 之 OutputStream">
+<meta property="og:url" content="http://yoursite.com/2018/09/05/java-IO-之-OutputStream/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;    Java io中通过InputStream字节输入流用来将数据读取到内存中，同时也提供了字节输出流OutputStream用来从内存中读取数据。 &amp;emsp;    &amp;emsp;    和InputStream结构类似，我们也通过以下几个类来了解OutputStream。 OutPutStreamOutputStream抽象类中主要提供了三个方法： 输出单个">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/09/05/java-IO-之-OutputStream/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/05/java-IO-之-OutputStream/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/05/java-IO-之-OutputStream/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/05/java-IO-之-OutputStream/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/05/java-IO-之-OutputStream/5.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/05/java-IO-之-OutputStream/6.png">
+<meta property="og:updated_time" content="2019-10-04T02:30:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java IO 之 OutputStream">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    Java io中通过InputStream字节输入流用来将数据读取到内存中，同时也提供了字节输出流OutputStream用来从内存中读取数据。 &amp;emsp;    &amp;emsp;    和InputStream结构类似，我们也通过以下几个类来了解OutputStream。 OutPutStreamOutputStream抽象类中主要提供了三个方法： 输出单个">
+<meta name="twitter:image" content="http://yoursite.com/2018/09/05/java-IO-之-OutputStream/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/09/05/java-IO-之-OutputStream/">
+
+
+
+
+
+  <title>java IO 之 OutputStream | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/05/java-IO-之-OutputStream/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java IO 之 OutputStream</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-05T21:32:25+08:00">
+                2018-09-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;    Java io中通过InputStream字节输入流用来将数据读取到内存中，同时也提供了字节输出流OutputStream用来从内存中读取数据。</p>
+<p>&emsp;    &emsp;    和InputStream结构类似，我们也通过以下几个类来了解OutputStream。<br><img src="/2018/09/05/java-IO-之-OutputStream/1.png" alt="数据类型示意图"></p>
+<h1 id="OutPutStream"><a href="#OutPutStream" class="headerlink" title="OutPutStream"></a>OutPutStream</h1><p>OutputStream抽象类中主要提供了三个方法：</p>
+<p>输出单个字节</p>
+<blockquote>
+<p>public abstract void write(int b) throws IOException;</p>
+</blockquote>
+<p>输出一个字节数组：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public void write(byte b[]) throws IOException &#123;</span><br><span class="line">    write(b, 0, b.length);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public void write(byte b[], int off, int len) throws IOException &#123;</span><br><span class="line">    if (b == null) &#123;</span><br><span class="line">        throw new NullPointerException();</span><br><span class="line">    &#125; else if ((off &lt; 0) || (off &gt; b.length) || (len &lt; 0) ||</span><br><span class="line">               ((off + len) &gt; b.length) || ((off + len) &lt; 0)) &#123;</span><br><span class="line">        throw new IndexOutOfBoundsException();</span><br><span class="line">    &#125; else if (len == 0) &#123;</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    for (int i = 0 ; i &lt; len ; i++) &#123;</span><br><span class="line">        write(b[off + i]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>刷新缓冲流：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">public void flush() throws IOException &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>具体的实现 我们看OutputStream的具体实现类</p>
+<h1 id="FileOutputStream"><a href="#FileOutputStream" class="headerlink" title="FileOutputStream"></a>FileOutputStream</h1><p>将数据通过字节的方式输出到文件中：</p>
+<p>先看下构造方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public FileOutputStream(String name) throws FileNotFoundException &#123;</span><br><span class="line">    this(name != null ? new File(name) : null, false);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public FileOutputStream(String name, boolean append)</span><br><span class="line">    throws FileNotFoundException</span><br><span class="line">&#123;</span><br><span class="line">    this(name != null ? new File(name) : null, append);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public FileOutputStream(File file) throws FileNotFoundException &#123;</span><br><span class="line">    this(file, false);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public FileOutputStream(File file, boolean append)</span><br><span class="line">    throws FileNotFoundException</span><br><span class="line">&#123;</span><br><span class="line">    String name = (file != null ? file.getPath() : null);</span><br><span class="line">    SecurityManager security = System.getSecurityManager();</span><br><span class="line">    if (security != null) &#123;</span><br><span class="line">        security.checkWrite(name);</span><br><span class="line">    &#125;</span><br><span class="line">    if (name == null) &#123;</span><br><span class="line">        throw new NullPointerException();</span><br><span class="line">    &#125;</span><br><span class="line">    if (file.isInvalid()) &#123;</span><br><span class="line">        throw new FileNotFoundException(&quot;Invalid file path&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    this.fd = new FileDescriptor();</span><br><span class="line">    this.append = append;</span><br><span class="line">    this.path = name;</span><br><span class="line">    fd.incrementAndGetUseCount();</span><br><span class="line">    open(name, append);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到虽然FileOutputStream提供了多个构造方法，但是最终调用的都是最后一个构造方法，两个参数一个参数时File对象，还有一个参数代表是否是添加操作，append=true会保留原有文件的内容，在后面增加新内容，append=false贼会覆盖原有内容。</p>
+<p><strong>Write（byte[]）方法：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public void write(byte b[]) throws IOException &#123;</span><br><span class="line">    Object traceContext = IoTrace.fileWriteBegin(path);</span><br><span class="line">    int bytesWritten = 0;</span><br><span class="line">    try &#123;</span><br><span class="line">        writeBytes(b, 0, b.length, append);</span><br><span class="line">        bytesWritten = b.length;</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">        IoTrace.fileWriteEnd(traceContext, bytesWritten);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public void write(byte b[], int off, int len) throws IOException &#123;</span><br><span class="line">    Object traceContext = IoTrace.fileWriteBegin(path);</span><br><span class="line">    int bytesWritten = 0;</span><br><span class="line">    try &#123;</span><br><span class="line">        writeBytes(b, off, len, append);</span><br><span class="line">        bytesWritten = len;</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">        IoTrace.fileWriteEnd(traceContext, bytesWritten);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">private native void writeBytes(byte b[], int off, int len, boolean append)</span><br><span class="line">    throws IOException;</span><br></pre></td></tr></table></figure>
+
+<p>两种方式都是将内容写入这个文件输出流。</p>
+<p>FileOutputStream比较常见，也比较简单，我们直接写一个实例，复制一个java文件到txt文件中：</p>
+<p>测试代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">package io;</span><br><span class="line">/**</span><br><span class="line"> * copy .java to .txt</span><br><span class="line"> * 从内存中 先读再写</span><br><span class="line"> */</span><br><span class="line"> </span><br><span class="line">import java.io.FileInputStream;</span><br><span class="line">import java.io.FileNotFoundException;</span><br><span class="line">import java.io.FileOutputStream;</span><br><span class="line">import java.io.IOException;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author 18092106</span><br><span class="line"> * @create 2018-09-05 19:58</span><br><span class="line"> **/</span><br><span class="line">public class TestFileOutputStream &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        try (FileOutputStream fos = new FileOutputStream(&quot;Out.txt&quot;, false);</span><br><span class="line">             FileInputStream fis = new FileInputStream(&quot;E:\\code\\leetcode\\src\\io\\TestFileOutputStream.java&quot;)) &#123;</span><br><span class="line">                byte[] bytes = new byte[1024];</span><br><span class="line">                int hasRead = 0;</span><br><span class="line">                while((hasRead = fis.read(bytes)) != -1)&#123;</span><br><span class="line">                    fos.write(bytes,0,hasRead);</span><br><span class="line">                &#125;</span><br><span class="line">        &#125; catch (FileNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br><img src="/2018/09/05/java-IO-之-OutputStream/2.png" alt="数据类型示意图"></p>
+<p>将需要复制的文件先读取到内存中，在从内存中读取输出。</p>
+<h1 id="ByteArrayOutputStream"><a href="#ByteArrayOutputStream" class="headerlink" title="ByteArrayOutputStream"></a>ByteArrayOutputStream</h1><p>ByteArrayOutputStream自己声明了一个缓冲区，每次操作的都是自己缓冲区的字节数组，我们看下他是怎么工作的：</p>
+<p>构造方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public ByteArrayOutputStream() &#123;</span><br><span class="line">    this(32);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public ByteArrayOutputStream(int size) &#123;</span><br><span class="line">    if (size &lt; 0) &#123;</span><br><span class="line">        throw new IllegalArgumentException(&quot;Negative initial size: &quot;</span><br><span class="line">                                           + size);</span><br><span class="line">    &#125;</span><br><span class="line">    buf = new byte[size];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>每当声明一个ByteArrayOutputStream的时候，都会默认构造一个大小为32的字节数组。</p>
+<p>再看下<strong>write（int）</strong>方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public synchronized void write(int b) &#123;</span><br><span class="line">    ensureCapacity(count + 1);</span><br><span class="line">    buf[count] = (byte) b;</span><br><span class="line">    count += 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">private void ensureCapacity(int minCapacity) &#123;</span><br><span class="line">    // overflow-conscious code</span><br><span class="line">    if (minCapacity - buf.length &gt; 0)</span><br><span class="line">        grow(minCapacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">private void grow(int minCapacity) &#123;</span><br><span class="line">    // overflow-conscious code</span><br><span class="line">    int oldCapacity = buf.length;</span><br><span class="line">    int newCapacity = oldCapacity &lt;&lt; 1;</span><br><span class="line">    if (newCapacity - minCapacity &lt; 0)</span><br><span class="line">        newCapacity = minCapacity;</span><br><span class="line">    if (newCapacity &lt; 0) &#123;</span><br><span class="line">        if (minCapacity &lt; 0) // overflow</span><br><span class="line">            throw new OutOfMemoryError();</span><br><span class="line">        newCapacity = Integer.MAX_VALUE;</span><br><span class="line">    &#125;</span><br><span class="line">    buf = Arrays.copyOf(buf, newCapacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在输出单个字节时，首先会去验证一下默认缓冲区和当前已使用容量的大小，如果当前使用的容量即将超过缓冲区，那么执行扩容操作：</p>
+<blockquote>
+<p>int newCapacity = oldCapacity &lt;&lt; 1;</p>
+</blockquote>
+<p>直接扩容两倍，作为新的缓冲区</p>
+<p><strong>Write(byte[])</strong>方法类似，空间不够就先扩容，然后再将字节数组复制到缓冲区：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public synchronized void write(byte b[], int off, int len) &#123;</span><br><span class="line">    if ((off &lt; 0) || (off &gt; b.length) || (len &lt; 0) ||</span><br><span class="line">        ((off + len) - b.length &gt; 0)) &#123;</span><br><span class="line">        throw new IndexOutOfBoundsException();</span><br><span class="line">    &#125;</span><br><span class="line">    ensureCapacity(count + len);</span><br><span class="line">    System.arraycopy(b, off, buf, count, len);</span><br><span class="line">    count += len;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>ByteArrayOutPutStream中还有两个方法介绍下：</p>
+<p>将缓冲区中的字节数组输出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public synchronized byte toByteArray()[] &#123;</span><br><span class="line">    return Arrays.copyOf(buf, count);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将字节数组通过另一个输出流输出，比如可以和FileOutputStream配合，输出文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public synchronized void writeTo(OutputStream out) throws IOException &#123;</span><br><span class="line">    out.write(buf, 0, count);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们写个实例测试下上面的几个方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">package io;</span><br><span class="line"> </span><br><span class="line">import java.io.ByteArrayOutputStream;</span><br><span class="line">import java.io.FileOutputStream;</span><br><span class="line">import java.io.IOException;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author 18092106</span><br><span class="line"> * @create 2018-09-05 20:10</span><br><span class="line"> **/</span><br><span class="line">public class TestByteArrayOutputStream &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        ByteArrayOutputStream bos = new ByteArrayOutputStream(32);</span><br><span class="line">        bos.write(97);</span><br><span class="line">        byte[] bytes = &#123;97,98,99,100&#125;;</span><br><span class="line">        try &#123;</span><br><span class="line">            bos.write(bytes);</span><br><span class="line">            for (byte b:bos.toByteArray()) &#123;</span><br><span class="line">                System.out.println((char) b);</span><br><span class="line">            &#125;</span><br><span class="line">            bos.writeTo(new FileOutputStream(&quot;Out2.txt&quot;));</span><br><span class="line">        &#125; catch (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出结果：<br><img src="/2018/09/05/java-IO-之-OutputStream/3.png" alt="数据类型示意图"></p>
+<p><img src="/2018/09/05/java-IO-之-OutputStream/4.png" alt="数据类型示意图"></p>
+<h1 id="FilterOutputStream"><a href="#FilterOutputStream" class="headerlink" title="FilterOutputStream"></a>FilterOutputStream</h1><p>和FilterInputStream一样，使用装饰器设计模式，本身不提供功能，只用来包装其他输出流，在其他输出流的方法基础上，实现一些功能。    </p>
+<h1 id="BufferedOutputStream"><a href="#BufferedOutputStream" class="headerlink" title="BufferedOutputStream"></a>BufferedOutputStream</h1><p>BufferedOutputStream就是继承了FilterOutputStream的一个实现类，用来实现缓冲功能，减少io的交互，看下源码：</p>
+<p>构造方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public BufferedOutputStream(OutputStream out) &#123;</span><br><span class="line">    this(out, 8192);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public BufferedOutputStream(OutputStream out, int size) &#123;</span><br><span class="line">    super(out);</span><br><span class="line">    if (size &lt;= 0) &#123;</span><br><span class="line">        throw new IllegalArgumentException(&quot;Buffer size &lt;= 0&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    buf = new byte[size];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，BufferedOutputStream在实例化时会默认构造一个大小为8192的字节数组。</p>
+<p>再看下最主要的<strong>write（byte[]）</strong>方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public synchronized void write(byte b[], int off, int len) throws IOException &#123;</span><br><span class="line">    if (len &gt;= buf.length) &#123;</span><br><span class="line">        /* If the request length exceeds the size of the output buffer,</span><br><span class="line">           flush the output buffer and then write the data directly.</span><br><span class="line">           In this way buffered streams will cascade harmlessly. */</span><br><span class="line">        flushBuffer();</span><br><span class="line">        out.write(b, off, len);</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    if (len &gt; buf.length - count) &#123;</span><br><span class="line">        flushBuffer();</span><br><span class="line">    &#125;</span><br><span class="line">    System.arraycopy(b, off, buf, count, len);</span><br><span class="line">    count += len;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在输出字节时，首先会进行判断，如果输出的字节数组的大小不超过缓冲区的大小，将这部分内容复制到默认的缓冲区中，如果输出的字节数组的大小超过了缓冲区的大小，那么调用flushBuffer（）方法，我们看下这个方法的作用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">private void flushBuffer() throws IOException &#123;</span><br><span class="line">    if (count &gt; 0) &#123;</span><br><span class="line">        out.write(buf, 0, count);</span><br><span class="line">        count = 0;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，这个方法调用包装的输出流的write方法，输出字节，同时将计数器清零</p>
+<p>简单理解Buffered OutputStream的原理就是，它会默认构造一个8192也就是4K大小的一个缓冲区，当输出的字节数组的大小不超过它时，不会直接输出，而是被放到这个缓冲区中，当缓冲区中的空间不够时，再调用被包装的输出流的write（byte[]）方法输出字节数组。</p>
+<p>写个实例来看下效果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">package io;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">import java.io.BufferedOutputStream;</span><br><span class="line">import java.io.FileOutputStream;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author 18092106</span><br><span class="line"> * @create 2018-09-03 19:44</span><br><span class="line"> **/</span><br><span class="line">public class TestBufferedOutputStream &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        try&#123;</span><br><span class="line">            FileOutputStream fos = new FileOutputStream(&quot;out3.txt&quot;);</span><br><span class="line">            BufferedOutputStream bos = new BufferedOutputStream(fos);</span><br><span class="line">            bos.write(97);</span><br><span class="line">        &#125;catch (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，这个代码很简单，就是利用BufferedOutputStream包装一个FileOutputStream输出一个字节到文件中,我们执行上面的代码，看下那个文件的内容：<br><img src="/2018/09/05/java-IO-之-OutputStream/5.png" alt="数据类型示意图"></p>
+<p>可以看到文件的确被成功创建了，但是文件并没有出现我们输出的字节，我们加上一个方法再试一下：</p>
+<blockquote>
+<p>bos.flush();</p>
+</blockquote>
+<p><img src="/2018/09/05/java-IO-之-OutputStream/6.png" alt="数据类型示意图"></p>
+<p>可以看到，再加上了flush（）这个方法以后，文件中出现了我们想要的内容，为什么会有这种情况呢？我们看下flush（）做了什么事：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public synchronized void flush() throws IOException &#123;</span><br><span class="line">    flushBuffer();</span><br><span class="line">    out.flush();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    可以看到它调用强制刷洗缓冲区的方法，我们已经看过源码，里面调用就是out的write方法，flush起到的作用其实正是如此，通过强制调用输出流的write方法，将缓冲区的内容输出，避免出现上面第一次代码的情况，有内容在缓冲区中，没有输出。</p>
+<p>&emsp;    &emsp;    细心的小伙伴可能发现了，之前的输出流我们都没有调用flush（）方法，但是好像并没有影响，其实是因为这些类大部分都实现了Closeable和Flushable接口，然后jdk7以后支持try(XX x = new XX)catch{}的写法，像这种需要关闭，刷新的对象可以直接在try中进行声明，这样会自动关闭和刷新。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/01/java-IO-之-InputStream/" rel="next" title="java IO 之 InputStream">
+                <i class="fa fa-chevron-left"></i> java IO 之 InputStream
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/12/12/设计模式之策略模式/" rel="prev" title="设计模式之策略模式">
+                设计模式之策略模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#OutPutStream"><span class="nav-number">1.</span> <span class="nav-text">OutPutStream</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FileOutputStream"><span class="nav-number">2.</span> <span class="nav-text">FileOutputStream</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ByteArrayOutputStream"><span class="nav-number">3.</span> <span class="nav-text">ByteArrayOutputStream</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FilterOutputStream"><span class="nav-number">4.</span> <span class="nav-text">FilterOutputStream</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BufferedOutputStream"><span class="nav-number">5.</span> <span class="nav-text">BufferedOutputStream</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
