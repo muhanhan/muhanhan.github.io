@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;    系统的线程调度有一定的随机性，当多个线程访问同一个数据时，不作处理的话，很容易出现线程安全问题，我们可以通过线程同步来解决这个问题。&amp;emsp;    &amp;emsp;    我们用银行取钱的场景的来模拟这种情况： 银行类，可以设置账户上的余额，提供一个取钱的方法，只要没有超过账户上的钱就扣除对应的钱数： 1234567891011121314151617181">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java多线程（四）线程同步">
+<meta property="og:url" content="http://yoursite.com/2018/07/08/java多线程（四）线程同步/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;    系统的线程调度有一定的随机性，当多个线程访问同一个数据时，不作处理的话，很容易出现线程安全问题，我们可以通过线程同步来解决这个问题。&amp;emsp;    &amp;emsp;    我们用银行取钱的场景的来模拟这种情况： 银行类，可以设置账户上的余额，提供一个取钱的方法，只要没有超过账户上的钱就扣除对应的钱数： 1234567891011121314151617181">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/07/08/java多线程（四）线程同步/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/08/java多线程（四）线程同步/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/08/java多线程（四）线程同步/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/08/java多线程（四）线程同步/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/08/java多线程（四）线程同步/5.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/08/java多线程（四）线程同步/6.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/08/java多线程（四）线程同步/7.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/08/java多线程（四）线程同步/8.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/08/java多线程（四）线程同步/9.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/08/java多线程（四）线程同步/10.png">
+<meta property="og:updated_time" content="2019-10-05T13:55:38.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java多线程（四）线程同步">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    系统的线程调度有一定的随机性，当多个线程访问同一个数据时，不作处理的话，很容易出现线程安全问题，我们可以通过线程同步来解决这个问题。&amp;emsp;    &amp;emsp;    我们用银行取钱的场景的来模拟这种情况： 银行类，可以设置账户上的余额，提供一个取钱的方法，只要没有超过账户上的钱就扣除对应的钱数： 1234567891011121314151617181">
+<meta name="twitter:image" content="http://yoursite.com/2018/07/08/java多线程（四）线程同步/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/07/08/java多线程（四）线程同步/">
+
+
+
+
+
+  <title>java多线程（四）线程同步 | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/08/java多线程（四）线程同步/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java多线程（四）线程同步</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-08T23:53:48+08:00">
+                2018-07-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;    系统的线程调度有一定的随机性，当多个线程访问同一个数据时，不作处理的话，很容易出现线程安全问题，我们可以通过线程同步来解决这个问题。<br>&emsp;    &emsp;    我们用银行取钱的场景的来模拟这种情况：</p>
+<p>银行类，可以设置账户上的余额，提供一个取钱的方法，只要没有超过账户上的钱就扣除对应的钱数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">import com.sun.scenario.effect.impl.prism.PrImage;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/7.</span><br><span class="line"> */</span><br><span class="line">public class Bank&#123;</span><br><span class="line">    private int balance; //账户余额</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    public int getBalance() &#123;</span><br><span class="line">        return balance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setBalance(int balance) &#123;</span><br><span class="line">        this.balance = balance;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    public void getMoney(String name, int money)&#123;</span><br><span class="line">        balance = balance - money;</span><br><span class="line">        if(balance &gt; 0)&#123;</span><br><span class="line">            System.out.println(name + &quot;取了&quot; + money + &quot;,还剩&quot; + balance);</span><br><span class="line">            setBalance(balance);</span><br><span class="line">        &#125;else&#123;</span><br><span class="line">            System.out.println(name + &quot;想取&quot; + money +&quot;,余额不足&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>操作类，用来模拟多个人取钱的操作，sleep（500）模拟取钱的耗时：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.Thread.BankGetMoney;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/8.</span><br><span class="line"> */</span><br><span class="line">public class GetMoney implements Runnable&#123;</span><br><span class="line"> </span><br><span class="line">    Bank bank;</span><br><span class="line"> </span><br><span class="line">    int count;</span><br><span class="line"> </span><br><span class="line">    public int getCount() &#123;</span><br><span class="line">        return count;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setCount(int count) &#123;</span><br><span class="line">        this.count = count;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public Bank getBank() &#123;</span><br><span class="line">        return bank;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setBank(Bank bank) &#123;</span><br><span class="line">        this.bank = bank;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    @Override</span><br><span class="line">    public void run() &#123;</span><br><span class="line">        try &#123;</span><br><span class="line">            bank.getMoney(Thread.currentThread().getName(),count);</span><br><span class="line">            Thread.currentThread().sleep(500);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.Thread.BankGetMoney;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/7.</span><br><span class="line"> */</span><br><span class="line">public class TestBank &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        Bank bank = new Bank();</span><br><span class="line">        bank.setBalance(1000);</span><br><span class="line">        GetMoney getMoney = new GetMoney();</span><br><span class="line">        getMoney.setBank(bank);</span><br><span class="line">        getMoney.setCount(600);</span><br><span class="line"> </span><br><span class="line">        GetMoney getMoney2 = new GetMoney();</span><br><span class="line">        getMoney2.setBank(bank);</span><br><span class="line">        getMoney2.setCount(600);</span><br><span class="line"> </span><br><span class="line">        Thread thread = new Thread(getMoney,&quot;甲&quot;);</span><br><span class="line">        Thread thread2 = new Thread(getMoney2,&quot;乙&quot;);</span><br><span class="line"> </span><br><span class="line">        thread.start();</span><br><span class="line">        thread2.start();</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 账户余额设置为了1000，两个线程每次都是取600，正常情况下应该是一个取完钱，另一个就会提示余额不足，我们看下运行结果是不是也是这样：<br> <img src="/2018/07/08/java多线程（四）线程同步/1.png" alt="数据类型示意图"></p>
+<p>看起来好像没有问题，但是涉及到金钱都是需要比较谨慎的，我们再多运行几次：<br> <img src="/2018/07/08/java多线程（四）线程同步/2.png" alt="数据类型示意图"><br> <img src="/2018/07/08/java多线程（四）线程同步/3.png" alt="数据类型示意图"><br> <img src="/2018/07/08/java多线程（四）线程同步/4.png" alt="数据类型示意图"></p>
+<p> 可以看到，其中有一次提示两次都取钱成功了，账户上只剩了-200元，这就是我们上面所说到的线程安全问题。</p>
+<h1 id="同步代码块"><a href="#同步代码块" class="headerlink" title="同步代码块"></a>同步代码块</h1><p>&emsp;    &emsp;    为了解决多个线程操作同一个数据可能会带来的线程安全问题，java中引入了同步监视器。<br>使用同步监视器的通用方法是同步代码块：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">synchronized (obj)&#123;</span><br><span class="line">    //对obj的操作</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;对可能会被多个线程同时访问的资源加上synchronized关键字，当线程访问被synchronized修饰的资源时，它会获取到对应的同步监视器，此时其他线程访问该资源时，就会因为无法获取同步监视器而操作不了数据。<br>&emsp;    &emsp;到了这里，我们对上面取钱会出现的那种情况已经有了解决方法，只要对访问的资源加上synchronized就行了，因为synchronized用来修饰对象，所以我们稍微修改下getMoney() 方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public void getMoney(String name, int money) &#123;</span><br><span class="line">    synchronized (this) &#123;</span><br><span class="line">        this.balance = this.balance - money;</span><br><span class="line">        if (this.balance &gt; 0) &#123;</span><br><span class="line">            System.out.println(name + &quot;取了&quot; + money + &quot;,还剩&quot; + this.balance);</span><br><span class="line">            setBalance(this.balance);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            System.out.println(name + &quot;想取&quot; + money + &quot;,余额不足&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 我们对当前银行这个对象做同步监视，通过this.balance的方式获取账户余额，重新运行下我们的测试类：<br><img src="/2018/07/08/java多线程（四）线程同步/5.png" alt="数据类型示意图"><br><img src="/2018/07/08/java多线程（四）线程同步/6.png" alt="数据类型示意图"><br><img src="/2018/07/08/java多线程（四）线程同步/7.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;从运行结果中可以看到，再也没有出现过余额为负的情况的出现。</p>
+<p>&emsp;    &emsp;通过同步代码块，线程访问指定资源时，会按照加锁-操作数据-释放锁这样的顺序来进行。</p>
+<h1 id="同步方法"><a href="#同步方法" class="headerlink" title="同步方法"></a>同步方法</h1><p>&emsp;    &emsp;除了同步代码块以外，java还提供了同步方法用来保证线程安全。使用方法就是用synchronized关键字来修饰方法（非static方法），同步方法不需要显示指定同步监视器，她的同步监视器是this对象。<br>&emsp;    &emsp;使用同步方法来对银行取钱的代码进行改造，修改getMoney()方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public synchronized  void getMoney(String name, int money) &#123;</span><br><span class="line">        this.balance = this.balance - money;</span><br><span class="line">        if (this.balance &gt; 0) &#123;</span><br><span class="line">            System.out.println(name + &quot;取了&quot; + money + &quot;,还剩&quot; + this.balance);</span><br><span class="line">            setBalance(this.balance);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            System.out.println(name + &quot;想取&quot; + money + &quot;,余额不足&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 重新运行我们的测试类：<br><img src="/2018/07/08/java多线程（四）线程同步/8.png" alt="数据类型示意图"><br><img src="/2018/07/08/java多线程（四）线程同步/9.png" alt="数据类型示意图"><br><img src="/2018/07/08/java多线程（四）线程同步/10.png" alt="数据类型示意图"></p>
+<p>可以看到，使用同步方法一样解决了线程安全的问题。</p>
+<h1 id="同步监视器的释放"><a href="#同步监视器的释放" class="headerlink" title="同步监视器的释放"></a>同步监视器的释放</h1><p>&emsp;    &emsp;线程在进入同步代码块或者同步方法之前，都需要获取对同步监视器的锁定，但是程序不会显示释放同步监视器的锁定，线程会在以下几种情况释放同步监视器的锁定：</p>
+<ol>
+<li>同步方法／同步代码块内的方法正常执行完毕；</li>
+<li>同步方法／同步代码块内有break／return等可以结束方法；</li>
+<li>同步方法／同步代码块内有未捕获的Exception或Error；</li>
+<li>同步方法／同步代码块内调用了同步监视器的wait()方法；<br>但是以下情况不会释放同步监视器的锁定：</li>
+<li>调用线程的sleep()和yield()方法不会释放同步监视器的锁定；</li>
+<li>其他线程调用该线程的suspend()方法也不会释放同步监视器的锁定；</li>
+</ol>
+<h1 id="同步锁"><a href="#同步锁" class="headerlink" title="同步锁"></a>同步锁</h1><p>&emsp;    &emsp;除了同步监视器，java还有一种机制可以保证线程安全，通过同步锁对象(Lock)显式的加锁／释放锁来实现。<br>Lock比synchronized更加灵活，可以支持属性差别很大的数据，还可以支持多个相关的condition对象（有关condition的介绍在后面）。<br>&emsp;    &emsp;通常使用最多的锁是重入锁(ReentrantLock)，我们看下如果用ReentrantLock对象来修改之前的代码是怎么做的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">ReentrantLock lock = new ReentrantLock();</span><br><span class="line">    public void getMoney(String name, int money) &#123;</span><br><span class="line">        lock.lock();</span><br><span class="line">        try &#123;</span><br><span class="line">            this.balance = this.balance - money;</span><br><span class="line">            if (this.balance &gt; 0) &#123;</span><br><span class="line">                System.out.println(name + &quot;取了&quot; + money + &quot;,还剩&quot; + this.balance);</span><br><span class="line">                setBalance(this.balance);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                System.out.println(name + &quot;想取&quot; + money + &quot;,余额不足&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        finally &#123;</span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;首先需要声明一个ReentrantLock对象，在需要实现线程安全的地方通过lock()方法加上锁，在结束的地方通过unlock() 方法释放锁，重入锁通常会和tryfinally代码块结合使用，保证同步锁的释放。<br>&emsp;    &emsp;重入锁支持多个锁同时存在，只要全部显式释放就可以，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">ReentrantLock lock = new ReentrantLock();</span><br><span class="line">    public void getMoney(String name, int money) &#123;</span><br><span class="line">        lock.lock();</span><br><span class="line">        try &#123;</span><br><span class="line">            lock.lock();</span><br><span class="line">            this.balance = this.balance - money;</span><br><span class="line">            if (this.balance &gt; 0) &#123;</span><br><span class="line">                System.out.println(name + &quot;取了&quot; + money + &quot;,还剩&quot; + this.balance);</span><br><span class="line">                setBalance(this.balance);</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                System.out.println(name + &quot;想取&quot; + money + &quot;,余额不足&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        finally &#123;</span><br><span class="line">            lock.unlock();</span><br><span class="line">            lock.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h1><p>&emsp;    &emsp;当两个线程互相等待对方释放同步监视器的时候，这个时候就会发生死锁，没有报错，没有异常，但是所有的线程都进入了阻塞状态，我们编写代码时，要尽量编码死锁的情况。<br>&emsp;    &emsp;Thread的suspend()将线程挂起，就很容易导致死锁，所以不建议使用suspend()。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/06/java多线程（三）线程控制/" rel="next" title="java多线程（三）线程控制">
+                <i class="fa fa-chevron-left"></i> java多线程（三）线程控制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/15/java基础之数据类型/" rel="prev" title="java基础之数据类型">
+                java基础之数据类型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#同步代码块"><span class="nav-number">1.</span> <span class="nav-text">同步代码块</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#同步方法"><span class="nav-number">2.</span> <span class="nav-text">同步方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#同步监视器的释放"><span class="nav-number">3.</span> <span class="nav-text">同步监视器的释放</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#同步锁"><span class="nav-number">4.</span> <span class="nav-text">同步锁</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#死锁"><span class="nav-number">5.</span> <span class="nav-text">死锁</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
