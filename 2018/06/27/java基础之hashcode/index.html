@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;    学习java的集合框架时，发现里面很多地方涉及到了hashCode的比较，于是决定先了解一下hashCode，再继续学习集合框架。 什么是hashCode？&amp;emsp;    &amp;emsp;    我们知道在java中，Object类是所有对象的父类，在Object类中有一个hashCode()方法：  public native int hashCode()">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java基础之hashcode">
+<meta property="og:url" content="http://yoursite.com/2018/06/27/java基础之hashcode/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;    学习java的集合框架时，发现里面很多地方涉及到了hashCode的比较，于是决定先了解一下hashCode，再继续学习集合框架。 什么是hashCode？&amp;emsp;    &amp;emsp;    我们知道在java中，Object类是所有对象的父类，在Object类中有一个hashCode()方法：  public native int hashCode()">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/06/27/java基础之hashcode/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/27/java基础之hashcode/2.png">
+<meta property="og:updated_time" content="2019-10-05T13:05:39.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java基础之hashcode">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    学习java的集合框架时，发现里面很多地方涉及到了hashCode的比较，于是决定先了解一下hashCode，再继续学习集合框架。 什么是hashCode？&amp;emsp;    &amp;emsp;    我们知道在java中，Object类是所有对象的父类，在Object类中有一个hashCode()方法：  public native int hashCode()">
+<meta name="twitter:image" content="http://yoursite.com/2018/06/27/java基础之hashcode/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/06/27/java基础之hashcode/">
+
+
+
+
+
+  <title>java基础之hashcode | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/27/java基础之hashcode/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java基础之hashcode</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-27T10:00:37+08:00">
+                2018-06-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;    学习java的集合框架时，发现里面很多地方涉及到了hashCode的比较，于是决定先了解一下hashCode，再继续学习集合框架。</p>
+<h1 id="什么是hashCode？"><a href="#什么是hashCode？" class="headerlink" title="什么是hashCode？"></a>什么是hashCode？</h1><p>&emsp;    &emsp;    我们知道在java中，Object类是所有对象的父类，在Object类中有一个hashCode()方法：</p>
+<blockquote>
+<p>public native int hashCode();</p>
+</blockquote>
+<p>&emsp;    &emsp;    可以看到这是一个本地的方法，它会返回一个int类型的数据，也就是说所有对象都会有一个属于自己的hashcode，大部分情况下hashcode和对象在内存中的存储地址相同，但不尽然，我们只需要知道hashcode是每个对象都有的一个属性，与内存中的存储地址相关联就可以了。</p>
+<h1 id="hashCode-方法的作用"><a href="#hashCode-方法的作用" class="headerlink" title="hashCode()方法的作用"></a>hashCode()方法的作用</h1><p>&emsp;    &emsp;    在讨论hashCode()方法之前，思考一个问题，我们所说的比较对象是否相同，比较的究竟是什么东西？</p>
+<p>&emsp;    &emsp;    之前在介绍数组的博客中，有描述过==和equals（）的区别：<br>&emsp;    &emsp;    ==用于比较基本数据类型的值和引用类型变量指向的地址；<br>&emsp;    &emsp;    quals（）用于比较引用类型变量指向的对象的值。</p>
+<p>&emsp;    &emsp;    再看下Object类中关于equals（）方法的源码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public boolean equals(Object obj) &#123;</span><br><span class="line">    return (this == obj);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    可以看到Object中的equals（）方法内部也是调用的==，也就是说比较的是对象在内存中的引用地址，同一个地址指向的就认为是同一个对象。</p>
+<h2 id="hashCode（）作用的场景："><a href="#hashCode（）作用的场景：" class="headerlink" title="hashCode（）作用的场景："></a>hashCode（）作用的场景：</h2><ol>
+<li><p>但是在实际生活中，有时候对象在内存中存储的位置并不相同，但是我们通过他的属性来进行逻辑上的相同判断，这个时候我们就需要重写equals（）方法对对象进行判断，与此同时需要重写hashCode()方法；</p>
+</li>
+<li><p>在hashSet, hashMap和hashTable这种利用hash算法实现的集合中，底层都需要通过对象的hashCode()进行判断，这也是hashCode()方法主要发挥作用的地方。</p>
+</li>
+</ol>
+<h1 id="为什么equals（）和hashCode-总要联系在一起？"><a href="#为什么equals（）和hashCode-总要联系在一起？" class="headerlink" title="为什么equals（）和hashCode()总要联系在一起？"></a>为什么equals（）和hashCode()总要联系在一起？</h1><p>&emsp;    &emsp;    相信大家一定都听过这样的话，重写equals()方法，一定要记得同时重写hashCode()方法。有没有想过这是为什么呢？<br>&emsp;    &emsp;    在上面说过，hashCode()方法作用的场景，我们这里就用hashMap来举个例子，说明一下为什么重写了equals()方法以后需要重写hashCode()方法。<br>我们写一个Student类，它有两个属性，名字和id，在里面我们重写了equals方法，我们认为当学生的姓名和id都一样时，这就是同一个学生。</p>
+<p>Student类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.ColleactionAndMap;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/6/27.</span><br><span class="line"> */</span><br><span class="line">public class Student &#123;</span><br><span class="line">    public String name;</span><br><span class="line">    public String id;</span><br><span class="line"> </span><br><span class="line">    public Student(String name, String id) &#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">        this.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public String getName() &#123;</span><br><span class="line">        return name;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setName(String name) &#123;</span><br><span class="line">        this.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public String getId() &#123;</span><br><span class="line">        return id;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setId(String id) &#123;</span><br><span class="line">        this.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    @Override</span><br><span class="line">    public boolean equals(Object obj) &#123;</span><br><span class="line">        return this.name.equals(((Student)obj).name) &amp;&amp; this.id.equals(((Student)obj).id);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.ColleactionAndMap;</span><br><span class="line"> </span><br><span class="line">import java.util.HashMap;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/6/27.</span><br><span class="line"> */</span><br><span class="line">public class TestHashMap &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        HashMap&lt;Student,String&gt; m = new HashMap&lt;&gt;();</span><br><span class="line">        Student jack = new Student(&quot;jack&quot;,&quot;12345&quot;);</span><br><span class="line">        m.put(jack,&quot;first&quot;);</span><br><span class="line">        Student tom = new Student(&quot;jack&quot;,&quot;12345&quot;);</span><br><span class="line">        System.out.println(jack.equals(tom));  //get true</span><br><span class="line">        System.out.println(m.get(tom));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对上面的测试类分析一下：<br>我们声明了一个HashMap用来存放学生信息，声明了一个jack，将jack放入了map中，同时我们声明了一个新同学tom，但是他的id和名字都和jack一样，想一下两行输出的内容会是什么？</p>
+<p>运行结果：<br><img src="/2018/06/27/java基础之hashcode/1.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    可以看到第一个输出的结果是true，因为我们重写了equals()方法，尽管tom和jack在内存中的位置不一样，但是返回的结果还是true，第二个输出的结果是null，这说明尽管这两个对象是相等的，但是hashmap并没有找到对应存放的数据，这是为什么呢？这就是因为我们在Student中只重写了equals()方法，没有重写hashCode()方法。我们看下hashmap中的get方法的源码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public V get(Object key) &#123;</span><br><span class="line">    if (key == null)</span><br><span class="line">        return getForNullKey();</span><br><span class="line">    Entry&lt;K,V&gt; entry = getEntry(key);</span><br><span class="line"> </span><br><span class="line">    return null == entry ? null : entry.getValue();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">inal Entry&lt;K,V&gt; getEntry(Object key) &#123;</span><br><span class="line">    if (size == 0) &#123;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    int hash = (key == null) ? 0 : hash(key);</span><br><span class="line">    for (Entry&lt;K,V&gt; e = table[indexFor(hash, table.length)];</span><br><span class="line">         e != null;</span><br><span class="line">         e = e.next) &#123;</span><br><span class="line">        Object k;</span><br><span class="line">        if (e.hash == hash &amp;&amp;</span><br><span class="line">            ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))</span><br><span class="line">            return e;</span><br><span class="line">    &#125;</span><br><span class="line">    return null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    我们可以看到hashmap中的get方法是通过在hash表通过hashcode找到对应的数据的，在上面的例子中，也就是说jack尽管和tom使用equals（）得到了true的结果，但是他们的hashcode确并不相同，所以第二个输出结果是null。<br>&emsp;    &emsp;    事实上，如果两个对象equals()得到的结果是true，那么他们的hashcode也必须相等，这是基本原则，下面会介绍equals()方法和hashCode()方法的基本规则。</p>
+<h1 id="equals（）的通用规定摘自Effective-Java）"><a href="#equals（）的通用规定摘自Effective-Java）" class="headerlink" title="equals（）的通用规定摘自Effective Java）"></a>equals（）的通用规定摘自Effective Java）</h1><ul>
+<li>自反性(reflexive)： 对于任何非null的引用值x, x.equals(x)必须返回true；</li>
+<li>对称性(symmetric)： 对于任何非null的引用值x和y，当且仅当y.equals(x)返回true时，x.equals(y)必须返回true；</li>
+<li>传递性(transitive)： 对于任何非null的引用值x、y和z,如果x.equals(y)返回true,并<br>且y.equals(z)也返回true,那么x.equals(2)也 必须返回true；</li>
+<li>一致性; (consistent)：对于任何非null的引用值x和y，只要equals的比较操作在对象中所用的信息没有被修改，多次调用x.equals(y)就会一致地返回true,或者一致地返回false.</li>
+</ul>
+<p><strong>*对于任何非null的引用值x，x.equals(null)必 须返回false.</strong></p>
+<h1 id="重写equals（）和hashCode"><a href="#重写equals（）和hashCode" class="headerlink" title="重写equals（）和hashCode()"></a>重写equals（）和hashCode()</h1><h2 id="重写equals-方法的通用方法（摘自Effective-Java）："><a href="#重写equals-方法的通用方法（摘自Effective-Java）：" class="headerlink" title="重写equals()方法的通用方法（摘自Effective Java）："></a><strong>重写equals()方法的通用方法（摘自Effective Java）：</strong></h2><ol>
+<li><p>使用==操作符检查“参数是否为这个对象的引用”；</p>
+</li>
+<li><p>使用instanceof操作符检查“参数是否是正确的类型”；</p>
+</li>
+<li><p>将参数转化为正确的类型；</p>
+</li>
+<li><p>对于类中的每个关键域，检查参数的域是否和对象的域相匹配；</p>
+</li>
+</ol>
+<p>*新版已经通过比较class来做判断</p>
+<p>&emsp;    &emsp;    如果按照上面的方法来进行重写equals（）方法，那么student中的标准写法应该是这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">    @Override</span><br><span class="line">    public boolean equals(Object obj) &#123;</span><br><span class="line">        if(this == obj)&#123; //（1）判断引用</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">        if(obj instanceof Student)&#123;  //（2）判断类型</span><br><span class="line">            Student anotherStudent = (Student) obj;  //（3）转换类型</span><br><span class="line">            if(this.name.equals(anotherStudent.name) &amp;&amp; this.id.equals(anotherStudent.id)) &#123;  //（4） 比较关键域</span><br><span class="line">                return true;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>–修改自2018.0630</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">    @Override</span><br><span class="line">    public boolean equals(Object obj) &#123;</span><br><span class="line">        if(this == obj)&#123; //（1）判断引用</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">//        if(obj instanceof Student)&#123;  //（2）判断类型</span><br><span class="line">        if(obj != null &amp;&amp; obj.getClass() == Student.class)&#123;</span><br><span class="line">            Student anotherStudent = (Student) obj;  //（3）转换类型</span><br><span class="line">            if(this.name.equals(anotherStudent.name) &amp;&amp; this.id.equals(anotherStudent.id)) &#123;  //（4） 比较关键域</span><br><span class="line">                return true;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="重写hashCode-的基本原则："><a href="#重写hashCode-的基本原则：" class="headerlink" title="重写hashCode()的基本原则："></a>重写hashCode()的基本原则：</h2><ol>
+<li>当两个对象过equals()方法得到的结果为true时，这两个对象的hashcode应该相等；</li>
+<li>对象中用于equals()比较的属性，都应该用来计算hashcode值。</li>
+</ol>
+<p>*附上String类重写equals()和hashCode()的源码作为参考：<br>&emsp;    &emsp;    equals（）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">public boolean equals(Object anObject) &#123;</span><br><span class="line">    if (this == anObject) &#123;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">    if (anObject instanceof String) &#123;</span><br><span class="line">        String anotherString = (String) anObject;</span><br><span class="line">        int n = value.length;</span><br><span class="line">        if (n == anotherString.value.length) &#123;</span><br><span class="line">            char v1[] = value;</span><br><span class="line">            char v2[] = anotherString.value;</span><br><span class="line">            int i = 0;</span><br><span class="line">            while (n-- != 0) &#123;</span><br><span class="line">                if (v1[i] != v2[i])</span><br><span class="line">                        return false;</span><br><span class="line">                i++;</span><br><span class="line">            &#125;</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;    hashCode():</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public int hashCode() &#123;</span><br><span class="line">    int h = hash;</span><br><span class="line">    if (h == 0 &amp;&amp; value.length &gt; 0) &#123;</span><br><span class="line">        char val[] = value;</span><br><span class="line"> </span><br><span class="line">        for (int i = 0; i &lt; value.length; i++) &#123;</span><br><span class="line">            h = 31 * h + val[i];</span><br><span class="line">        &#125;</span><br><span class="line">        hash = h;</span><br><span class="line">    &#125;</span><br><span class="line">    return h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><ol>
+<li>每个对象都有hashcode，这个值可能重复；</li>
+<li>通过equals（）方法得到true结果的，那么他们的hashcode也相同；<br>hashcode相同的，equals（）得到的不一定是true；</li>
+<li>通过hashcode，减少equals判断的次数。如果是在set这种不能存放重复数据的容器中增加数据时，新增的数据如果通过equals（）方法和里面所有已存在的数据进行比较的话，数据量庞大的情况，非常耗费性能，但是hashcode（）的比较不存在这种问题，找出hashcode相同的数据，再使用equals（）进行对象内容的比较，相同就判断为重复数据，不相同就是新数据，通过这种方式，可以增加性能。</li>
+</ol>
+<p>–补充(2018.06.30)：</p>
+<p>hash表的存储示意图：<br><img src="/2018/06/27/java基础之hashcode/2.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    在hash表中，hashcode没有冲突时，也就是一个hashcode上对应一个数据，这个时候效率最高，当hashcode发生冲突时，会用链表来对数据进行管理。</p>
+<p>参考博客:</p>
+<blockquote>
+<p><a href="https://www.cnblogs.com/dolphin0520/p/3681042.html" target="_blank" rel="noopener">https://www.cnblogs.com/dolphin0520/p/3681042.html</a></p>
+</blockquote>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/21/设计模式之工厂模式/" rel="next" title="设计模式之工厂模式">
+                <i class="fa fa-chevron-left"></i> 设计模式之工厂模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/06/27/java集合框架（一）Set/" rel="prev" title="java集合框架（一）Set">
+                java集合框架（一）Set <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是hashCode？"><span class="nav-number">1.</span> <span class="nav-text">什么是hashCode？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#hashCode-方法的作用"><span class="nav-number">2.</span> <span class="nav-text">hashCode()方法的作用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#hashCode（）作用的场景："><span class="nav-number">2.1.</span> <span class="nav-text">hashCode（）作用的场景：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么equals（）和hashCode-总要联系在一起？"><span class="nav-number">3.</span> <span class="nav-text">为什么equals（）和hashCode()总要联系在一起？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#equals（）的通用规定摘自Effective-Java）"><span class="nav-number">4.</span> <span class="nav-text">equals（）的通用规定摘自Effective Java）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#重写equals（）和hashCode"><span class="nav-number">5.</span> <span class="nav-text">重写equals（）和hashCode()</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#重写equals-方法的通用方法（摘自Effective-Java）："><span class="nav-number">5.1.</span> <span class="nav-text">重写equals()方法的通用方法（摘自Effective Java）：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重写hashCode-的基本原则："><span class="nav-number">5.2.</span> <span class="nav-text">重写hashCode()的基本原则：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">6.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
