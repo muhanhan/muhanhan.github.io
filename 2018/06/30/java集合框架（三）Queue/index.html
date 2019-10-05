@@ -79,19 +79,21 @@
 
 
 
-<meta name="description" content="&amp;emsp;    &amp;emsp;    当一个线程被创建并启动以后，它并不是一直处于运行状态，他会有多个状态，在一个线程的生命周期中，总共有五种状态：新建（New），就绪（Runnable），运行（Running），阻塞（Blocked），死亡（Dead）。&amp;emsp;    &amp;emsp;    我们具体说下线程在不同情况下的状态： 新建状态&amp;emsp;    &amp;emsp;    当我们通过new">
+<meta name="description" content="&amp;emsp;    &amp;emsp;    Java中Queue的类图： Queue介绍&amp;emsp;    &amp;emsp;    Queue，java中模拟队列的一种数据结构，先进先出（FIFO）,不支持随机访问数据，通过offer（）方法增加数据到队列尾部，poll（）获取队列头部元素，可以将Queue看成一个通道，最先走进的通道的也是最先走出通道的，最后走进去的，在通道里面呆的时间最久。 Queue">
 <meta property="og:type" content="article">
-<meta property="og:title" content="java多线程（二）线程生命周期">
-<meta property="og:url" content="http://yoursite.com/2018/07/06/java多线程（二）线程生命周期/index.html">
+<meta property="og:title" content="java集合框架（三）Queue">
+<meta property="og:url" content="http://yoursite.com/2018/06/30/java集合框架（三）Queue/index.html">
 <meta property="og:site_name" content="刘老c&#39;s blog">
-<meta property="og:description" content="&amp;emsp;    &amp;emsp;    当一个线程被创建并启动以后，它并不是一直处于运行状态，他会有多个状态，在一个线程的生命周期中，总共有五种状态：新建（New），就绪（Runnable），运行（Running），阻塞（Blocked），死亡（Dead）。&amp;emsp;    &amp;emsp;    我们具体说下线程在不同情况下的状态： 新建状态&amp;emsp;    &amp;emsp;    当我们通过new">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;    Java中Queue的类图： Queue介绍&amp;emsp;    &amp;emsp;    Queue，java中模拟队列的一种数据结构，先进先出（FIFO）,不支持随机访问数据，通过offer（）方法增加数据到队列尾部，poll（）获取队列头部元素，可以将Queue看成一个通道，最先走进的通道的也是最先走出通道的，最后走进去的，在通道里面呆的时间最久。 Queue">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2018/07/06/java多线程（二）线程生命周期/1.png">
-<meta property="og:updated_time" content="2019-10-05T13:36:54.000Z">
+<meta property="og:image" content="http://yoursite.com/2018/06/30/java集合框架（三）Queue/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/30/java集合框架（三）Queue/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/06/30/java集合框架（三）Queue/3.png">
+<meta property="og:updated_time" content="2019-10-05T13:47:17.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="java多线程（二）线程生命周期">
-<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    当一个线程被创建并启动以后，它并不是一直处于运行状态，他会有多个状态，在一个线程的生命周期中，总共有五种状态：新建（New），就绪（Runnable），运行（Running），阻塞（Blocked），死亡（Dead）。&amp;emsp;    &amp;emsp;    我们具体说下线程在不同情况下的状态： 新建状态&amp;emsp;    &amp;emsp;    当我们通过new">
-<meta name="twitter:image" content="http://yoursite.com/2018/07/06/java多线程（二）线程生命周期/1.png">
+<meta name="twitter:title" content="java集合框架（三）Queue">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    Java中Queue的类图： Queue介绍&amp;emsp;    &amp;emsp;    Queue，java中模拟队列的一种数据结构，先进先出（FIFO）,不支持随机访问数据，通过offer（）方法增加数据到队列尾部，poll（）获取队列头部元素，可以将Queue看成一个通道，最先走进的通道的也是最先走出通道的，最后走进去的，在通道里面呆的时间最久。 Queue">
+<meta name="twitter:image" content="http://yoursite.com/2018/06/30/java集合框架（三）Queue/1.png">
 
 
 
@@ -121,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/07/06/java多线程（二）线程生命周期/">
+  <link rel="canonical" href="http://yoursite.com/2018/06/30/java集合框架（三）Queue/">
 
 
 
 
 
-  <title>java多线程（二）线程生命周期 | 刘老c's blog</title>
+  <title>java集合框架（三）Queue | 刘老c's blog</title>
   
 
 
@@ -264,7 +266,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/06/java多线程（二）线程生命周期/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/06/30/java集合框架（三）Queue/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="JiaWei Liu">
@@ -281,7 +283,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">java多线程（二）线程生命周期</h1>
+          <h1 class="post-title" itemprop="name headline">java集合框架（三）Queue</h1>
         
 
         <div class="post-meta">
@@ -293,8 +295,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-06T13:47:44+08:00">
-                2018-07-06
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-06-30T11:08:26+08:00">
+                2018-06-30
               </time>
             
 
@@ -353,33 +355,27 @@
       
 
       
-        <p>&emsp;    &emsp;    当一个线程被创建并启动以后，它并不是一直处于运行状态，他会有多个状态，在一个线程的生命周期中，总共有五种状态：新建（New），就绪（Runnable），运行（Running），阻塞（Blocked），死亡（Dead）。<br>&emsp;    &emsp;    我们具体说下线程在不同情况下的状态：</p>
-<h1 id="新建状态"><a href="#新建状态" class="headerlink" title="新建状态"></a>新建状态</h1><p>&emsp;    &emsp;    当我们通过new创建线程实例的时候，这个线程就已经除了新建状态；</p>
-<h1 id="就绪状态"><a href="#就绪状态" class="headerlink" title="就绪状态"></a>就绪状态</h1><p>&emsp;    &emsp;    当调用线程对象的start()方法以后，线程就从新建状态进入就绪状态，等待系统分配cpu；</p>
-<h1 id="运行状态"><a href="#运行状态" class="headerlink" title="运行状态"></a>运行状态</h1><p>&emsp;    &emsp;    当线程获取cpu以后，它就从就绪状态进入了运行状态，但线程不可能一直持有cpu，以下情况会将线程从运行状态转至阻塞状态：</p>
+        <p>&emsp;    &emsp;    Java中Queue的类图：<br><img src="/2018/06/30/java集合框架（三）Queue/1.png" alt="数据类型示意图"></p>
+<h1 id="Queue介绍"><a href="#Queue介绍" class="headerlink" title="Queue介绍"></a>Queue介绍</h1><p>&emsp;    &emsp;    Queue，java中模拟队列的一种数据结构，先进先出（FIFO）,不支持随机访问数据，通过offer（）方法增加数据到队列尾部，poll（）获取队列头部元素，可以将Queue看成一个通道，最先走进的通道的也是最先走出通道的，最后走进去的，在通道里面呆的时间最久。<br><img src="/2018/06/30/java集合框架（三）Queue/2.png" alt="数据类型示意图"></p>
+<h1 id="Queue主要实现"><a href="#Queue主要实现" class="headerlink" title="Queue主要实现"></a>Queue主要实现</h1><p>&emsp;    &emsp;    Queue中的主要实现有PriorityQueue和LinkedList. PriorityQueue目前还没有接触过，等到用到的时候再来补充，我们这里主要介绍下LinkedList，这是一个功能强大的集合。<br>&emsp;    &emsp;    LinkedList同时实现list和Deque接口，所以它也同时具有了list和queue的特点，它既有索引，是一个list，同时也是一个双向队列，所有它的操作方式也比较多样，list和queue的都可以用，我们用代码看下具体用法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.ColleactionAndMap;</span><br><span class="line"> </span><br><span class="line">import java.util.LinkedList;</span><br><span class="line">import java.util.List;</span><br><span class="line">import java.util.ListIterator;</span><br><span class="line">import java.util.Queue;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/6/29.</span><br><span class="line"> */</span><br><span class="line">public class TestLinkedList &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        List a = new LinkedList();</span><br><span class="line">        Queue q = new LinkedList();</span><br><span class="line">        LinkedList linkedList = new LinkedList();</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">        linkedList.add(0,&quot;jack&quot;);</span><br><span class="line">        linkedList.add(1,&quot;tom&quot;);</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">        System.out.println(linkedList);</span><br><span class="line"> </span><br><span class="line">        //双向链表 直接操作头尾元素</span><br><span class="line">        linkedList.addFirst(&quot;jerry&quot;);</span><br><span class="line">        System.out.println(linkedList);</span><br><span class="line">        linkedList.addLast(&quot;pony&quot;);</span><br><span class="line">        System.out.println(linkedList);</span><br><span class="line"> </span><br><span class="line">        System.out.println(&quot;栈顶元素&quot; + linkedList.peek());</span><br><span class="line">        System.out.println(&quot;栈顶元素&quot; + linkedList.peekFirst());</span><br><span class="line">        System.out.println(&quot;栈底元素&quot; + linkedList.peekLast());</span><br><span class="line"> </span><br><span class="line">        linkedList.offer(&quot;tony&quot;);</span><br><span class="line"> </span><br><span class="line">        System.out.println(linkedList.pop());</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">        ListIterator listIterator = linkedList.listIterator();</span><br><span class="line">        while(listIterator.hasNext())&#123;</span><br><span class="line">            System.out.println(listIterator.next());</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br><img src="/2018/06/30/java集合框架（三）Queue/3.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    queue是不支持随机访问数据的，但是linkedlist因为可以当成list使用，所以他支持随机访问，也可以使用队列中操作头尾的方法，如peekFirst(),offer(),poll()等，同时还可以使用栈的一些方法，如pop（）等，是一个功能强大的集合类。</p>
+<h2 id="Linkedlist优缺点："><a href="#Linkedlist优缺点：" class="headerlink" title="Linkedlist优缺点："></a>Linkedlist优缺点：</h2><p><strong>优点：</strong></p>
 <ol>
-<li>线程调用了sleep（）方法；</li>
-<li>线程调用了一个阻塞的io方法，在等待返回值期间，处于阻塞状态；</li>
-<li>线程对象获取一个同步监视器，这个同步监视器正在被其他线程占用；</li>
-<li>线程对象等待通知（nofity）</li>
-<li>线程对象通过suspend（）方法挂起，但这种方法有可能导致死锁，应该避免使用；</li>
+<li>内部使用链表实现，执行插入、删除操作很快；</li>
+<li>功能强大，list，queue和stack的方法都可以使用；</li>
 </ol>
-<h1 id="阻塞状态"><a href="#阻塞状态" class="headerlink" title="阻塞状态"></a>阻塞状态</h1><p>&emsp;    &emsp;    线程处于阻塞状态时，并不会一直保持，还会重新回到就绪状态：</p>
+<p><strong>缺点：</strong></p>
 <ol>
-<li>线程sleep（）的时间到了；</li>
-<li>线程调用的io方法返回了结果；</li>
-<li>线程获取到了同步监视器；</li>
-<li>线程在等待通知时，其他线程发出了通知；</li>
-<li>线程调用resume（）方法恢复；</li>
+<li>随机访问数据方面不如内部是用数组实现的arraylist和vector。</li>
 </ol>
-<h1 id="死亡状态"><a href="#死亡状态" class="headerlink" title="死亡状态"></a>死亡状态</h1><p>&emsp;    &emsp;    线程最终会以三种方式结束，进入死亡状态：</p>
-<ol>
-<li>线程执行体run（）或call（）执行完毕，线程结束；</li>
-<li>抛出了未捕获的Exception或者Error;</li>
-<li>调用了线程的stop（）方法，有可能导致死锁，避免使用</li>
+<h1 id="ArrayList-Vector-LinkedList比较"><a href="#ArrayList-Vector-LinkedList比较" class="headerlink" title="ArrayList,Vector,LinkedList比较"></a>ArrayList,Vector,LinkedList比较</h1><ol>
+<li>如果需要遍历集合，ArrayList和Vector通过随机访问的方式比较好，LinkedList通过迭代器的方式比较好；</li>
+<li>需要经常执行插入、删除操作时，使用LinkedList比较好，因为他用链表实现，ArrayList和Vector内部会扩容动态分配大小，耗费时间；</li>
+<li>需要线程安全，考虑使用Vector。</li>
 </ol>
-<p>&emsp;    &emsp;    我们用状态转换图来概括下以下线程的生命周期：<br><img src="/2018/07/06/java多线程（二）线程生命周期/1.png" alt="数据类型示意图"></p>
-<p>*只有处于新建状态的线程才可以通过start（）方法进入就绪状态；<br>处于死亡状态的线程无法再通过start（）方法唤醒，会直接抛出状态异常。</p>
 
       
     </div>
@@ -404,8 +400,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/06/30/java集合框架（三）Queue/" rel="next" title="java集合框架（三）Queue">
-                <i class="fa fa-chevron-left"></i> java集合框架（三）Queue
+              <a href="/2018/06/29/java集合框架（二）List/" rel="next" title="java集合框架（二）List">
+                <i class="fa fa-chevron-left"></i> java集合框架（二）List
               </a>
             
           </div>
@@ -414,8 +410,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/07/06/java多线程（三）线程控制/" rel="prev" title="java多线程（三）线程控制">
-                java多线程（三）线程控制 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/07/06/java多线程（二）线程生命周期/" rel="prev" title="java多线程（二）线程生命周期">
+                java多线程（二）线程生命周期 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -539,7 +535,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#新建状态"><span class="nav-number">1.</span> <span class="nav-text">新建状态</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#就绪状态"><span class="nav-number">2.</span> <span class="nav-text">就绪状态</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#运行状态"><span class="nav-number">3.</span> <span class="nav-text">运行状态</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#阻塞状态"><span class="nav-number">4.</span> <span class="nav-text">阻塞状态</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#死亡状态"><span class="nav-number">5.</span> <span class="nav-text">死亡状态</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Queue介绍"><span class="nav-number">1.</span> <span class="nav-text">Queue介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Queue主要实现"><span class="nav-number">2.</span> <span class="nav-text">Queue主要实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Linkedlist优缺点："><span class="nav-number">2.1.</span> <span class="nav-text">Linkedlist优缺点：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ArrayList-Vector-LinkedList比较"><span class="nav-number">3.</span> <span class="nav-text">ArrayList,Vector,LinkedList比较</span></a></li></ol></div>
             
 
           </div>
