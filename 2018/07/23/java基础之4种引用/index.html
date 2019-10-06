@@ -79,19 +79,17 @@
 
 
 
-<meta name="description" content="&amp;emsp;    &amp;emsp;    final是java中常见的关键字之一，从字面意思来看，使用final修饰的内容通常都是确定好的内容，不需要再改变值。我们从final可以修饰的对象来了解final。 final修饰变量&amp;emsp;    &amp;emsp;    final可以修饰成员变量和局部变量，但是两者用法有一些细微区别。 final修饰成员变量&amp;emsp;    &amp;emsp;    我们">
+<meta name="description" content="&amp;emsp;    &amp;emsp;我们知道java中有一个垃圾回收机制（gc），在合适的时候gc会清理内存中的垃圾,释放内存。虽然Object类中提供了finalize()用来清理资源，但是finalize()具有不确定性，不能明确知道什么时候会对资源进行回收。java提供了4种引用类型，让开发者可以直接控制对象的生命周期，配合引用队列可以知道对象在何时被gc清理。&amp;emsp;    &amp;emsp;按">
 <meta property="og:type" content="article">
-<meta property="og:title" content="java基础之final关键字">
-<meta property="og:url" content="http://yoursite.com/2018/07/22/java基础之final关键字/index.html">
+<meta property="og:title" content="java基础之4种引用">
+<meta property="og:url" content="http://yoursite.com/2018/07/23/java基础之4种引用/index.html">
 <meta property="og:site_name" content="刘老c&#39;s blog">
-<meta property="og:description" content="&amp;emsp;    &amp;emsp;    final是java中常见的关键字之一，从字面意思来看，使用final修饰的内容通常都是确定好的内容，不需要再改变值。我们从final可以修饰的对象来了解final。 final修饰变量&amp;emsp;    &amp;emsp;    final可以修饰成员变量和局部变量，但是两者用法有一些细微区别。 final修饰成员变量&amp;emsp;    &amp;emsp;    我们">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;我们知道java中有一个垃圾回收机制（gc），在合适的时候gc会清理内存中的垃圾,释放内存。虽然Object类中提供了finalize()用来清理资源，但是finalize()具有不确定性，不能明确知道什么时候会对资源进行回收。java提供了4种引用类型，让开发者可以直接控制对象的生命周期，配合引用队列可以知道对象在何时被gc清理。&amp;emsp;    &amp;emsp;按">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2018/07/22/java基础之final关键字/1.png">
-<meta property="og:updated_time" content="2019-10-03T07:46:11.000Z">
+<meta property="og:updated_time" content="2019-10-06T10:08:07.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="java基础之final关键字">
-<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    final是java中常见的关键字之一，从字面意思来看，使用final修饰的内容通常都是确定好的内容，不需要再改变值。我们从final可以修饰的对象来了解final。 final修饰变量&amp;emsp;    &amp;emsp;    final可以修饰成员变量和局部变量，但是两者用法有一些细微区别。 final修饰成员变量&amp;emsp;    &amp;emsp;    我们">
-<meta name="twitter:image" content="http://yoursite.com/2018/07/22/java基础之final关键字/1.png">
+<meta name="twitter:title" content="java基础之4种引用">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;我们知道java中有一个垃圾回收机制（gc），在合适的时候gc会清理内存中的垃圾,释放内存。虽然Object类中提供了finalize()用来清理资源，但是finalize()具有不确定性，不能明确知道什么时候会对资源进行回收。java提供了4种引用类型，让开发者可以直接控制对象的生命周期，配合引用队列可以知道对象在何时被gc清理。&amp;emsp;    &amp;emsp;按">
 
 
 
@@ -121,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/07/22/java基础之final关键字/">
+  <link rel="canonical" href="http://yoursite.com/2018/07/23/java基础之4种引用/">
 
 
 
 
 
-  <title>java基础之final关键字 | 刘老c's blog</title>
+  <title>java基础之4种引用 | 刘老c's blog</title>
   
 
 
@@ -264,7 +262,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/22/java基础之final关键字/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/23/java基础之4种引用/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="JiaWei Liu">
@@ -281,7 +279,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">java基础之final关键字</h1>
+          <h1 class="post-title" itemprop="name headline">java基础之4种引用</h1>
         
 
         <div class="post-meta">
@@ -293,8 +291,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-22T14:39:50+08:00">
-                2018-07-22
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-23T10:39:56+08:00">
+                2018-07-23
               </time>
             
 
@@ -353,56 +351,15 @@
       
 
       
-        <p>&emsp;    &emsp;    final是java中常见的关键字之一，从字面意思来看，使用final修饰的内容通常都是确定好的内容，不需要再改变值。我们从final可以修饰的对象来了解final。</p>
-<h1 id="final修饰变量"><a href="#final修饰变量" class="headerlink" title="final修饰变量"></a>final修饰变量</h1><p>&emsp;    &emsp;    final可以修饰成员变量和局部变量，但是两者用法有一些细微区别。</p>
-<h2 id="final修饰成员变量"><a href="#final修饰成员变量" class="headerlink" title="final修饰成员变量"></a>final修饰成员变量</h2><p>&emsp;    &emsp;    我们知道成员变量根据是否使用static修饰符修饰分为类变量和实例变量。</p>
-<p>&emsp;    &emsp;    使用final修饰类变量时，只能在：</p>
-<ol>
-<li>声明处</li>
-<li>静态代码块<br>这两个地方对类变量进行初始化，其他任何地方对它进行赋值都是非法的。</li>
-</ol>
-<p>&emsp;    &emsp;    使用final修饰实例变量时，只能在：</p>
-<ol>
-<li>声明处</li>
-<li>代码块</li>
-<li>构造器中<br>&emsp;    &emsp;    这三个地方进行初始化，因为final类型的值初始化以后不可变，所以使用final修饰的实例变量无法提供对应的setter方法。</li>
-</ol>
-<h2 id="final修饰局部变量"><a href="#final修饰局部变量" class="headerlink" title="final修饰局部变量"></a>final修饰局部变量</h2><p>&emsp;    &emsp;    局部变量有三种场景：</p>
-<ol>
-<li>代码块中</li>
-<li>方法内部</li>
-<li>方法的形参<br>&emsp;    &emsp;用final修饰形参时，通过调用该方法时给这个参数赋值且后续不可变，修饰其他两种情况时，可以在声明处完成初始化工作，也可以在其他地方给这个变量进行赋值，但也只能赋值一次。</li>
-</ol>
-<h1 id="宏变量的概念"><a href="#宏变量的概念" class="headerlink" title="宏变量的概念"></a>宏变量的概念</h1><p>&emsp;    &emsp;    java中有一个概念叫做“宏变量”，就是说有一个变量的值在编译时就可以确定下来，编译器就会将代码中所有用到这个变量的地方直接替换成对应的值。</p>
-<p>&emsp;    &emsp;    final一个重要的用途就是用来定义宏变量。</p>
-<p>&emsp;    &emsp;    对于final修饰的变量，不管是成员变量还是局部变量，只要满足以下三个条件，这个变量就可以称为直接量，也就是一个宏变量：</p>
-<ol>
-<li><p>使用final修饰；</p>
-</li>
-<li><p>在定义final时指定了初始值；</p>
-</li>
-<li><p>在编译时可以确定下来。</p>
-</li>
-</ol>
-<p>&emsp;    &emsp;    可能大家会对第三条有疑问，什么情况才算是编译时可以确定下来。我们可以举个简单的例子：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">	package com.ljw.field;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/20.</span><br><span class="line"> */</span><br><span class="line">public class TestFinal &#123;</span><br><span class="line"> </span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        final String s = &quot;123&quot;;</span><br><span class="line">        final String s1 = &quot;12&quot; + &quot;3&quot;;</span><br><span class="line">        final String s2 = &quot;12&quot; + String.valueOf(3);</span><br><span class="line"> </span><br><span class="line">        System.out.println(s == s1);</span><br><span class="line">        System.out.println(s == s2);</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <p>&emsp;    &emsp;我们知道java中有一个垃圾回收机制（gc），在合适的时候gc会清理内存中的垃圾,释放内存。虽然Object类中提供了finalize()用来清理资源，但是finalize()具有不确定性，不能明确知道什么时候会对资源进行回收。java提供了4种引用类型，让开发者可以直接控制对象的生命周期，配合引用队列可以知道对象在何时被gc清理。<br>&emsp;    &emsp;按照级别高低从高到低分为<strong>强引用</strong>(StrongRefrence),<strong>软引用</strong>(SoftRefrence),<strong>弱引用</strong>(WeakRefrence)和<strong>虚引用</strong>(PhantomRefrence)。</p>
+<h1 id="强引用"><a href="#强引用" class="headerlink" title="强引用"></a>强引用</h1><p>&emsp;    &emsp;强引用也就是我们平时使用的最多的引用，通过声明一个变量指向一个对象这种形式的都是强引用：String s = new String(“hello world”);<br>&emsp;    &emsp;强引用的特点就是只要还有引用指向这个对象，那么gc就不会回收这种对象，即便因为内存不足而抛出OutOfMemory(OOM).如果需要回收这种强引用的对象，可以显式的将他置为null，断开变量和对象之间的引用，这样gc就会回收这种没有任何指向的对象。</p>
+<h1 id="软引用"><a href="#软引用" class="headerlink" title="软引用"></a>软引用</h1><p>&emsp;    &emsp;软引用需要通过SoftRefrence类来实现，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String s = &quot;hello world&quot;;</span><br><span class="line">SoftReference softReference = new SoftReference(s);</span><br></pre></td></tr></table></figure>
 
-<p>&emsp;    &emsp;    我们可以看到，s,s1,s2三个变量的内容实际上都是“123”，但是我们从运行结果可以看到：<br><img src="/2018/07/22/java基础之final关键字/1.png" alt="数据类型示意图"></p>
-<p>&emsp;    &emsp;    通过==判断进行比较，s和s1是相同的地址，s和s2比较的结果得到的是false，通过+连接符赋值和直接赋值是等价的，但是调用方法以后会这个变量就不会在编译时被确定下来，总结下来就是：</p>
-<p>&emsp;    &emsp;    <strong>如果只是通过连接符进行连接，没有访问变量，也没有调用方法的话，这种变量同样可以在编译时就被确定下来。</strong></p>
-<h1 id="final修饰方法"><a href="#final修饰方法" class="headerlink" title="final修饰方法"></a>final修饰方法</h1><p>&emsp;    &emsp;    使用final修饰方法代表不希望这个方法被子类重写，但是方法依然可以被重载。</p>
-<h1 id="final修饰类"><a href="#final修饰类" class="headerlink" title="final修饰类"></a>final修饰类</h1><p>&emsp;    &emsp;    使用final修饰的类不能被其它类继承，所以final修饰的类都没有子类。</p>
-<p><strong>不可变类(immutable)</strong></p>
-<p>&emsp;    &emsp;    java中还有不可变类的说法，就是说一个类的实例变量创建以后不可以被改变，基本数据的包装类和String类都是不可变类。</p>
-<p>&emsp;    &emsp;    在介绍String,StringBuilder和StringBuffer的时候，我们说过String是一个不可变类，因为不管是通过+操作符或者concat()对字符串进行拼接，每次返回的都是一个新的string对象，最主要的还是类本身对实例变量没有提供修改的setter方法。</p>
-<p>&emsp;    &emsp;    参照这几个不可变类的规则，可以对不可变类进行简单的总结：</p>
-<ol>
-<li>实例变量使用private 和 final进行修饰；</li>
-<li>只提供getter方法；</li>
-<li>通过构造器来对实例变量进行初始化；</li>
-<li>有必要的话，可以重写Object类的equals（）和hashCode()方法</li>
-</ol>
-<h1 id="final总结"><a href="#final总结" class="headerlink" title="final总结"></a>final总结</h1><p>&emsp;    &emsp;    <strong>使用final关键字主要就是两个目的：设计和效率，比如方法不想被重写，类不想被继承，这就是处于设计的目的使用fianl，比如通过final定义宏变量，方法使用fianl也会使调用专为内嵌调用，这就是处于效率的考虑。</strong></p>
+<p>&emsp;    &emsp;当gc运作时，如果对象只被软引用给指向，那么gc会回收这些对象，如果这些对象回收以后还是内存不足，才会提示OOM;<br>&emsp;    &emsp;软引用适用于缓存的环境下，内存不够了清除之前的缓存。</p>
+<p>#弱引用：</p>
+<pre><code>强度小于软引用，和软引用类似的是当一个对象所有的指向都是弱引用的时候，gc会回收这个对象，不过弱引用主要使用的场景在集合中，比如map下面的WeakHashMap，在往hash表插入数据键值对时，如果key已存在并且使用的是强引用，那么这个对象就不会被gc回收，如果这个map对象一直存在，那么最终会消耗掉所有的内存，导致OOM.</code></pre><p>虚引用：</p>
+<pre><code>虚引用需要配合引用队列使用，也是为了垃圾回收服务的，因为不知道资源被回收的准确时间，没法在回收时做处理，所以通过引用队列，当对象被清理，会被加入引用队列，这样只要监听引用队列中的变化就可以知道是否有对象被gc给清理，通过这种方法可以在对象被清理回收时做一些操作。</code></pre><p>————————————————<br>版权声明：本文为CSDN博主「loveNY啊」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/qq_23585245/article/details/81163763" target="_blank" rel="noopener">https://blog.csdn.net/qq_23585245/article/details/81163763</a></p>
 
       
     </div>
@@ -427,8 +384,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/07/18/java基础之成员变量和局部变量/" rel="next" title="java基础之成员变量和局部变量">
-                <i class="fa fa-chevron-left"></i> java基础之成员变量和局部变量
+              <a href="/2018/07/22/java基础之final关键字/" rel="next" title="java基础之final关键字">
+                <i class="fa fa-chevron-left"></i> java基础之final关键字
               </a>
             
           </div>
@@ -437,8 +394,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/07/23/java基础之4种引用/" rel="prev" title="java基础之4种引用">
-                java基础之4种引用 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/07/24/java基础之异常处理机制/" rel="prev" title="java基础之异常处理机制">
+                java基础之异常处理机制 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -562,7 +519,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#final修饰变量"><span class="nav-number">1.</span> <span class="nav-text">final修饰变量</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#final修饰成员变量"><span class="nav-number">1.1.</span> <span class="nav-text">final修饰成员变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#final修饰局部变量"><span class="nav-number">1.2.</span> <span class="nav-text">final修饰局部变量</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#宏变量的概念"><span class="nav-number">2.</span> <span class="nav-text">宏变量的概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#final修饰方法"><span class="nav-number">3.</span> <span class="nav-text">final修饰方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#final修饰类"><span class="nav-number">4.</span> <span class="nav-text">final修饰类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#final总结"><span class="nav-number">5.</span> <span class="nav-text">final总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#强引用"><span class="nav-number">1.</span> <span class="nav-text">强引用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#软引用"><span class="nav-number">2.</span> <span class="nav-text">软引用</span></a></li></ol></div>
             
 
           </div>
