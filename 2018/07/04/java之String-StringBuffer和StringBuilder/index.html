@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;在java中有关这三个对象的比较一直是一个老生常谈的问题，大部分人了解的也就限于StringBuffer是线程安全的，而StringBuilder是非线程安全的。今天我们一起看下这三者之间的联系和区别。 &amp;emsp;    &amp;emsp;我们先从类图中看下这三个类之间的关系： &amp;emsp;    &amp;emsp;可以看到String,StringBuffer和String">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java之String,StringBuffer和StringBuilder">
+<meta property="og:url" content="http://yoursite.com/2018/07/04/java之String-StringBuffer和StringBuilder/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;在java中有关这三个对象的比较一直是一个老生常谈的问题，大部分人了解的也就限于StringBuffer是线程安全的，而StringBuilder是非线程安全的。今天我们一起看下这三者之间的联系和区别。 &amp;emsp;    &amp;emsp;我们先从类图中看下这三个类之间的关系： &amp;emsp;    &amp;emsp;可以看到String,StringBuffer和String">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/07/04/java之String-StringBuffer和StringBuilder/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/04/java之String-StringBuffer和StringBuilder/2.png">
+<meta property="og:updated_time" content="2019-10-06T10:04:56.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java之String,StringBuffer和StringBuilder">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;在java中有关这三个对象的比较一直是一个老生常谈的问题，大部分人了解的也就限于StringBuffer是线程安全的，而StringBuilder是非线程安全的。今天我们一起看下这三者之间的联系和区别。 &amp;emsp;    &amp;emsp;我们先从类图中看下这三个类之间的关系： &amp;emsp;    &amp;emsp;可以看到String,StringBuffer和String">
+<meta name="twitter:image" content="http://yoursite.com/2018/07/04/java之String-StringBuffer和StringBuilder/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/07/04/java之String-StringBuffer和StringBuilder/">
+
+
+
+
+
+  <title>java之String,StringBuffer和StringBuilder | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/04/java之String-StringBuffer和StringBuilder/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java之String,StringBuffer和StringBuilder</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-04T14:12:07+08:00">
+                2018-07-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;在java中有关这三个对象的比较一直是一个老生常谈的问题，大部分人了解的也就限于StringBuffer是线程安全的，而StringBuilder是非线程安全的。今天我们一起看下这三者之间的联系和区别。</p>
+<p>&emsp;    &emsp;我们先从类图中看下这三个类之间的关系：<br><img src="/2018/07/04/java之String-StringBuffer和StringBuilder/1.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;可以看到String,StringBuffer和StringBuilder三者都实现了CharSequence接口，这个接口用于表示有序的字符集合。在java这三个对象都可以用来代表字符串,他们的底层也都是用的字符数组来实现。这是他们三者之间的联系。我们接下来看下它们的之间的区别：</p>
+<h1 id="对象可变性"><a href="#对象可变性" class="headerlink" title="对象可变性"></a>对象可变性</h1><p>&emsp;    &emsp;在很多地方都有说明String是不可变对象，而StringBuffer和StringBuilder是可变对象，怎么理解这个对象可不可变呢？其实我们可以自己写一个测试类来帮助我们理解这个概念：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.StringStringBuilderStringBuffer;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/3.</span><br><span class="line"> */</span><br><span class="line">public class Test &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        String a = &quot;&quot;;</span><br><span class="line">        StringBuffer stringBuffer = new StringBuffer();</span><br><span class="line">        StringBuilder stringBuilder = new StringBuilder();</span><br><span class="line"> </span><br><span class="line">        System.out.print(&quot;改变String a的值之后和a进行比较的结果&quot;);</span><br><span class="line">        System.out.print(a == a + &quot;b&quot;);</span><br><span class="line">        System.out.print(&quot;  &quot;);</span><br><span class="line">        System.out.println(a == a.concat(&quot;b&quot;));</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">        System.out.print(&quot;改变StringBuffer的值之后和StringBuffer进行比较的结果&quot;);</span><br><span class="line">        System.out.println(stringBuffer == stringBuffer.append(&quot;ab&quot;));</span><br><span class="line"> </span><br><span class="line">        System.out.print(&quot;改变StringBuilder的值之后和StringBuilder进行比较的结果&quot;);</span><br><span class="line">        System.out.println(stringBuilder == stringBuilder.append(&quot;ab&quot;));</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;在这个测试类中，我们分别声明了一个String 对象，一个StringBuffer对象和一个StringBuilder对象，改变他们的字符串对象以后，再与原对象进行比较，看一下运行的结果：<br><img src="/2018/07/04/java之String-StringBuffer和StringBuilder/2.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;可以看到，String类型的对象，不管是通过+操作符拼接字符串还是使用concat()方法，只要对象的内容发生改变以后，它都变成了一个对象，StringBuffer和StringBuilder类型的两个对象在改变了内容以后，还是原来的对象。我们这个时候并不知道为什么String是不可变对象，StringBuffer和StringBuilder是可变的，但通过代码的测试，我们已经可以得出这个结论。下面我们分析以下他们的源码帮助我们理解这个可变性。</p>
+<h1 id="底层源码分析"><a href="#底层源码分析" class="headerlink" title="底层源码分析"></a>底层源码分析</h1><h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><p>String提供了很多不同的构造方法，我们用最常见的来进行分析：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public String(String original) &#123;</span><br><span class="line">    this.value = original.value;</span><br><span class="line">    this.hash = original.hash;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>private final char value[];</p>
+</blockquote>
+<p>&emsp;    &emsp;可以看到，String里面用final定义了一个字符数组变量用来存储数据，并且没有提供对应的getter和setter方法来对这个对象进行修改，当我们进行字符串拼接时，再看下concat()方法(用+操作符拼接字符串其实也是调用的这个方法，调试可以发现都是进的这个)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public String concat(String str) &#123;</span><br><span class="line">    int otherLen = str.length();</span><br><span class="line">    if (otherLen == 0) &#123;</span><br><span class="line">        return this;</span><br><span class="line">    &#125;</span><br><span class="line">    int len = value.length;</span><br><span class="line">    char buf[] = Arrays.copyOf(value, len + otherLen);</span><br><span class="line">    str.getChars(buf, len);</span><br><span class="line">    return new String(buf, true);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;在这个方法里面，我们可以清楚的看到拼接字符串所做的操作，通过数组工具类创建一个新的长度的字符数组，在通过底层的复制，将原有的数组内容复制到新的数组当中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">void getChars(char dst[], int dstBegin) &#123;</span><br><span class="line">    System.arraycopy(value, 0, dst, dstBegin, value.length);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">void getChars(char dst[], int dstBegin) &#123;</span><br><span class="line">    System.arraycopy(value, 0, dst, dstBegin, value.length);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后在调用自身的另一个构造方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">String(char[] value, boolean share) &#123;</span><br><span class="line">    // assert share : &quot;unshared not supported&quot;;</span><br><span class="line">    this.value = value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;返回一个新的String对象，这就是为什么String类型的变量在初始化完成以后就不可变的原因。</p>
+<h2 id="StringBuffer"><a href="#StringBuffer" class="headerlink" title="StringBuffer"></a>StringBuffer</h2><p>先看下StringBuffer的构造方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public StringBuffer() &#123;</span><br><span class="line">    super(16);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public StringBuffer(int capacity) &#123;</span><br><span class="line">    super(capacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public StringBuffer(String str) &#123;</span><br><span class="line">    super(str.length() + 16);</span><br><span class="line">    append(str);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public StringBuffer(CharSequence seq) &#123;</span><br><span class="line">    this(seq.length() + 16);</span><br><span class="line">    append(seq);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>四个构造函数，最终调用的都是父类中的方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">AbstractStringBuilder(int capacity) &#123;</span><br><span class="line">    value = new char[capacity];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>char[] value;</p>
+</blockquote>
+<p>后面两个构造方法支持直接将字符串作为参数，其实就是先调用第二个构造函数，再调用append方法进行填充，我们一起看下这个append() 方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public synchronized StringBuffer append(String str) &#123;</span><br><span class="line">    super.append(str);</span><br><span class="line">    return this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public AbstractStringBuilder append(String str) &#123;</span><br><span class="line">    if (str == null) str = &quot;null&quot;;</span><br><span class="line">    int len = str.length();</span><br><span class="line">    ensureCapacityInternal(count + len);</span><br><span class="line">    str.getChars(0, len, value, count);</span><br><span class="line">    count += len;</span><br><span class="line">    return this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public void getChars(int srcBegin, int srcEnd, char dst[], int dstBegin) &#123;</span><br><span class="line">    if (srcBegin &lt; 0) &#123;</span><br><span class="line">        throw new StringIndexOutOfBoundsException(srcBegin);</span><br><span class="line">    &#125;</span><br><span class="line">    if (srcEnd &gt; value.length) &#123;</span><br><span class="line">        throw new StringIndexOutOfBoundsException(srcEnd);</span><br><span class="line">    &#125;</span><br><span class="line">    if (srcBegin &gt; srcEnd) &#123;</span><br><span class="line">        throw new StringIndexOutOfBoundsException(srcEnd - srcBegin);</span><br><span class="line">    &#125;</span><br><span class="line">    System.arraycopy(value, srcBegin, dst, dstBegin, srcEnd - srcBegin);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;我们可以看到StringBuffer中的append()方法调用的是父类方法，父类中的操作是利用底层的数组复制，将新增的内容放入一个新的数组当中，它没有产生新的StringBuffer对象，只是操作了原有的字符数组，所以这个对象是可变的，而且我们还注意到StringBuffer中的append（）方法是被synchronized修饰符给修饰的，这说明这是一个线程安全的方法，除了这个方法，StringBuffer中的其他方法也基本都使用了synchronized修饰符，这说明StringBuffer是一个线程安全的对象</p>
+<h2 id="StringBuilder"><a href="#StringBuilder" class="headerlink" title="StringBuilder"></a>StringBuilder</h2><p>先看一下StringBuilder的构造方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public StringBuilder() &#123;</span><br><span class="line">    super(16);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public StringBuilder(int capacity) &#123;</span><br><span class="line">    super(capacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public StringBuilder(String str) &#123;</span><br><span class="line">    super(str.length() + 16);</span><br><span class="line">    append(str);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public StringBuilder(CharSequence seq) &#123;</span><br><span class="line">    this(seq.length() + 16);</span><br><span class="line">    append(seq);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;可以看到，StringBuilder的构造方法和StringBuffer一摸一样，我们看下StringBuilder的append()方法，和StringBuffer一样，他有多个append（）方法，支持插入不同类型的数据，我们这里只看其中一个：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public StringBuilder append(String str) &#123;</span><br><span class="line">    super.append(str);</span><br><span class="line">    return this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public AbstractStringBuilder append(String str) &#123;</span><br><span class="line">    if (str == null) str = &quot;null&quot;;</span><br><span class="line">    int len = str.length();</span><br><span class="line">    ensureCapacityInternal(count + len);</span><br><span class="line">    str.getChars(0, len, value, count);</span><br><span class="line">    count += len;</span><br><span class="line">    return this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public void getChars(int srcBegin, int srcEnd, char dst[], int dstBegin) &#123;</span><br><span class="line">    if (srcBegin &lt; 0) &#123;</span><br><span class="line">        throw new StringIndexOutOfBoundsException(srcBegin);</span><br><span class="line">    &#125;</span><br><span class="line">    if (srcEnd &gt; value.length) &#123;</span><br><span class="line">        throw new StringIndexOutOfBoundsException(srcEnd);</span><br><span class="line">    &#125;</span><br><span class="line">    if (srcBegin &gt; srcEnd) &#123;</span><br><span class="line">        throw new StringIndexOutOfBoundsException(srcEnd - srcBegin);</span><br><span class="line">    &#125;</span><br><span class="line">    System.arraycopy(value, srcBegin, dst, dstBegin, srcEnd - srcBegin);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;可以看到，大体上和StringBuffer是一样的，只是StringBuilder中的append方法没有使用synchronized修饰符，这代表它并不是一个线程安全的方法，事实上StringBuilder是在StringBuffer之后才出现的类，它的目的就是为了在单线程的环境下使用</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
+<li>String, StringBuffer和StringBuilder都可以用来表示字符串常量，但是String类型的对象不可变，如果需要改变字符串内容，建议使用StringBuffer和StringBuilder；</li>
+<li>StringBuffer和StringBuilder的用法完全相同，区别在于StringBuffer是线程安全的，建议使用在多线程环境下，StringBuilder是非线程安全的，建议使用在单线程环境下。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/03/java之-和equals-的区别/" rel="next" title="java之==和equals()的区别">
+                <i class="fa fa-chevron-left"></i> java之==和equals()的区别
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/06/java多线程（二）线程生命周期/" rel="prev" title="java多线程（二）线程生命周期">
+                java多线程（二）线程生命周期 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#对象可变性"><span class="nav-number">1.</span> <span class="nav-text">对象可变性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#底层源码分析"><span class="nav-number">2.</span> <span class="nav-text">底层源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#String"><span class="nav-number">2.1.</span> <span class="nav-text">String</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#StringBuffer"><span class="nav-number">2.2.</span> <span class="nav-text">StringBuffer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#StringBuilder"><span class="nav-number">2.3.</span> <span class="nav-text">StringBuilder</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
