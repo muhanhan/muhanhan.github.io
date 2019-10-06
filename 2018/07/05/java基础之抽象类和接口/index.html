@@ -79,14 +79,17 @@
 
 
 
+<meta name="description" content="&amp;emsp;    &amp;emsp;抽象类和接口的使用在java开发中是比较常见的，今天我们就来比较下接口类和抽象类的之前的联系和区别。 抽象类什么是抽象类？&amp;emsp;    &amp;emsp;使用abstract修饰符来修饰的类就是抽象类，使用abstract修饰的方法就叫抽象方法，抽象方法没有方法体。抽象类除了不能实例化以外，其他都和普通的java类一样。 抽象类需要遵守的规则 抽象类必须使用abst">
 <meta property="og:type" content="article">
-<meta property="og:title" content="java基础之类加载机制">
-<meta property="og:url" content="http://yoursite.com/2019/10/02/java基础之类加载机制/index.html">
+<meta property="og:title" content="java基础之抽象类和接口">
+<meta property="og:url" content="http://yoursite.com/2018/07/05/java基础之抽象类和接口/index.html">
 <meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;抽象类和接口的使用在java开发中是比较常见的，今天我们就来比较下接口类和抽象类的之前的联系和区别。 抽象类什么是抽象类？&amp;emsp;    &amp;emsp;使用abstract修饰符来修饰的类就是抽象类，使用abstract修饰的方法就叫抽象方法，抽象方法没有方法体。抽象类除了不能实例化以外，其他都和普通的java类一样。 抽象类需要遵守的规则 抽象类必须使用abst">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-02T01:45:02.000Z">
+<meta property="og:updated_time" content="2019-10-06T10:12:23.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="java基础之类加载机制">
+<meta name="twitter:title" content="java基础之抽象类和接口">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;抽象类和接口的使用在java开发中是比较常见的，今天我们就来比较下接口类和抽象类的之前的联系和区别。 抽象类什么是抽象类？&amp;emsp;    &amp;emsp;使用abstract修饰符来修饰的类就是抽象类，使用abstract修饰的方法就叫抽象方法，抽象方法没有方法体。抽象类除了不能实例化以外，其他都和普通的java类一样。 抽象类需要遵守的规则 抽象类必须使用abst">
 
 
 
@@ -116,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/10/02/java基础之类加载机制/">
+  <link rel="canonical" href="http://yoursite.com/2018/07/05/java基础之抽象类和接口/">
 
 
 
 
 
-  <title>java基础之类加载机制 | 刘老c's blog</title>
+  <title>java基础之抽象类和接口 | 刘老c's blog</title>
   
 
 
@@ -259,7 +262,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/02/java基础之类加载机制/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/05/java基础之抽象类和接口/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="JiaWei Liu">
@@ -276,7 +279,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">java基础之类加载机制</h1>
+          <h1 class="post-title" itemprop="name headline">java基础之抽象类和接口</h1>
         
 
         <div class="post-meta">
@@ -288,8 +291,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-02T09:45:02+08:00">
-                2019-10-02
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-05T09:06:21+08:00">
+                2018-07-05
               </time>
             
 
@@ -298,6 +301,28 @@
             
           </span>
 
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -326,7 +351,34 @@
       
 
       
-        
+        <p>&emsp;    &emsp;抽象类和接口的使用在java开发中是比较常见的，今天我们就来比较下接口类和抽象类的之前的联系和区别。</p>
+<h1 id="抽象类"><a href="#抽象类" class="headerlink" title="抽象类"></a>抽象类</h1><h2 id="什么是抽象类？"><a href="#什么是抽象类？" class="headerlink" title="什么是抽象类？"></a>什么是抽象类？</h2><p>&emsp;    &emsp;使用abstract修饰符来修饰的类就是抽象类，使用abstract修饰的方法就叫抽象方法，抽象方法没有方法体。抽象类除了不能实例化以外，其他都和普通的java类一样。</p>
+<h2 id="抽象类需要遵守的规则"><a href="#抽象类需要遵守的规则" class="headerlink" title="抽象类需要遵守的规则"></a>抽象类需要遵守的规则</h2><ol>
+<li>抽象类必须使用abstract修饰符来修饰；</li>
+<li>抽象类不可以被实例化，不能通过new来调用构造器创造实例；</li>
+<li>抽象类中只能有成员变量，构造器，方法（普通方法和抽象方法都可以），初始化块，内部类（接口和枚举），构造器主要用来被子类调用；</li>
+<li>以下三种情况只能被定义成抽象类：</li>
+</ol>
+<ul>
+<li>内部有抽象方法；</li>
+<li>继承了抽象类但没有完全实现父类的抽象方法；</li>
+<li>实现了接口但没有完全重写接口中的方法；</li>
+</ul>
+<h2 id="使用抽象类的好处"><a href="#使用抽象类的好处" class="headerlink" title="使用抽象类的好处"></a>使用抽象类的好处</h2><p>&emsp;    &emsp;抽象类可以更好的发挥java的多态性，建立良好的继承层次。</p>
+<h1 id="接口："><a href="#接口：" class="headerlink" title="接口："></a>接口：</h1><h2 id="什么是接口？"><a href="#什么是接口？" class="headerlink" title="什么是接口？"></a>什么是接口？</h2><pre><code>使用interface关键字代替class的‘类’就是接口，接口是一个极度抽象的类，这个这个类里面只定义一系列规范，没有任何的具体实现。</code></pre><h2 id="接口需要遵守的规则"><a href="#接口需要遵守的规则" class="headerlink" title="接口需要遵守的规则"></a>接口需要遵守的规则</h2><p>接口中只能有成员变量（静态常量），方法（抽象方法，类方法和默认方法），内部类（接口和枚举）<br>    *类方法和默认方法，jdk8才支持<br>接口中的方法默认的修饰符都是public abstract<br>接口中的常量默认修饰符是public static final</p>
+<h2 id="使用接口的好处"><a href="#使用接口的好处" class="headerlink" title="使用接口的好处"></a>使用接口的好处</h2><ul>
+<li>面向接口编程，实现松耦合；</li>
+<li>可以实现多个接口达到组合的目的；</li>
+<li>接口可以多继承；</li>
+</ul>
+<h1 id="抽象类和接口的区别："><a href="#抽象类和接口的区别：" class="headerlink" title="抽象类和接口的区别："></a>抽象类和接口的区别：</h1><p><strong>相同处</strong>：</p>
+<ol>
+<li>都不能被实例化；</li>
+<li>里面的抽象方法都需要被继承或者实现的子类重写。</li>
+</ol>
+<p><strong>区别</strong>：<br>抽象类和接口的区别主要在设计目的上：<br>抽象类体现的是模板设计的理念，多个子类抽取出一个父类，实现了一部分方法，个性化的方法交由子类自己实现。<br>接口则是定义一系列规范给各组件，体现的是模块之间的解耦。</p>
+<p>————————————————<br>版权声明：本文为CSDN博主「loveNY啊」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。<br>原文链接：<a href="https://blog.csdn.net/qq_23585245/article/details/80921442" target="_blank" rel="noopener">https://blog.csdn.net/qq_23585245/article/details/80921442</a></p>
+
       
     </div>
     
@@ -350,8 +402,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/10/02/java多线程（一）认识多线程/" rel="next" title="java多线程（一）认识多线程">
-                <i class="fa fa-chevron-left"></i> java多线程（一）认识多线程
+              <a href="/2018/07/04/java之String-StringBuffer和StringBuilder/" rel="next" title="java之String,StringBuffer和StringBuilder">
+                <i class="fa fa-chevron-left"></i> java之String,StringBuffer和StringBuilder
               </a>
             
           </div>
@@ -360,8 +412,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/10/02/java基础之static/" rel="prev" title="java基础之static">
-                java基础之static <i class="fa fa-chevron-right"></i>
+              <a href="/2018/07/06/java多线程（二）线程生命周期/" rel="prev" title="java多线程（二）线程生命周期">
+                java多线程（二）线程生命周期 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -414,8 +466,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -466,6 +527,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#抽象类"><span class="nav-number">1.</span> <span class="nav-text">抽象类</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是抽象类？"><span class="nav-number">1.1.</span> <span class="nav-text">什么是抽象类？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#抽象类需要遵守的规则"><span class="nav-number">1.2.</span> <span class="nav-text">抽象类需要遵守的规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用抽象类的好处"><span class="nav-number">1.3.</span> <span class="nav-text">使用抽象类的好处</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#接口："><span class="nav-number">2.</span> <span class="nav-text">接口：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是接口？"><span class="nav-number">2.1.</span> <span class="nav-text">什么是接口？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#接口需要遵守的规则"><span class="nav-number">2.2.</span> <span class="nav-text">接口需要遵守的规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用接口的好处"><span class="nav-number">2.3.</span> <span class="nav-text">使用接口的好处</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#抽象类和接口的区别："><span class="nav-number">3.</span> <span class="nav-text">抽象类和接口的区别：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
