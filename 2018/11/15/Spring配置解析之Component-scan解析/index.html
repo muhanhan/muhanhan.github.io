@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="*基于3.1.2进行源码解析. 首先看一段项目中关于component-scan的配置： 1234&amp;lt;context:component-scan        base-package=&amp;quot;com.suning.rsc.server,com.suning.uops&amp;quot;&amp;gt;    &amp;lt;context:exclude-filter type=&amp;quot;annotatio">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring配置解析之Component-scan解析">
+<meta property="og:url" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="*基于3.1.2进行源码解析. 首先看一段项目中关于component-scan的配置： 1234&amp;lt;context:component-scan        base-package=&amp;quot;com.suning.rsc.server,com.suning.uops&amp;quot;&amp;gt;    &amp;lt;context:exclude-filter type=&amp;quot;annotatio">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/5.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/6.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/7.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/8.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/9.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/10.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/11.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/12.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/13.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/14.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/15.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/16.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/17.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/18.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/19.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/20.png">
+<meta property="og:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/21.png">
+<meta property="og:updated_time" content="2019-10-06T12:27:35.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring配置解析之Component-scan解析">
+<meta name="twitter:description" content="*基于3.1.2进行源码解析. 首先看一段项目中关于component-scan的配置： 1234&amp;lt;context:component-scan        base-package=&amp;quot;com.suning.rsc.server,com.suning.uops&amp;quot;&amp;gt;    &amp;lt;context:exclude-filter type=&amp;quot;annotatio">
+<meta name="twitter:image" content="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/">
+
+
+
+
+
+  <title>Spring配置解析之Component-scan解析 | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/15/Spring配置解析之Component-scan解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Spring配置解析之Component-scan解析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-15T17:00:26+08:00">
+                2018-11-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SpringMVC/" itemprop="url" rel="index">
+                    <span itemprop="name">SpringMVC</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>*基于3.1.2进行源码解析.</p>
+<p>首先看一段项目中关于component-scan的配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;context:component-scan</span><br><span class="line">        base-package=&quot;com.suning.rsc.server,com.suning.uops&quot;&gt;</span><br><span class="line">    &lt;context:exclude-filter type=&quot;annotation&quot; expression=&quot;org.springframework.stereotype.Controller&quot;/&gt;</span><br><span class="line">&lt;/context:component-scan&gt;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;这段配置配置相信使用过spring mvc的童鞋都很熟悉，上面配置的作用就是spring会扫描<br>com.suning.rsc.server和com.suning.uops这两个路径下的所有文件，将其中符合要求的文件注册的spring容器的bean来方便调用，exclude-filter则表明过滤掉添加了@Controller的文件。<br>&emsp;    &emsp;今天我们就结合源码来分析一下这段配置的具体实现:<br>&emsp;    &emsp; 需要一提的是，解析spring配置文件的工作是在spring ioc容器创建的过程中进行的，这不是我们今天的工作重点，所以我们直接从解析这段配置的地方开始讲起：</p>
+<h1 id="BeanDefinitionParserDelegate-parseCustomElement"><a href="#BeanDefinitionParserDelegate-parseCustomElement" class="headerlink" title="BeanDefinitionParserDelegate#parseCustomElement"></a>BeanDefinitionParserDelegate#parseCustomElement</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public BeanDefinition parseCustomElement(Element ele, BeanDefinition containingBd) &#123;</span><br><span class="line">   String namespaceUri = getNamespaceURI(ele);</span><br><span class="line">   NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);</span><br><span class="line">   if (handler == null) &#123;</span><br><span class="line">      error(&quot;Unable to locate Spring NamespaceHandler for XML schema namespace [&quot; + namespaceUri + &quot;]&quot;, ele);</span><br><span class="line">      return null;</span><br><span class="line">   &#125;</span><br><span class="line">   return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的两个入参简单说明一下，第二个BeanDefinition为null不用管，第一个Element对象是Spring将配置文件Xml解析为Document对象以后，解析其中的一个个节点Node，再强转为Element得来的，看下上面解析节点的那部分代码方便大家理解：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) &#123;</span><br><span class="line">   if (delegate.isDefaultNamespace(root)) &#123;</span><br><span class="line">      NodeList nl = root.getChildNodes();</span><br><span class="line">      for (int i = 0; i &lt; nl.getLength(); i++) &#123;</span><br><span class="line">         Node node = nl.item(i);</span><br><span class="line">         if (node instanceof Element) &#123;</span><br><span class="line">            Element ele = (Element) node;</span><br><span class="line">            if (delegate.isDefaultNamespace(ele)) &#123;</span><br><span class="line">               parseDefaultElement(ele, delegate);</span><br><span class="line">            &#125;</span><br><span class="line">            else &#123;</span><br><span class="line">               delegate.parseCustomElement(ele);</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   else &#123;</span><br><span class="line">      delegate.parseCustomElement(root);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>除了</p>
+<blockquote>
+<p>public static final String IMPORT_ELEMENT = “import”;</p>
+</blockquote>
+<blockquote>
+<p>public static final String ALIAS_ELEMENT = “alias”;</p>
+</blockquote>
+<blockquote>
+<p>public static final String BEAN_ELEMENT = BeanDefinitionParserDelegate.BEAN_ELEMENT;<br>public static final String BEAN_ELEMENT = “bean”;</p>
+</blockquote>
+<blockquote>
+<p>public static final String NESTED_BEANS_ELEMENT = “beans”;</p>
+</blockquote>
+<p>这四个属于spring默认的标签以外，其他标签的解析都是走的parseCustomElement()方法。</p>
+<p>我们仔细看下这个方法的代码：</p>
+<h2 id="parseCustomElement第一步"><a href="#parseCustomElement第一步" class="headerlink" title="parseCustomElement第一步"></a>parseCustomElement第一步</h2><blockquote>
+<p>String namespaceUri = getNamespaceURI(ele);</p>
+</blockquote>
+<p>这个方法通过element对象解析得到对应的资源标记的地址，调试看一下具体的值：</p>
+<p>ele:<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/1.png" alt="数据类型示意图"></p>
+<p>namespaceUri:<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/2.png" alt="数据类型示意图"></p>
+<h2 id="parseCustomElement第二步："><a href="#parseCustomElement第二步：" class="headerlink" title="parseCustomElement第二步："></a>parseCustomElement第二步：</h2><blockquote>
+<p>NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);</p>
+</blockquote>
+<p>这个方法将放回一个NameSpaceHandler对应，用来处理spring中的命名空间。在我们这里获取的具体对象是ContextNamespaceHandler,在解析namespaceUri的过程中，可以看到调用了一个初始化的方法：<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/3.png" alt="数据类型示意图"></p>
+<p>针对我们这边的ContextNameSpaceHandler对象来说，它的init()方法主要对context下的八个命名空间注册不同的解析器，看下这部分的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public class ContextNamespaceHandler extends NamespaceHandlerSupport &#123;</span><br><span class="line"> </span><br><span class="line">   public void init() &#123;</span><br><span class="line">      registerBeanDefinitionParser(&quot;property-placeholder&quot;, new PropertyPlaceholderBeanDefinitionParser());</span><br><span class="line">      registerBeanDefinitionParser(&quot;property-override&quot;, new PropertyOverrideBeanDefinitionParser());</span><br><span class="line">      registerBeanDefinitionParser(&quot;annotation-config&quot;, new AnnotationConfigBeanDefinitionParser());</span><br><span class="line">      registerBeanDefinitionParser(&quot;component-scan&quot;, new ComponentScanBeanDefinitionParser());</span><br><span class="line">      registerBeanDefinitionParser(&quot;load-time-weaver&quot;, new LoadTimeWeaverBeanDefinitionParser());</span><br><span class="line">      registerBeanDefinitionParser(&quot;spring-configured&quot;, new SpringConfiguredBeanDefinitionParser());</span><br><span class="line">      registerBeanDefinitionParser(&quot;mbean-export&quot;, new MBeanExportBeanDefinitionParser());</span><br><span class="line">      registerBeanDefinitionParser(&quot;mbean-server&quot;, new MBeanServerBeanDefinitionParser());</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的八个对象分别对应context下的8个不同namespace，我们这次解析的是component-scan标签，所以使用的解析对象是ComponentScanBeanDefinitionParser对象。对应的也就是parseCustomElement()方法的最后一行：</p>
+<blockquote>
+<p>return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));</p>
+</blockquote>
+<p>这里的具体实现就在ComponentScanBeanDefinitionParse中的parse()方法.这里还有一个参数this.readerContext,这个上下文对象里面主要包含这部分信息：<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/4.png" alt="数据类型示意图"></p>
+<h1 id="ComponentScanBeanDefinitionParse-parse"><a href="#ComponentScanBeanDefinitionParse-parse" class="headerlink" title="ComponentScanBeanDefinitionParse#parse"></a>ComponentScanBeanDefinitionParse#parse</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public BeanDefinition parse(Element element, ParserContext parserContext) &#123;</span><br><span class="line">   String[] basePackages = StringUtils.tokenizeToStringArray(element.getAttribute(BASE_PACKAGE_ATTRIBUTE),</span><br><span class="line">         ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);</span><br><span class="line"> </span><br><span class="line">   // Actually scan for bean definitions and register them.</span><br><span class="line">   ClassPathBeanDefinitionScanner scanner = configureScanner(parserContext, element);</span><br><span class="line">   Set&lt;BeanDefinitionHolder&gt; beanDefinitions = scanner.doScan(basePackages);</span><br><span class="line">   registerComponents(parserContext.getReaderContext(), beanDefinitions, element);</span><br><span class="line"> </span><br><span class="line">   return null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这个解析过程中有四个过程，我们先概括每个的作用，再一个个具体分析实现过程：</p>
+<h2 id="ComponentScanBeanDefinitionParse第一步"><a href="#ComponentScanBeanDefinitionParse第一步" class="headerlink" title="ComponentScanBeanDefinitionParse第一步"></a>ComponentScanBeanDefinitionParse第一步</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String[] basePackages = StringUtils.tokenizeToStringArray(element.getAttribute(BASE_PACKAGE_ATTRIBUTE),</span><br><span class="line">      ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);</span><br></pre></td></tr></table></figure>
+
+<p>这边主要就是解析配置文件中的</p>
+<blockquote>
+<p>base-package=”com.suning.rsc.server,com.suning.uops”</p>
+</blockquote>
+<p>属性，会将里面的内容以一个字符串数组的形式返回，可以使用‘，’或者‘；’进行分隔；</p>
+<h2 id="ComponentScanBeanDefinitionParse第二步"><a href="#ComponentScanBeanDefinitionParse第二步" class="headerlink" title="ComponentScanBeanDefinitionParse第二步"></a>ComponentScanBeanDefinitionParse第二步</h2><blockquote>
+<p>ClassPathBeanDefinitionScanner scanner = configureScanner(parserContext, element);</p>
+</blockquote>
+<p>这个方法主要是创建一个路径的扫描器，会根据配置文件中的内容对扫描器进行属性的复制，用于后面bean的注册。</p>
+<h2 id="ComponentScanBeanDefinitionParse第三步"><a href="#ComponentScanBeanDefinitionParse第三步" class="headerlink" title="ComponentScanBeanDefinitionParse第三步"></a>ComponentScanBeanDefinitionParse第三步</h2><blockquote>
+<p>Set<beandefinitionholder> beanDefinitions = scanner.doScan(basePackages);</beandefinitionholder></p>
+</blockquote>
+<p>&emsp;    &emsp;这一步就是会扫描指定路径下的内容，完成bean的注册，返回的是一个存放了BeanDefinitionHolder对象的set集合，这个BeanDefinitionHolder可以当成BeanDefinition的存放器，里面除了正常的beanname还有alias。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public BeanDefinitionHolder(BeanDefinition beanDefinition, String beanName, String[] aliases) &#123;</span><br><span class="line">   Assert.notNull(beanDefinition, &quot;BeanDefinition must not be null&quot;);</span><br><span class="line">   Assert.notNull(beanName, &quot;Bean name must not be null&quot;);</span><br><span class="line">   this.beanDefinition = beanDefinition;</span><br><span class="line">   this.beanName = beanName;</span><br><span class="line">   this.aliases = aliases;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ComponentScanBeanDefinitionParse第四步"><a href="#ComponentScanBeanDefinitionParse第四步" class="headerlink" title="ComponentScanBeanDefinitionParse第四步"></a>ComponentScanBeanDefinitionParse第四步</h2><blockquote>
+<p>registerComponents(parserContext.getReaderContext(), beanDefinitions, element);</p>
+</blockquote>
+<p>这个方法会根据配置内容，选择性的注册组件。</p>
+<p>到了这边的conponent-scan的主要工作就已经完成了，接下来就是具体看下方法的实现过程，先从获取scanner开始：</p>
+<p><strong>configureScanner(parserContext, element);</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">protected ClassPathBeanDefinitionScanner configureScanner(ParserContext parserContext, Element element) &#123;</span><br><span class="line">   XmlReaderContext readerContext = parserContext.getReaderContext();</span><br><span class="line"> </span><br><span class="line">   boolean useDefaultFilters = true;</span><br><span class="line">   if (element.hasAttribute(USE_DEFAULT_FILTERS_ATTRIBUTE)) &#123;</span><br><span class="line">      useDefaultFilters = Boolean.valueOf(element.getAttribute(USE_DEFAULT_FILTERS_ATTRIBUTE));</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   // Delegate bean definition registration to scanner class.</span><br><span class="line">   ClassPathBeanDefinitionScanner scanner = createScanner(readerContext, useDefaultFilters);</span><br><span class="line">   scanner.setResourceLoader(readerContext.getResourceLoader());</span><br><span class="line">   scanner.setEnvironment(parserContext.getDelegate().getEnvironment());</span><br><span class="line">   scanner.setBeanDefinitionDefaults(parserContext.getDelegate().getBeanDefinitionDefaults());</span><br><span class="line">   scanner.setAutowireCandidatePatterns(parserContext.getDelegate().getAutowireCandidatePatterns());</span><br><span class="line"> </span><br><span class="line">   if (element.hasAttribute(RESOURCE_PATTERN_ATTRIBUTE)) &#123;</span><br><span class="line">      scanner.setResourcePattern(element.getAttribute(RESOURCE_PATTERN_ATTRIBUTE));</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   try &#123;</span><br><span class="line">      parseBeanNameGenerator(element, scanner);</span><br><span class="line">   &#125;</span><br><span class="line">   catch (Exception ex) &#123;</span><br><span class="line">      readerContext.error(ex.getMessage(), readerContext.extractSource(element), ex.getCause());</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   try &#123;</span><br><span class="line">      parseScope(element, scanner);</span><br><span class="line">   &#125;</span><br><span class="line">   catch (Exception ex) &#123;</span><br><span class="line">      readerContext.error(ex.getMessage(), readerContext.extractSource(element), ex.getCause());</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   parseTypeFilters(element, scanner, readerContext, parserContext);</span><br><span class="line"> </span><br><span class="line">   return scanner;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这里面主要的内容就是给scanner设置属性，我们看几个主要部分的内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">boolean useDefaultFilters = true;</span><br><span class="line">if (element.hasAttribute(USE_DEFAULT_FILTERS_ATTRIBUTE)) &#123;</span><br><span class="line">   useDefaultFilters = Boolean.valueOf(element.getAttribute(USE_DEFAULT_FILTERS_ATTRIBUTE));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这边是设置useDefaultFilters属性，这个属性默认是开启的，也就是use-default-filters=”true”，这个属性会在接下来实例化scanner的地方用到。</p>
+<blockquote>
+<p>ClassPathBeanDefinitionScanner scanner = createScanner(readerContext, useDefaultFilters);</p>
+</blockquote>
+<p>进去createScanner的方法内部，最终找到处理useDeFaultFilters的地方：\</p>
+<p><strong>ClassPathScanningCandidateComponentProvider#ClassPathScanningCandidateComponentProvider</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public ClassPathScanningCandidateComponentProvider(boolean useDefaultFilters, Environment environment) &#123;</span><br><span class="line">   if (useDefaultFilters) &#123;</span><br><span class="line">      registerDefaultFilters();</span><br><span class="line">   &#125;</span><br><span class="line">   this.environment = environment;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据useDefaultFilters属性，决定是否注册默认组件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Register the default filter for &#123;@link Component @Component&#125;.</span><br><span class="line"> * &lt;p&gt;This will implicitly register all annotations that have the</span><br><span class="line"> * &#123;@link Component @Component&#125; meta-annotation including the</span><br><span class="line"> * &#123;@link Repository @Repository&#125;, &#123;@link Service @Service&#125;, and</span><br><span class="line"> * &#123;@link Controller @Controller&#125; stereotype annotations.</span><br><span class="line"> * &lt;p&gt;Also supports Java EE 6&apos;s &#123;@link javax.annotation.ManagedBean&#125; and</span><br><span class="line"> * JSR-330&apos;s &#123;@link javax.inject.Named&#125; annotations, if available.</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line">@SuppressWarnings(&quot;unchecked&quot;)</span><br><span class="line">protected void registerDefaultFilters() &#123;</span><br><span class="line">   this.includeFilters.add(new AnnotationTypeFilter(Component.class));</span><br><span class="line">   ClassLoader cl = ClassPathScanningCandidateComponentProvider.class.getClassLoader();</span><br><span class="line">   try &#123;</span><br><span class="line">      this.includeFilters.add(new AnnotationTypeFilter(</span><br><span class="line">            ((Class&lt;? extends Annotation&gt;) cl.loadClass(&quot;javax.annotation.ManagedBean&quot;)), false));</span><br><span class="line">      logger.info(&quot;JSR-250 &apos;javax.annotation.ManagedBean&apos; found and supported for component scanning&quot;);</span><br><span class="line">   &#125;</span><br><span class="line">   catch (ClassNotFoundException ex) &#123;</span><br><span class="line">      // JSR-250 1.1 API (as included in Java EE 6) not available - simply skip.</span><br><span class="line">   &#125;</span><br><span class="line">   try &#123;</span><br><span class="line">      this.includeFilters.add(new AnnotationTypeFilter(</span><br><span class="line">            ((Class&lt;? extends Annotation&gt;) cl.loadClass(&quot;javax.inject.Named&quot;)), false));</span><br><span class="line">      logger.info(&quot;JSR-330 &apos;javax.inject.Named&apos; annotation found and supported for component scanning&quot;);</span><br><span class="line">   &#125;</span><br><span class="line">   catch (ClassNotFoundException ex) &#123;</span><br><span class="line">      // JSR-330 API not available - simply skip.</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结合注释加代码，可以知道这边的处理是对@Component、@Repository、@Service、@Controller和 JavaEE6的ManagedBean和javax.inject.Named（如果有的话）进行扫描管理。这一部分内容可以在下面得到验证.</p>
+<p>还有个需要关注的地方就是这个解析类型过滤器的地方:</p>
+<blockquote>
+<p>parseTypeFilters(element, scanner, readerContext, parserContext);</p>
+</blockquote>
+<p>这个方法会针对配置文件中的exclude-filter 和 include-filter属性，为扫描器加上对应的拦截器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">protected void parseTypeFilters(</span><br><span class="line">      Element element, ClassPathBeanDefinitionScanner scanner, XmlReaderContext readerContext, ParserContext parserContext) &#123;</span><br><span class="line"> </span><br><span class="line">   // Parse exclude and include filter elements.</span><br><span class="line">   ClassLoader classLoader = scanner.getResourceLoader().getClassLoader();</span><br><span class="line">   NodeList nodeList = element.getChildNodes();</span><br><span class="line">   for (int i = 0; i &lt; nodeList.getLength(); i++) &#123;</span><br><span class="line">      Node node = nodeList.item(i);</span><br><span class="line">      if (node.getNodeType() == Node.ELEMENT_NODE) &#123;</span><br><span class="line">         String localName = parserContext.getDelegate().getLocalName(node);</span><br><span class="line">         try &#123;</span><br><span class="line">            if (INCLUDE_FILTER_ELEMENT.equals(localName)) &#123;</span><br><span class="line">               TypeFilter typeFilter = createTypeFilter((Element) node, classLoader);</span><br><span class="line">               scanner.addIncludeFilter(typeFilter);</span><br><span class="line">            &#125;</span><br><span class="line">            else if (EXCLUDE_FILTER_ELEMENT.equals(localName)) &#123;</span><br><span class="line">               TypeFilter typeFilter = createTypeFilter((Element) node, classLoader);</span><br><span class="line">               scanner.addExcludeFilter(typeFilter);</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         catch (Exception ex) &#123;</span><br><span class="line">            readerContext.error(ex.getMessage(), readerContext.extractSource(element), ex.getCause());</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过解析节点，比较节点的名称，添加对应的filter：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">if (INCLUDE_FILTER_ELEMENT.equals(localName)) &#123;</span><br><span class="line">   TypeFilter typeFilter = createTypeFilter((Element) node, classLoader);</span><br><span class="line">   scanner.addIncludeFilter(typeFilter);</span><br><span class="line">&#125;</span><br><span class="line">else if (EXCLUDE_FILTER_ELEMENT.equals(localName)) &#123;</span><br><span class="line">   TypeFilter typeFilter = createTypeFilter((Element) node, classLoader);</span><br><span class="line">   scanner.addExcludeFilter(typeFilter);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>到了这个地方scanner就已经准备完毕了，我们看下这个scanner的样子：<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/5.png" alt="数据类型示意图"></p>
+<p>excludeFilters的内容也和配置文件中的内容是一致的：<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/6.png" alt="数据类型示意图"></p>
+<p>还记得上面说到的use-default-filter属性么，我们没有配置include-filter的内容，但是scanner中的includeFilters一样有值，就是因为默认的use-default-filters是true，我们看下里面的内容：<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/7.png" alt="数据类型示意图"></p>
+<p>可以看到主要有两个内容，一个interface javax.annotation.ManagedBean 和interface org.springframework.stereotype.Component，和我们上面分析的内容是一样的，至于@Controller、@Service、@Repository没有展示，是因为这三个注解都可以算成@Component的子注解：<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/8.png" alt="数据类型示意图"><br><img src="/2018/11/15/Spring配置解析之Component-scan解析/9.png" alt="数据类型示意图"><br><img src="/2018/11/15/Spring配置解析之Component-scan解析/10.png" alt="数据类型示意图"></p>
+<p>到此，扫描器的准备工作完成，接下来开始解析具体的文件。</p>
+<p><strong>scanner.doScan(basePackages);</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Perform a scan within the specified base packages,</span><br><span class="line"> * returning the registered bean definitions.</span><br><span class="line"> * &lt;p&gt;This method does &lt;i&gt;not&lt;/i&gt; register an annotation config processor</span><br><span class="line"> * but rather leaves this up to the caller.</span><br><span class="line"> * @param basePackages the packages to check for annotated classes</span><br><span class="line"> * @return set of beans registered if any for tooling registration purposes (never &#123;@code null&#125;)</span><br><span class="line"> */</span><br><span class="line">protected Set&lt;BeanDefinitionHolder&gt; doScan(String... basePackages) &#123;</span><br><span class="line">   Assert.notEmpty(basePackages, &quot;At least one base package must be specified&quot;);</span><br><span class="line">   Set&lt;BeanDefinitionHolder&gt; beanDefinitions = new LinkedHashSet&lt;BeanDefinitionHolder&gt;();</span><br><span class="line">   for (String basePackage : basePackages) &#123;</span><br><span class="line">      Set&lt;BeanDefinition&gt; candidates = findCandidateComponents(basePackage);</span><br><span class="line">      for (BeanDefinition candidate : candidates) &#123;</span><br><span class="line">         ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);</span><br><span class="line">         candidate.setScope(scopeMetadata.getScopeName());</span><br><span class="line">         String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);</span><br><span class="line">         if (candidate instanceof AbstractBeanDefinition) &#123;</span><br><span class="line">            postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);</span><br><span class="line">         &#125;</span><br><span class="line">         if (candidate instanceof AnnotatedBeanDefinition) &#123;</span><br><span class="line">            AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);</span><br><span class="line">         &#125;</span><br><span class="line">         if (checkCandidate(beanName, candidate)) &#123;</span><br><span class="line">            BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);</span><br><span class="line">            definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);</span><br><span class="line">            beanDefinitions.add(definitionHolder);</span><br><span class="line">            registerBeanDefinition(definitionHolder, this.registry);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;                 </span><br><span class="line">   &#125;</span><br><span class="line">   return beanDefinitions;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们把doscan这部分内容分成两部分来解析：</p>
+<p><strong>doscan第一部分：</strong></p>
+<blockquote>
+<p>Set<beandefinition> candidates = findCandidateComponents(basePackage);</beandefinition></p>
+</blockquote>
+<p><strong>doscan第二部分：循环上面获取到的BeanDefinition，找出其中符合要求的bean，注册:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);</span><br><span class="line">candidate.setScope(scopeMetadata.getScopeName());</span><br><span class="line">String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);</span><br><span class="line">if (candidate instanceof AbstractBeanDefinition) &#123;</span><br><span class="line">   postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);</span><br><span class="line">&#125;</span><br><span class="line">if (candidate instanceof AnnotatedBeanDefinition) &#123;</span><br><span class="line">   AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);</span><br><span class="line">&#125;</span><br><span class="line">if (checkCandidate(beanName, candidate)) &#123;</span><br><span class="line">   BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);</span><br><span class="line">   definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);</span><br><span class="line">   beanDefinitions.add(definitionHolder);</span><br><span class="line">   registerBeanDefinition(definitionHolder, this.registry);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们先从dosacan第一部分开始说起，先找符合基本条件的候选bean:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">this.resourcePatternResolver.getResources(packageSearchPath);</span><br><span class="line">      boolean traceEnabled = logger.isTraceEnabled();</span><br><span class="line">      boolean debugEnabled = logger.isDebugEnabled();</span><br><span class="line">      for (Resource resource : resources) &#123;</span><br><span class="line">         if (traceEnabled) &#123;</span><br><span class="line">            logger.trace(&quot;Scanning &quot; + resource);</span><br><span class="line">         &#125;</span><br><span class="line">         if (resource.isReadable()) &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">               MetadataReader metadataReader = this.metadataReaderFactory.getMetadataReader(resource);</span><br><span class="line">               if (isCandidateComponent(metadataReader)) &#123;</span><br><span class="line">                  ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);</span><br><span class="line">                  sbd.setResource(resource);</span><br><span class="line">                  sbd.setSource(resource);</span><br><span class="line">                  if (isCandidateComponent(sbd)) &#123;</span><br><span class="line">                     if (debugEnabled) &#123;</span><br><span class="line">                        logger.debug(&quot;Identified candidate component class: &quot; + resource);</span><br><span class="line">                     &#125;</span><br><span class="line">                     candidates.add(sbd);</span><br><span class="line">                  &#125;</span><br><span class="line">                  else &#123;</span><br><span class="line">                     if (debugEnabled) &#123;</span><br><span class="line">                        logger.debug(&quot;Ignored because not a concrete top-level class: &quot; + resource);</span><br><span class="line">                     &#125;</span><br><span class="line">                  &#125;</span><br><span class="line">               &#125;</span><br><span class="line">               else &#123;</span><br><span class="line">                  if (traceEnabled) &#123;</span><br><span class="line">                     logger.trace(&quot;Ignored because not matching any filter: &quot; + resource);</span><br><span class="line">                  &#125;</span><br><span class="line">               &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            catch (Throwable ex) &#123;</span><br><span class="line">               throw new BeanDefinitionStoreException(</span><br><span class="line">                     &quot;Failed to read candidate component class: &quot; + resource, ex);</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         else &#123;</span><br><span class="line">            if (traceEnabled) &#123;</span><br><span class="line">               logger.trace(&quot;Ignored because not readable: &quot; + resource);</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   catch (IOException ex) &#123;</span><br><span class="line">      throw new BeanDefinitionStoreException(&quot;I/O failure during classpath scanning&quot;, ex);</span><br><span class="line">   &#125;</span><br><span class="line">   return candidates;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>findCandidateComponents这里面又可以分为三个部分：</p>
+<p><strong>findCandidateComponents第一步：首先会根据需要扫描的包名解析出具体搜索的路径：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +</span><br><span class="line">      resolveBasePackage(basePackage) + &quot;/&quot; + this.resourcePattern;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2018/11/15/Spring配置解析之Component-scan解析/11.png" alt="数据类型示意图"></p>
+<p><strong>findCandidateComponents第二步：根据这个路径获取对应的的资源：</strong></p>
+<blockquote>
+<p>Resource[] resources = this.resourcePatternResolver.getResources(packageSearchPath);</p>
+</blockquote>
+<p>findCandidateComponents第三步：获取到resource以后，循环判断resource，符合要求的放入set<beandefinition>集合中：</beandefinition></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">MetadataReader metadataReader = this.metadataReaderFactory.getMetadataReader(resource);</span><br><span class="line">if (isCandidateComponent(metadataReader)) &#123;</span><br><span class="line">   ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);</span><br><span class="line">   sbd.setResource(resource);</span><br><span class="line">   sbd.setSource(resource);</span><br><span class="line">   if (isCandidateComponent(sbd)) &#123;</span><br><span class="line">      if (debugEnabled) &#123;</span><br><span class="line">         logger.debug(&quot;Identified candidate component class: &quot; + resource);</span><br><span class="line">      &#125;</span><br><span class="line">      candidates.add(sbd);</span><br><span class="line">   &#125;</span><br><span class="line">   else &#123;</span><br><span class="line">      if (debugEnabled) &#123;</span><br><span class="line">         logger.debug(&quot;Ignored because not a concrete top-level class: &quot; + resource);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>我们具体看下findCandidateComponents的第二部分的内容：</p>
+<p><strong>PathMatchingResourcePatternResolver#getResources：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">public Resource[] getResources(String locationPattern) throws IOException &#123;</span><br><span class="line">   Assert.notNull(locationPattern, &quot;Location pattern must not be null&quot;);</span><br><span class="line">   if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) &#123;</span><br><span class="line">      // a class path resource (multiple resources for same name possible)</span><br><span class="line">      if (getPathMatcher().isPattern(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()))) &#123;</span><br><span class="line">         // a class path resource pattern</span><br><span class="line">         return findPathMatchingResources(locationPattern);</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         // all class path resources with the given name</span><br><span class="line">         return findAllClassPathResources(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()));</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   else &#123;</span><br><span class="line">      // Only look for a pattern after a prefix here</span><br><span class="line">      // (to not get fooled by a pattern symbol in a strange prefix).</span><br><span class="line">      int prefixEnd = locationPattern.indexOf(&quot;:&quot;) + 1;</span><br><span class="line">      if (getPathMatcher().isPattern(locationPattern.substring(prefixEnd))) &#123;</span><br><span class="line">         // a file pattern</span><br><span class="line">         return findPathMatchingResources(locationPattern);</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         // a single resource with the given name</span><br><span class="line">         return new Resource[] &#123;getResourceLoader().getResource(locationPattern)&#125;;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这部分解析获取resource的内容可以分为四种分支：<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/12.png" alt="数据类型示意图"></p>
+<p>我们这边走的是第一个分支：</p>
+<p><strong>PathMatchingResourcePatternResolver#findPathMatchingResources</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Find all resources that match the given location pattern via the</span><br><span class="line"> * Ant-style PathMatcher. Supports resources in jar files and zip files</span><br><span class="line"> * and in the file system.</span><br><span class="line"> * @param locationPattern the location pattern to match</span><br><span class="line"> * @return the result as Resource array</span><br><span class="line"> * @throws IOException in case of I/O errors</span><br><span class="line"> * @see #doFindPathMatchingJarResources</span><br><span class="line"> * @see #doFindPathMatchingFileResources</span><br><span class="line"> * @see org.springframework.util.PathMatcher</span><br><span class="line"> */</span><br><span class="line">protected Resource[] findPathMatchingResources(String locationPattern) throws IOException &#123;</span><br><span class="line">   String rootDirPath = determineRootDir(locationPattern);</span><br><span class="line">   String subPattern = locationPattern.substring(rootDirPath.length());</span><br><span class="line">   Resource[] rootDirResources = getResources(rootDirPath);</span><br><span class="line">   Set&lt;Resource&gt; result = new LinkedHashSet&lt;Resource&gt;(16);</span><br><span class="line">   for (Resource rootDirResource : rootDirResources) &#123;</span><br><span class="line">      rootDirResource = resolveRootDirResource(rootDirResource);</span><br><span class="line">      if (isJarResource(rootDirResource)) &#123;</span><br><span class="line">         result.addAll(doFindPathMatchingJarResources(rootDirResource, subPattern));</span><br><span class="line">      &#125;</span><br><span class="line">      else if (rootDirResource.getURL().getProtocol().startsWith(ResourceUtils.URL_PROTOCOL_VFS)) &#123;</span><br><span class="line">         result.addAll(VfsResourceMatchingDelegate.findMatchingResources(rootDirResource, subPattern, getPathMatcher()));</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         result.addAll(doFindPathMatchingFileResources(rootDirResource, subPattern));</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   if (logger.isDebugEnabled()) &#123;</span><br><span class="line">      logger.debug(&quot;Resolved location pattern [&quot; + locationPattern + &quot;] to resources &quot; + result);</span><br><span class="line">   &#125;</span><br><span class="line">   return result.toArray(new Resource[result.size()]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>findPathMatchingResources里面的内容主要分为两部分：</p>
+<p><strong>findPathMatchingResources第一部分：获取根目录下的资源：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">rootDirResource = resolveRootDirResource(rootDirResource);</span><br><span class="line">if (isJarResource(rootDirResource)) &#123;</span><br><span class="line">   result.addAll(doFindPathMatchingJarResources(rootDirResource, subPattern));</span><br><span class="line">&#125;</span><br><span class="line">else if (rootDirResource.getURL().getProtocol().startsWith(ResourceUtils.URL_PROTOCOL_VFS)) &#123;</span><br><span class="line">   result.addAll(VfsResourceMatchingDelegate.findMatchingResources(rootDirResource, subPattern, getPathMatcher()));</span><br><span class="line">&#125;</span><br><span class="line">else &#123;</span><br><span class="line">   result.addAll(doFindPathMatchingFileResources(rootDirResource, subPattern));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>findPathMatchingResources第二部分中会处理上面渠道的需要扫描的包的根目录的文件，首先对文件做解析，用于判断文件类型：</p>
+<blockquote>
+<p>rootDirResource = resolveRootDirResource(rootDirResource);</p>
+</blockquote>
+<p>接着对资源类型做校验，我们这里主要看第三种，也就是对非jar和不是vsf协议的处理：</p>
+<blockquote>
+<p>result.addAll(doFindPathMatchingFileResources(rootDirResource, subPattern));</p>
+</blockquote>
+<p><strong>doFindPathMatchingFileResources</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Find all resources in the file system that match the given location pattern</span><br><span class="line"> * via the Ant-style PathMatcher.</span><br><span class="line"> * @param rootDirResource the root directory as Resource</span><br><span class="line"> * @param subPattern the sub pattern to match (below the root directory)</span><br><span class="line"> * @return the Set of matching Resource instances</span><br><span class="line"> * @throws IOException in case of I/O errors</span><br><span class="line"> * @see #retrieveMatchingFiles</span><br><span class="line"> * @see org.springframework.util.PathMatcher</span><br><span class="line"> */</span><br><span class="line">protected Set&lt;Resource&gt; doFindPathMatchingFileResources(Resource rootDirResource, String subPattern)</span><br><span class="line">      throws IOException &#123;</span><br><span class="line"> </span><br><span class="line">   File rootDir;</span><br><span class="line">   try &#123;</span><br><span class="line">      rootDir = rootDirResource.getFile().getAbsoluteFile();</span><br><span class="line">   &#125;</span><br><span class="line">   catch (IOException ex) &#123;</span><br><span class="line">      if (logger.isWarnEnabled()) &#123;</span><br><span class="line">         logger.warn(&quot;Cannot search for matching files underneath &quot; + rootDirResource +</span><br><span class="line">               &quot; because it does not correspond to a directory in the file system&quot;, ex);</span><br><span class="line">      &#125;</span><br><span class="line">      return Collections.emptySet();</span><br><span class="line">   &#125;</span><br><span class="line">   return doFindMatchingFileSystemResources(rootDir, subPattern);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这边首先获取扫描包下的文件对象，也就是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">File rootDir;</span><br><span class="line">rootDir = rootDirResource.getFile().getAbsoluteFile();</span><br></pre></td></tr></table></figure>
+
+<p>然后通过doFindMatchingFileSystemResources结合子目录名称，找出具体资源</p>
+<p><strong>doFindMatchingFileSystemResources</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Find all resources in the file system that match the given location pattern</span><br><span class="line"> * via the Ant-style PathMatcher.</span><br><span class="line"> * @param rootDir the root directory in the file system</span><br><span class="line"> * @param subPattern the sub pattern to match (below the root directory)</span><br><span class="line"> * @return the Set of matching Resource instances</span><br><span class="line"> * @throws IOException in case of I/O errors</span><br><span class="line"> * @see #retrieveMatchingFiles</span><br><span class="line"> * @see org.springframework.util.PathMatcher</span><br><span class="line"> */</span><br><span class="line">protected Set&lt;Resource&gt; doFindMatchingFileSystemResources(File rootDir, String subPattern) throws IOException &#123;</span><br><span class="line">   if (logger.isDebugEnabled()) &#123;</span><br><span class="line">      logger.debug(&quot;Looking for matching resources in directory tree [&quot; + rootDir.getPath() + &quot;]&quot;);</span><br><span class="line">   &#125;</span><br><span class="line">   Set&lt;File&gt; matchingFiles = retrieveMatchingFiles(rootDir, subPattern);</span><br><span class="line">   Set&lt;Resource&gt; result = new LinkedHashSet&lt;Resource&gt;(matchingFiles.size());</span><br><span class="line">   for (File file : matchingFiles) &#123;</span><br><span class="line">      result.add(new FileSystemResource(file));</span><br><span class="line">   &#125;</span><br><span class="line">   return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;这个方法会找出所有符合路径的要求的资源文件，这里面的内容也有很多，这里也暂不深入，只了解到这个，知道通过这边会返回所有符合条件的资源即可，后面实际需求中需要研究再继续深入。</p>
+<p>&emsp;    &emsp;到了这里我们已经得到了所有的候选者Resource[] resources,接下来我们要看下findCandidateComponents的第三部分，也就是循环处理resource对象，放入Set<beandefinition>集合中，留给doscan的第二部分处理：</beandefinition></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">if (resource.isReadable()) &#123;</span><br><span class="line">   try &#123;</span><br><span class="line">      MetadataReader metadataReader = this.metadataReaderFactory.getMetadataReader(resource);</span><br><span class="line">      if (isCandidateComponent(metadataReader)) &#123;</span><br><span class="line">         ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);</span><br><span class="line">         sbd.setResource(resource);</span><br><span class="line">         sbd.setSource(resource);</span><br><span class="line">         if (isCandidateComponent(sbd)) &#123;</span><br><span class="line">            if (debugEnabled) &#123;</span><br><span class="line">               logger.debug(&quot;Identified candidate component class: &quot; + resource);</span><br><span class="line">            &#125;</span><br><span class="line">            candidates.add(sbd);</span><br><span class="line">         &#125;</span><br><span class="line">         else &#123;</span><br><span class="line">            if (debugEnabled) &#123;</span><br><span class="line">               logger.debug(&quot;Ignored because not a concrete top-level class: &quot; + resource);</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         if (traceEnabled) &#123;</span><br><span class="line">            logger.trace(&quot;Ignored because not matching any filter: &quot; + resource);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   catch (Throwable ex) &#123;</span><br><span class="line">      throw new BeanDefinitionStoreException(</span><br><span class="line">            &quot;Failed to read candidate component class: &quot; + resource, ex);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">else &#123;</span><br><span class="line">   if (traceEnabled) &#123;</span><br><span class="line">      logger.trace(&quot;Ignored because not readable: &quot; + resource);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们先对MetadataReader对象做个简单介绍：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Simple facade for accessing class metadata,</span><br><span class="line"> * as read by an ASM &#123;@link org.springframework.asm.ClassReader&#125;.</span><br><span class="line"> *</span><br><span class="line"> * @author Juergen Hoeller</span><br><span class="line"> * @since 2.5</span><br><span class="line"> */</span><br><span class="line">public interface MetadataReader &#123;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Return the resource reference for the class file.</span><br><span class="line">    */</span><br><span class="line">   Resource getResource();</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Read basic class metadata for the underlying class.</span><br><span class="line">    */</span><br><span class="line">   ClassMetadata getClassMetadata();</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Read full annotation metadata for the underlying class,</span><br><span class="line">    * including metadata for annotated methods.</span><br><span class="line">    */</span><br><span class="line">   AnnotationMetadata getAnnotationMetadata();</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过注释我们可以大概知道MetadataReader的作用应该是类似asm一样可以直接操作class文件。对这个有大概了解以后，我们就可以往下看了：</p>
+<blockquote>
+<p>MetadataReader metadataReader = this.metadataReaderFactory.getMetadataReader(resource);</p>
+</blockquote>
+<p>这里传入一个资源对象会返回一个对应的MetadataReader对象，我们具体看下getMetaDataReader的实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public MetadataReader getMetadataReader(Resource resource) throws IOException &#123;</span><br><span class="line">   if (getCacheLimit() &lt;= 0) &#123;</span><br><span class="line">      return super.getMetadataReader(resource);</span><br><span class="line">   &#125;</span><br><span class="line">   synchronized (this.classReaderCache) &#123;</span><br><span class="line">      MetadataReader metadataReader = this.classReaderCache.get(resource);</span><br><span class="line">      if (metadataReader == null) &#123;</span><br><span class="line">         metadataReader = super.getMetadataReader(resource);</span><br><span class="line">         this.classReaderCache.put(resource, metadataReader);</span><br><span class="line">      &#125;</span><br><span class="line">      return metadataReader;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里使用了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">private final Map&lt;Resource, MetadataReader&gt; classReaderCache =</span><br><span class="line">      new LinkedHashMap&lt;Resource, MetadataReader&gt;(DEFAULT_CACHE_LIMIT, 0.75f, true) &#123;</span><br><span class="line">         @Override</span><br><span class="line">         protected boolean removeEldestEntry(Map.Entry&lt;Resource, MetadataReader&gt; eldest) &#123;</span><br><span class="line">            return size() &gt; getCacheLimit();</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;;</span><br></pre></td></tr></table></figure>
+
+<p>作为缓存容器来存放Resource和MetadataReader的关联信息。</p>
+<p>在初次获取时，调用父类的super.getMetadataReader(resource)方法获取MetadataReader：</p>
+<p><strong>SimpleMetadataReaderFactory#getMetadataReader</strong></p>
+<blockquote>
+<p>return new SimpleMetadataReader(resource, this.resourceLoader.getClassLoader());</p>
+</blockquote>
+<p>这里的具体实现就不在这里看了，因为asm相关的并不熟悉。</p>
+<p>我们结合调试看下这个对象的内容：</p>
+<p>Resource的内容：<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/13.png" alt="数据类型示意图"></p>
+<p>获取到的MetadataReader的内容：<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/14.png" alt="数据类型示意图"></p>
+<p>ClassMetadata中保存class对象的相关元数据</p>
+<p>AnnotationMetadata中则保存所有注解相关的内容：<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/15.png" alt="数据类型示意图"></p>
+<p>我们继续看findCandidateComponents的第三部分后面对MetadataReader对象的处理:</p>
+<blockquote>
+<p>if (isCandidateComponent(metadataReader)) </p>
+</blockquote>
+<p>这里的处理就是看这个class是否可以匹配上之前配置的exclude-filter和include-filter过滤器：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Determine whether the given class does not match any exclude filter</span><br><span class="line"> * and does match at least one include filter.</span><br><span class="line"> * @param metadataReader the ASM ClassReader for the class</span><br><span class="line"> * @return whether the class qualifies as a candidate component</span><br><span class="line"> */</span><br><span class="line">protected boolean isCandidateComponent(MetadataReader metadataReader) throws IOException &#123;</span><br><span class="line">   for (TypeFilter tf : this.excludeFilters) &#123;</span><br><span class="line">      if (tf.match(metadataReader, this.metadataReaderFactory)) &#123;</span><br><span class="line">         return false;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   for (TypeFilter tf : this.includeFilters) &#123;</span><br><span class="line">      if (tf.match(metadataReader, this.metadataReaderFactory)) &#123;</span><br><span class="line">         AnnotationMetadata metadata = metadataReader.getAnnotationMetadata();</span><br><span class="line">         if (!metadata.isAnnotated(Profile.class.getName())) &#123;</span><br><span class="line">            return true;</span><br><span class="line">         &#125;</span><br><span class="line">         AnnotationAttributes profile = MetadataUtils.attributesFor(metadata, Profile.class);</span><br><span class="line">         return this.environment.acceptsProfiles(profile.getStringArray(&quot;value&quot;));</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据两个过滤器的结果比较返回这个类对象是否匹配</p>
+<p>这里比较完以后,还有进一步的处理，同时会在进行一次判断：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);</span><br><span class="line">sbd.setResource(resource);</span><br><span class="line">sbd.setSource(resource);</span><br><span class="line">if (isCandidateComponent(sbd)) &#123;</span><br><span class="line">   if (debugEnabled) &#123;</span><br><span class="line">      logger.debug(&quot;Identified candidate component class: &quot; + resource);</span><br><span class="line">   &#125;</span><br><span class="line">   candidates.add(sbd);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里又看到一个新对象ScannedGenericBeanDefinition,看下这个对象是用来干什么的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Extension of the &#123;@link org.springframework.beans.factory.support.GenericBeanDefinition&#125;</span><br><span class="line"> * class, based on an ASM ClassReader, with support for annotation metadata exposed</span><br><span class="line"> * through the &#123;@link AnnotatedBeanDefinition&#125; interface.</span><br><span class="line"> *</span><br><span class="line"> * &lt;p&gt;This class does &lt;i&gt;not&lt;/i&gt; load the bean &#123;@code Class&#125; early.</span><br><span class="line"> * It rather retrieves all relevant metadata from the &quot;.class&quot; file itself,</span><br><span class="line"> * parsed with the ASM ClassReader. It is functionally equivalent to</span><br><span class="line"> * &#123;@link AnnotatedGenericBeanDefinition#AnnotatedGenericBeanDefinition(AnnotationMetadata)&#125;</span><br><span class="line"> * but distinguishes by type beans that have been &lt;em&gt;scanned&lt;/em&gt; vs those that have</span><br><span class="line"> * been otherwise registered or detected by other means.</span><br><span class="line"> *</span><br><span class="line"> * @author Juergen Hoeller</span><br><span class="line"> * @author Chris Beams</span><br><span class="line"> * @since 2.5</span><br><span class="line"> * @see #getMetadata()</span><br><span class="line"> * @see #getBeanClassName()</span><br><span class="line"> * @see org.springframework.core.type.classreading.MetadataReaderFactory</span><br><span class="line"> * @see AnnotatedGenericBeanDefinition</span><br><span class="line"> */</span><br><span class="line">@SuppressWarnings(&quot;serial&quot;)</span><br><span class="line">public class ScannedGenericBeanDefinition extends GenericBeanDefinition implements AnnotatedBeanDefinition &#123;</span><br></pre></td></tr></table></figure>
+
+<p>大概是说这个对象是对GenericBeanDefinition的扩展，实现了对annotation metadata的支持，</p>
+<p>在第一次isComponentCandidate(metadataReader)后，会将metadataReader包装成ScannedGenericBeanDefinition，再判断一次isComponentCandidate(ScannedGenericBeanDefinition),我们看下此时的这个方法作用是什么：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Determine whether the given bean definition qualifies as candidate.</span><br><span class="line"> * &lt;p&gt;The default implementation checks whether the class is concrete</span><br><span class="line"> * (i.e. not abstract and not an interface). Can be overridden in subclasses.</span><br><span class="line"> * @param beanDefinition the bean definition to check</span><br><span class="line"> * @return whether the bean definition qualifies as a candidate component</span><br><span class="line"> */</span><br><span class="line">protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) &#123;</span><br><span class="line">   return (beanDefinition.getMetadata().isConcrete() &amp;&amp; beanDefinition.getMetadata().isIndependent());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的意思是说这次的校验是保证：</p>
+<p>这个类是实体类，也就是保证它不是一个接口，也不是一个抽象类</p>
+<blockquote>
+<p>beanDefinition.getMetadata().isConcrete()</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Return whether the underlying class represents a concrete class,</span><br><span class="line"> * i.e. neither an interface nor an abstract class.</span><br><span class="line"> */</span><br><span class="line">boolean isConcrete();</span><br></pre></td></tr></table></figure>
+
+<p>保证这个类是独立的，确定是顶级类</p>
+<blockquote>
+<p>beanDefinition.getMetadata().isIndependent()</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Determine whether the underlying class is independent,</span><br><span class="line"> * i.e. whether it is a top-level class or a nested class</span><br><span class="line"> * (static inner class) that can be constructed independent</span><br><span class="line"> * from an enclosing class.</span><br><span class="line"> */</span><br><span class="line">boolean isIndependent();</span><br></pre></td></tr></table></figure>
+
+<p>满足上面的两个条件以后，这个对象会被放入set<beandefinition>这个集合中，交给doscan的第二部分来处理。</beandefinition></p>
+<p>这里想一下为什么对候选者需要做是否独立和是否是实体类的校验？带着这个疑问继续分析整个过程。</p>
+<p>在这么多方法里面绕来绕去，现在我们终于看完了dosacan第一部分的内容，也就是已经获取了符合基本的一个set<beandefinition>的候选者集合。</beandefinition></p>
+<p><strong>我们接着解析doscan第二部分的内容：循环处理上面的set<beandefinition>：</beandefinition></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">for (BeanDefinition candidate : candidates) &#123;</span><br><span class="line">   ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);</span><br><span class="line">   candidate.setScope(scopeMetadata.getScopeName());</span><br><span class="line">   String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);</span><br><span class="line">   if (candidate instanceof AbstractBeanDefinition) &#123;</span><br><span class="line">      postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);</span><br><span class="line">   &#125;</span><br><span class="line">   if (candidate instanceof AnnotatedBeanDefinition) &#123;</span><br><span class="line">      AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);</span><br><span class="line">   &#125;</span><br><span class="line">   if (checkCandidate(beanName, candidate)) &#123;</span><br><span class="line">      BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);</span><br><span class="line">      definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);</span><br><span class="line">      beanDefinitions.add(definitionHolder);</span><br><span class="line">      registerBeanDefinition(definitionHolder, this.registry);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+<p>这部分内容都是为了最后注册beanDefinition服务，首先获取候选者的scope属性，默认都是sington实现的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);</span><br><span class="line">candidate.setScope(scopeMetadata.getScopeName());</span><br></pre></td></tr></table></figure>
+
+<p>简单看下解析的方法，这边也不深入了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public ScopeMetadata resolveScopeMetadata(BeanDefinition definition) &#123;</span><br><span class="line">   ScopeMetadata metadata = new ScopeMetadata();</span><br><span class="line">   if (definition instanceof AnnotatedBeanDefinition) &#123;</span><br><span class="line">      AnnotatedBeanDefinition annDef = (AnnotatedBeanDefinition) definition;</span><br><span class="line">      AnnotationAttributes attributes =</span><br><span class="line">            attributesFor(annDef.getMetadata(), this.scopeAnnotationType);</span><br><span class="line">      if (attributes != null) &#123;</span><br><span class="line">         metadata.setScopeName(attributes.getString(&quot;value&quot;));</span><br><span class="line">         ScopedProxyMode proxyMode = attributes.getEnum(&quot;proxyMode&quot;);</span><br><span class="line">         if (proxyMode == null || proxyMode == ScopedProxyMode.DEFAULT) &#123;</span><br><span class="line">            proxyMode = this.defaultProxyMode;</span><br><span class="line">         &#125;</span><br><span class="line">         metadata.setScopedProxyMode(proxyMode);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   return metadata;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>获取到bean对象的作用域(生命周期)以后，再生成beanname用于后面beanDefinition的注册：</p>
+<blockquote>
+<p>String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);</p>
+</blockquote>
+<p>接下来对candidate会做两个判断处理：</p>
+<p>第一个判断：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (candidate instanceof AbstractBeanDefinition) &#123;</span><br><span class="line">   postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个判断用于设置默认属性：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Apply further settings to the given bean definition,</span><br><span class="line"> * beyond the contents retrieved from scanning the component class.</span><br><span class="line"> * @param beanDefinition the scanned bean definition</span><br><span class="line"> * @param beanName the generated bean name for the given bean</span><br><span class="line"> */</span><br><span class="line">protected void postProcessBeanDefinition(AbstractBeanDefinition beanDefinition, String beanName) &#123;</span><br><span class="line">   beanDefinition.applyDefaults(this.beanDefinitionDefaults);</span><br><span class="line">   if (this.autowireCandidatePatterns != null) &#123;</span><br><span class="line">      beanDefinition.setAutowireCandidate(PatternMatchUtils.simpleMatch(this.autowireCandidatePatterns, beanName));</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看一下setAutowireCandidate()这个方法的介绍：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Set whether this bean is a candidate for getting autowired into some other bean.</span><br><span class="line"> */</span><br><span class="line">public void setAutowireCandidate(boolean autowireCandidate) &#123;</span><br><span class="line">   this.autowireCandidate = autowireCandidate;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看到这里我们大概可以知道，在平时的使用通过@Autowire等注解可以注入bean的开关就是通过这个进行配置的。</p>
+<p>第二个判断：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (candidate instanceof AnnotatedBeanDefinition) &#123;</span><br><span class="line">   AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个判断用于处理@Primary 、@Lazy、 @DependsOn、@Role这四个注解的处理：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd) &#123;</span><br><span class="line">   AnnotationMetadata metadata = abd.getMetadata();</span><br><span class="line">   if (metadata.isAnnotated(Primary.class.getName())) &#123;</span><br><span class="line">      abd.setPrimary(true);</span><br><span class="line">   &#125;</span><br><span class="line">   if (metadata.isAnnotated(Lazy.class.getName())) &#123;</span><br><span class="line">      abd.setLazyInit(attributesFor(metadata, Lazy.class).getBoolean(&quot;value&quot;));</span><br><span class="line">   &#125;</span><br><span class="line">   if (metadata.isAnnotated(DependsOn.class.getName())) &#123;</span><br><span class="line">      abd.setDependsOn(attributesFor(metadata, DependsOn.class).getStringArray(&quot;value&quot;));</span><br><span class="line">   &#125;</span><br><span class="line">   if (abd instanceof AbstractBeanDefinition) &#123;</span><br><span class="line">      if (metadata.isAnnotated(Role.class.getName())) &#123;</span><br><span class="line">         Integer role = attributesFor(metadata, Role.class).getNumber(&quot;value&quot;);</span><br><span class="line">         ((AbstractBeanDefinition)abd).setRole(role);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关于这些注解具体的作用不在这边深入，这里了解这个方法的作用即可。</p>
+<p>完成对candidate的判断处理以后，接下来就是注册beanDefinition的最后一次校验了：</p>
+<blockquote>
+<p>checkCandidate(beanName, candidate)</p>
+</blockquote>
+<p>这个方法主要就是判断这个beanDefinition是否可以被注册，如果有一个已存在的beanDefition则返回false，这种场景在重复扫描的时候就会出现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Check the given candidate&apos;s bean name, determining whether the corresponding</span><br><span class="line"> * bean definition needs to be registered or conflicts with an existing definition.</span><br><span class="line"> * @param beanName the suggested name for the bean</span><br><span class="line"> * @param beanDefinition the corresponding bean definition</span><br><span class="line"> * @return &lt;code&gt;true&lt;/code&gt; if the bean can be registered as-is;</span><br><span class="line"> * &lt;code&gt;false&lt;/code&gt; if it should be skipped because there is an</span><br><span class="line"> * existing, compatible bean definition for the specified name</span><br><span class="line"> * @throws ConflictingBeanDefinitionException if an existing, incompatible</span><br><span class="line"> * bean definition has been found for the specified name</span><br><span class="line"> */</span><br><span class="line">protected boolean checkCandidate(String beanName, BeanDefinition beanDefinition) throws IllegalStateException &#123;</span><br><span class="line">   if (!this.registry.containsBeanDefinition(beanName)) &#123;</span><br><span class="line">      return true;</span><br><span class="line">   &#125;</span><br><span class="line">   BeanDefinition existingDef = this.registry.getBeanDefinition(beanName);</span><br><span class="line">   BeanDefinition originatingDef = existingDef.getOriginatingBeanDefinition();</span><br><span class="line">   if (originatingDef != null) &#123;</span><br><span class="line">      existingDef = originatingDef;</span><br><span class="line">   &#125;</span><br><span class="line">   if (isCompatible(beanDefinition, existingDef)) &#123;</span><br><span class="line">      return false;</span><br><span class="line">   &#125;</span><br><span class="line">   throw new ConflictingBeanDefinitionException(&quot;Annotation-specified bean name &apos;&quot; + beanName +</span><br><span class="line">         &quot;&apos; for bean class [&quot; + beanDefinition.getBeanClassName() + &quot;] conflicts with existing, &quot; +</span><br><span class="line">         &quot;non-compatible bean definition of same name and class [&quot; + existingDef.getBeanClassName() + &quot;]&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>校验完候选beanDefinition以后，会将candidate包装成一个BeanDefinitionHolder对象：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);</span><br><span class="line">definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);</span><br></pre></td></tr></table></figure>
+
+<p>这里看一下BeanDefinitionHolder：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Holder for a BeanDefinition with name and aliases.</span><br><span class="line"> * Can be registered as a placeholder for an inner bean.</span><br><span class="line"> *</span><br><span class="line"> * &lt;p&gt;Can also be used for programmatic registration of inner bean</span><br><span class="line"> * definitions. If you don&apos;t care about BeanNameAware and the like,</span><br><span class="line"> * registering RootBeanDefinition or ChildBeanDefinition is good enough.</span><br><span class="line"> *</span><br><span class="line"> * @author Juergen Hoeller</span><br><span class="line"> * @since 1.0.2</span><br><span class="line"> * @see org.springframework.beans.factory.BeanNameAware</span><br><span class="line"> * @see org.springframework.beans.factory.support.RootBeanDefinition</span><br><span class="line"> * @see org.springframework.beans.factory.support.ChildBeanDefinition</span><br><span class="line"> */</span><br><span class="line">public class BeanDefinitionHolder implements BeanMetadataElement &#123;</span><br><span class="line"> </span><br><span class="line">   private final BeanDefinition beanDefinition;</span><br><span class="line"> </span><br><span class="line">   private final String beanName;</span><br><span class="line"> </span><br><span class="line">   private final String[] aliases;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Create a new BeanDefinitionHolder.</span><br><span class="line">    * @param beanDefinition the BeanDefinition to wrap</span><br><span class="line">    * @param beanName the name of the bean, as specified for the bean definition</span><br><span class="line">    */</span><br><span class="line">   public BeanDefinitionHolder(BeanDefinition beanDefinition, String beanName) &#123;</span><br><span class="line">      this(beanDefinition, beanName, null);</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Create a new BeanDefinitionHolder.</span><br><span class="line">    * @param beanDefinition the BeanDefinition to wrap</span><br><span class="line">    * @param beanName the name of the bean, as specified for the bean definition</span><br><span class="line">    * @param aliases alias names for the bean, or &lt;code&gt;null&lt;/code&gt; if none</span><br><span class="line">    */</span><br><span class="line">   public BeanDefinitionHolder(BeanDefinition beanDefinition, String beanName, String[] aliases) &#123;</span><br><span class="line">      Assert.notNull(beanDefinition, &quot;BeanDefinition must not be null&quot;);</span><br><span class="line">      Assert.notNull(beanName, &quot;Bean name must not be null&quot;);</span><br><span class="line">      this.beanDefinition = beanDefinition;</span><br><span class="line">      this.beanName = beanName;</span><br><span class="line">      this.aliases = aliases;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里截取到了构造方法，可以看到BeanDefinitionHolder中放的还是BeanDefinition对象，同时还包含的这个BeanDefinition的beanName和aliases的信息。</p>
+<p>接着spring对BeanDefinitionHodler的处理：</p>
+<blockquote>
+<p>definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);</p>
+</blockquote>
+<p>我们看下这个方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">static BeanDefinitionHolder applyScopedProxyMode(</span><br><span class="line">      ScopeMetadata metadata, BeanDefinitionHolder definition, BeanDefinitionRegistry registry) &#123;</span><br><span class="line"> </span><br><span class="line">   ScopedProxyMode scopedProxyMode = metadata.getScopedProxyMode();</span><br><span class="line">   if (scopedProxyMode.equals(ScopedProxyMode.NO)) &#123;</span><br><span class="line">      return definition;</span><br><span class="line">   &#125;</span><br><span class="line">   boolean proxyTargetClass = scopedProxyMode.equals(ScopedProxyMode.TARGET_CLASS);</span><br><span class="line">   return ScopedProxyCreator.createScopedProxy(definition, registry, proxyTargetClass);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个方法主要是设置beanDefinition的代理模式，为aop服务，我们这里暂时也不深入，了解到这边即可。</p>
+<p>准备工作全部做完以后，将这个已经符合条件的beanDefinitionHolder对象放入一个set<beandefinitionholder>集合中，这个集合对象后面会交给ComponentScanBeanDefinitionParse的第四步，也就是registerComponents()这个方法来调用处理。</beandefinitionholder></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Set&lt;BeanDefinitionHolder&gt; beanDefinitions = new LinkedHashSet&lt;BeanDefinitionHolder&gt;();</span><br><span class="line"> </span><br><span class="line">beanDefinitions.add(definitionHolder);</span><br></pre></td></tr></table></figure>
+
+<p>最后我们看下doscan的的最后一个方法，注册beanDefinition：</p>
+<blockquote>
+<p>registerBeanDefinition(definitionHolder, this.registry);</p>
+</blockquote>
+<p>这里看到了registry对象，在上面的代码中它也出现过，我们在这个地方介绍一下这个对象：</p>
+<blockquote>
+<p>private final BeanDefinitionRegistry registry;</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Interface for registries that hold bean definitions, for example RootBeanDefinition</span><br><span class="line"> * and ChildBeanDefinition instances. Typically implemented by BeanFactories that</span><br><span class="line"> * internally work with the AbstractBeanDefinition hierarchy.</span><br><span class="line"> *</span><br><span class="line"> * &lt;p&gt;This is the only interface in Spring&apos;s bean factory packages that encapsulates</span><br><span class="line"> * &lt;i&gt;registration&lt;/i&gt; of bean definitions. The standard BeanFactory interfaces</span><br><span class="line"> * only cover access to a &lt;i&gt;fully configured factory instance&lt;/i&gt;.</span><br><span class="line"> *</span><br><span class="line"> * &lt;p&gt;Spring&apos;s bean definition readers expect to work on an implementation of this</span><br><span class="line"> * interface. Known implementors within the Spring core are DefaultListableBeanFactory</span><br><span class="line"> * and GenericApplicationContext.</span><br><span class="line"> *</span><br><span class="line"> * @author Juergen Hoeller</span><br><span class="line"> * @since 26.11.2003</span><br><span class="line"> * @see org.springframework.beans.factory.config.BeanDefinition</span><br><span class="line"> * @see AbstractBeanDefinition</span><br><span class="line"> * @see RootBeanDefinition</span><br><span class="line"> * @see ChildBeanDefinition</span><br><span class="line"> * @see DefaultListableBeanFactory</span><br><span class="line"> * @see org.springframework.context.support.GenericApplicationContext</span><br><span class="line"> * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader</span><br><span class="line"> * @see PropertiesBeanDefinitionReader</span><br><span class="line"> */</span><br><span class="line">public interface BeanDefinitionRegistry extends AliasRegistry &#123;</span><br></pre></td></tr></table></figure>
+
+<p>简单的说就是这个BeanDefinitionRegistry接口定义了对beanDefinition的一些操作，比如注册，获取，删除等等。</p>
+<p>了解了基本作用以后，我们看下是怎么注册beanDefinition的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Register the specified bean with the given registry.</span><br><span class="line"> * &lt;p&gt;Can be overridden in subclasses, e.g. to adapt the registration</span><br><span class="line"> * process or to register further bean definitions for each scanned bean.</span><br><span class="line"> * @param definitionHolder the bean definition plus bean name for the bean</span><br><span class="line"> * @param registry the BeanDefinitionRegistry to register the bean with</span><br><span class="line"> */</span><br><span class="line">protected void registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry) &#123;</span><br><span class="line">   BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, registry);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再看下BeanDefinitionReaderUtils中的注册方法内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Register the given bean definition with the given bean factory.</span><br><span class="line"> * @param definitionHolder the bean definition including name and aliases</span><br><span class="line"> * @param registry the bean factory to register with</span><br><span class="line"> * @throws BeanDefinitionStoreException if registration failed</span><br><span class="line"> */</span><br><span class="line">public static void registerBeanDefinition(</span><br><span class="line">      BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)</span><br><span class="line">      throws BeanDefinitionStoreException &#123;</span><br><span class="line"> </span><br><span class="line">   // Register bean definition under primary name.</span><br><span class="line">   String beanName = definitionHolder.getBeanName();</span><br><span class="line">   registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());</span><br><span class="line"> </span><br><span class="line">   // Register aliases for bean name, if any.</span><br><span class="line">   String[] aliases = definitionHolder.getAliases();</span><br><span class="line">   if (aliases != null) &#123;</span><br><span class="line">      for (String aliase : aliases) &#123;</span><br><span class="line">         registry.registerAlias(beanName, aliase);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到具体的注册过程分为两部分处理：</p>
+<p><strong>注册第一部分，用beanName注册beanDefinition：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// Register bean definition under primary name.</span><br><span class="line">String beanName = definitionHolder.getBeanName();</span><br><span class="line">registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());</span><br></pre></td></tr></table></figure>
+
+<p>我们在看下这个的具体实现代码：</p>
+<p><strong>DefaultLisableBeanFactory#registerBeanDefinition</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">//---------------------------------------------------------------------</span><br><span class="line">// Implementation of BeanDefinitionRegistry interface</span><br><span class="line">//---------------------------------------------------------------------</span><br><span class="line"> </span><br><span class="line">public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)</span><br><span class="line">      throws BeanDefinitionStoreException &#123;</span><br><span class="line"> </span><br><span class="line">   Assert.hasText(beanName, &quot;Bean name must not be empty&quot;);</span><br><span class="line">   Assert.notNull(beanDefinition, &quot;BeanDefinition must not be null&quot;);</span><br><span class="line"> </span><br><span class="line">   if (beanDefinition instanceof AbstractBeanDefinition) &#123;</span><br><span class="line">      try &#123;</span><br><span class="line">         ((AbstractBeanDefinition) beanDefinition).validate();</span><br><span class="line">      &#125;</span><br><span class="line">      catch (BeanDefinitionValidationException ex) &#123;</span><br><span class="line">         throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,</span><br><span class="line">               &quot;Validation of bean definition failed&quot;, ex);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   synchronized (this.beanDefinitionMap) &#123;</span><br><span class="line">      Object oldBeanDefinition = this.beanDefinitionMap.get(beanName);</span><br><span class="line">      if (oldBeanDefinition != null) &#123;</span><br><span class="line">         if (!this.allowBeanDefinitionOverriding) &#123;</span><br><span class="line">            throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,</span><br><span class="line">                  &quot;Cannot register bean definition [&quot; + beanDefinition + &quot;] for bean &apos;&quot; + beanName +</span><br><span class="line">                  &quot;&apos;: There is already [&quot; + oldBeanDefinition + &quot;] bound.&quot;);</span><br><span class="line">         &#125;</span><br><span class="line">         else &#123;</span><br><span class="line">            if (this.logger.isInfoEnabled()) &#123;</span><br><span class="line">               this.logger.info(&quot;Overriding bean definition for bean &apos;&quot; + beanName +</span><br><span class="line">                     &quot;&apos;: replacing [&quot; + oldBeanDefinition + &quot;] with [&quot; + beanDefinition + &quot;]&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         this.beanDefinitionNames.add(beanName);</span><br><span class="line">         this.frozenBeanDefinitionNames = null;</span><br><span class="line">      &#125;</span><br><span class="line">      this.beanDefinitionMap.put(beanName, beanDefinition);</span><br><span class="line"> </span><br><span class="line">      resetBeanDefinition(beanName);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到注册的好的beanDefinition最后都会被存入beanDefinitionMap，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/** Map of bean definition objects, keyed by bean name */</span><br><span class="line">private final Map&lt;String, BeanDefinition&gt; beanDefinitionMap = new ConcurrentHashMap&lt;String, BeanDefinition&gt;();</span><br></pre></td></tr></table></figure>
+
+<p>后面需要取beanDefinition的话，也是从这个容器中取。</p>
+<p><strong>注册第二部分,用aliases也就是别名来分别注册这个beanDefinition：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// Register aliases for bean name, if any.</span><br><span class="line">String[] aliases = definitionHolder.getAliases();</span><br><span class="line">if (aliases != null) &#123;</span><br><span class="line">   for (String aliase : aliases) &#123;</span><br><span class="line">      registry.registerAlias(beanName, aliase);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>到了扫描到的文件中所有符合要求的对象都被作为beanDefinition注册到了spring ioc容器中，有关容器部分的内容这边也不做深入。</p>
+<p>到了这边ComponentScanBeanDefinitionParse的第三步也已经分析完了，还有最后一步注册组件的内容。</p>
+<p><strong>registerComponents(parserContext.getReaderContext(), beanDefinitions, element);</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">protected void registerComponents(</span><br><span class="line">      XmlReaderContext readerContext, Set&lt;BeanDefinitionHolder&gt; beanDefinitions, Element element) &#123;</span><br><span class="line"> </span><br><span class="line">   Object source = readerContext.extractSource(element);</span><br><span class="line">   CompositeComponentDefinition compositeDef = new CompositeComponentDefinition(element.getTagName(), source);</span><br><span class="line"> </span><br><span class="line">   for (BeanDefinitionHolder beanDefHolder : beanDefinitions) &#123;</span><br><span class="line">      compositeDef.addNestedComponent(new BeanComponentDefinition(beanDefHolder));</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   // Register annotation config processors, if necessary.</span><br><span class="line">   boolean annotationConfig = true;</span><br><span class="line">   if (element.hasAttribute(ANNOTATION_CONFIG_ATTRIBUTE)) &#123;</span><br><span class="line">      annotationConfig = Boolean.valueOf(element.getAttribute(ANNOTATION_CONFIG_ATTRIBUTE));</span><br><span class="line">   &#125;</span><br><span class="line">   if (annotationConfig) &#123;</span><br><span class="line">      Set&lt;BeanDefinitionHolder&gt; processorDefinitions =</span><br><span class="line">            AnnotationConfigUtils.registerAnnotationConfigProcessors(readerContext.getRegistry(), source);</span><br><span class="line">      for (BeanDefinitionHolder processorDefinition : processorDefinitions) &#123;</span><br><span class="line">         compositeDef.addNestedComponent(new BeanComponentDefinition(processorDefinition));</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   readerContext.fireComponentRegistered(compositeDef);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>egisterComponents这部分代码会包装一个CompositeComponentDefinition对象，然后会通过component-scan节点中的annotation-config的值来决定是否注册组件：</p>
+<p><strong>registerComponents第一步:包装CompositeComponentDefinition</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Object source = readerContext.extractSource(element);</span><br><span class="line">CompositeComponentDefinition compositeDef = new CompositeComponentDefinition(element.getTagName(), source);</span><br><span class="line"> </span><br><span class="line">for (BeanDefinitionHolder beanDefHolder : beanDefinitions) &#123;</span><br><span class="line">   compositeDef.addNestedComponent(new BeanComponentDefinition(beanDefHolder));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们先看下CompositeComponentDefinition:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * &#123;@link ComponentDefinition&#125; implementation that holds one or more nested</span><br><span class="line"> * &#123;@link ComponentDefinition&#125; instances, aggregating them into a named group</span><br><span class="line"> * of components.</span><br><span class="line"> *</span><br><span class="line"> * @author Juergen Hoeller</span><br><span class="line"> * @since 2.0.1</span><br><span class="line"> * @see #getNestedComponents()</span><br><span class="line"> */</span><br><span class="line">public class CompositeComponentDefinition extends AbstractComponentDefinition &#123;</span><br><span class="line"> </span><br><span class="line">   private final String name;</span><br><span class="line"> </span><br><span class="line">   private final Object source;</span><br><span class="line"> </span><br><span class="line">   private final List&lt;ComponentDefinition&gt; nestedComponents = new LinkedList&lt;ComponentDefinition&gt;();</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Create a new CompositeComponentDefinition.</span><br><span class="line">    * @param name the name of the composite component</span><br><span class="line">    * @param source the source element that defines the root of the composite component</span><br><span class="line">    */</span><br><span class="line">   public CompositeComponentDefinition(String name, Object source) &#123;</span><br><span class="line">      Assert.notNull(name, &quot;Name must not be null&quot;);</span><br><span class="line">      this.name = name;</span><br><span class="line">      this.source = source;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">   public String getName() &#123;</span><br><span class="line">      return this.name;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   public Object getSource() &#123;</span><br><span class="line">      return this.source;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Add the given component as nested element of this composite component.</span><br><span class="line">    * @param component the nested component to add</span><br><span class="line">    */</span><br><span class="line">   public void addNestedComponent(ComponentDefinition component) &#123;</span><br><span class="line">      Assert.notNull(component, &quot;ComponentDefinition must not be null&quot;);</span><br><span class="line">      this.nestedComponents.add(component);</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Return the nested components that this composite component holds.</span><br><span class="line">    * @return the array of nested components, or an empty array if none</span><br><span class="line">    */</span><br><span class="line">   public ComponentDefinition[] getNestedComponents() &#123;</span><br><span class="line">      return this.nestedComponents.toArray(new ComponentDefinition[this.nestedComponents.size()]);</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>CompositeComponentDefinition可以理解为一个容器，这个容器中可以放ConponentDedinition对象，有关这个对象我们可以直接看下调试的结果：<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/16.png" alt="数据类型示意图"></p>
+<p>这个里面保存的就是ComponentDefinition。</p>
+<p><strong>registerComponents第二步：注册annotation相关的组件:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// Register annotation config processors, if necessary.</span><br><span class="line">boolean annotationConfig = true;</span><br><span class="line">if (element.hasAttribute(ANNOTATION_CONFIG_ATTRIBUTE)) &#123;</span><br><span class="line">   annotationConfig = Boolean.valueOf(element.getAttribute(ANNOTATION_CONFIG_ATTRIBUTE));</span><br><span class="line">&#125;</span><br><span class="line">if (annotationConfig) &#123;</span><br><span class="line">   Set&lt;BeanDefinitionHolder&gt; processorDefinitions =</span><br><span class="line">         AnnotationConfigUtils.registerAnnotationConfigProcessors(readerContext.getRegistry(), source);</span><br><span class="line">   for (BeanDefinitionHolder processorDefinition : processorDefinitions) &#123;</span><br><span class="line">      compositeDef.addNestedComponent(new BeanComponentDefinition(processorDefinition));</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的ANNOTATION_CONFIG_ATTRIBUTE属性和前面提到的use-default-filters属性一样，默认值都是true。如果这个属性值为true，就会执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Set&lt;BeanDefinitionHolder&gt; processorDefinitions =</span><br><span class="line">      AnnotationConfigUtils.registerAnnotationConfigProcessors(readerContext.getRegistry(), source);</span><br></pre></td></tr></table></figure>
+
+<p>看下这个方法的实现内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Register all relevant annotation post processors in the given registry.</span><br><span class="line"> * @param registry the registry to operate on</span><br><span class="line"> * @param source the configuration source element (already extracted)</span><br><span class="line"> * that this registration was triggered from. May be &lt;code&gt;null&lt;/code&gt;.</span><br><span class="line"> * @return a Set of BeanDefinitionHolders, containing all bean definitions</span><br><span class="line"> * that have actually been registered by this call</span><br><span class="line"> */</span><br><span class="line">public static Set&lt;BeanDefinitionHolder&gt; registerAnnotationConfigProcessors(</span><br><span class="line">      BeanDefinitionRegistry registry, Object source) &#123;</span><br><span class="line"> </span><br><span class="line">   Set&lt;BeanDefinitionHolder&gt; beanDefs = new LinkedHashSet&lt;BeanDefinitionHolder&gt;(4);</span><br><span class="line"> </span><br><span class="line">   if (!registry.containsBeanDefinition(CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME)) &#123;</span><br><span class="line">      RootBeanDefinition def = new RootBeanDefinition(ConfigurationClassPostProcessor.class);</span><br><span class="line">      def.setSource(source);</span><br><span class="line">      beanDefs.add(registerPostProcessor(registry, def, CONFIGURATION_ANNOTATION_PROCESSOR_BEAN_NAME));</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) &#123;</span><br><span class="line">      RootBeanDefinition def = new RootBeanDefinition(AutowiredAnnotationBeanPostProcessor.class);</span><br><span class="line">      def.setSource(source);</span><br><span class="line">      beanDefs.add(registerPostProcessor(registry, def, AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME));</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   if (!registry.containsBeanDefinition(REQUIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) &#123;</span><br><span class="line">      RootBeanDefinition def = new RootBeanDefinition(RequiredAnnotationBeanPostProcessor.class);</span><br><span class="line">      def.setSource(source);</span><br><span class="line">      beanDefs.add(registerPostProcessor(registry, def, REQUIRED_ANNOTATION_PROCESSOR_BEAN_NAME));</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   // Check for JSR-250 support, and if present add the CommonAnnotationBeanPostProcessor.</span><br><span class="line">   if (jsr250Present &amp;&amp; !registry.containsBeanDefinition(COMMON_ANNOTATION_PROCESSOR_BEAN_NAME)) &#123;</span><br><span class="line">      RootBeanDefinition def = new RootBeanDefinition(CommonAnnotationBeanPostProcessor.class);</span><br><span class="line">      def.setSource(source);</span><br><span class="line">      beanDefs.add(registerPostProcessor(registry, def, COMMON_ANNOTATION_PROCESSOR_BEAN_NAME));</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   // Check for JPA support, and if present add the PersistenceAnnotationBeanPostProcessor.</span><br><span class="line">   if (jpaPresent &amp;&amp; !registry.containsBeanDefinition(PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME)) &#123;</span><br><span class="line">      RootBeanDefinition def = new RootBeanDefinition();</span><br><span class="line">      try &#123;</span><br><span class="line">         ClassLoader cl = AnnotationConfigUtils.class.getClassLoader();</span><br><span class="line">         def.setBeanClass(cl.loadClass(PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME));</span><br><span class="line">      &#125;</span><br><span class="line">      catch (ClassNotFoundException ex) &#123;</span><br><span class="line">         throw new IllegalStateException(</span><br><span class="line">               &quot;Cannot load optional framework class: &quot; + PERSISTENCE_ANNOTATION_PROCESSOR_CLASS_NAME, ex);</span><br><span class="line">      &#125;</span><br><span class="line">      def.setSource(source);</span><br><span class="line">      beanDefs.add(registerPostProcessor(registry, def, PERSISTENCE_ANNOTATION_PROCESSOR_BEAN_NAME));</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   return beanDefs;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里是注册相关的注解处理器，实现对@Configuration、@Bean、@Import、@Component、@ComponentScan、@ImportResource等注解的支持。 </p>
+<p>最后还有一个空方法用于BeanDefinition注册完成事件通知，但是并没有实现：</p>
+<blockquote>
+<p>readerContext.fireComponentRegistered(compositeDef);</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public void componentRegistered(ComponentDefinition componentDefinition) &#123;</span><br><span class="line">   // no-op</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>到此有关context:component-scan的解析过程就完成了，里面有很多地方都是点到即止，后续学习到相关内容再继续分析。</p>
+<p>附上当时分析画的时序图：<br><img src="/2018/11/15/Spring配置解析之Component-scan解析/17.png" alt="数据类型示意图"><br><img src="/2018/11/15/Spring配置解析之Component-scan解析/18.png" alt="数据类型示意图"><br><img src="/2018/11/15/Spring配置解析之Component-scan解析/19.png" alt="数据类型示意图"><br><img src="/2018/11/15/Spring配置解析之Component-scan解析/20.png" alt="数据类型示意图"><br><img src="/2018/11/15/Spring配置解析之Component-scan解析/21.png" alt="数据类型示意图"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/05/java-IO-之-OutputStream/" rel="next" title="java IO 之 OutputStream">
+                <i class="fa fa-chevron-left"></i> java IO 之 OutputStream
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/12/12/设计模式之策略模式/" rel="prev" title="设计模式之策略模式">
+                设计模式之策略模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#BeanDefinitionParserDelegate-parseCustomElement"><span class="nav-number">1.</span> <span class="nav-text">BeanDefinitionParserDelegate#parseCustomElement</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#parseCustomElement第一步"><span class="nav-number">1.1.</span> <span class="nav-text">parseCustomElement第一步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#parseCustomElement第二步："><span class="nav-number">1.2.</span> <span class="nav-text">parseCustomElement第二步：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ComponentScanBeanDefinitionParse-parse"><span class="nav-number">2.</span> <span class="nav-text">ComponentScanBeanDefinitionParse#parse</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ComponentScanBeanDefinitionParse第一步"><span class="nav-number">2.1.</span> <span class="nav-text">ComponentScanBeanDefinitionParse第一步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ComponentScanBeanDefinitionParse第二步"><span class="nav-number">2.2.</span> <span class="nav-text">ComponentScanBeanDefinitionParse第二步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ComponentScanBeanDefinitionParse第三步"><span class="nav-number">2.3.</span> <span class="nav-text">ComponentScanBeanDefinitionParse第三步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ComponentScanBeanDefinitionParse第四步"><span class="nav-number">2.4.</span> <span class="nav-text">ComponentScanBeanDefinitionParse第四步</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
