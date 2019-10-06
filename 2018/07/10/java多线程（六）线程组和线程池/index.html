@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="线程组线程组介绍&amp;emsp;    &amp;emsp;java中用线程组(ThreadGroup)来同时管理一批线程，对线程组做的操作相当于对里面所有的线程都做了同样的操作，线程所属的线程组在运行过程中无法修改。&amp;emsp;    &amp;emsp;可能大家听到更多的是线程池的概念，但其实只要使用过线程，那么你就已经使用过了ThreadGroup，只是你自己并不知道而已，我们看下Thread类的构造方法： 1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java多线程（六）线程组和线程池">
+<meta property="og:url" content="http://yoursite.com/2018/07/10/java多线程（六）线程组和线程池/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="线程组线程组介绍&amp;emsp;    &amp;emsp;java中用线程组(ThreadGroup)来同时管理一批线程，对线程组做的操作相当于对里面所有的线程都做了同样的操作，线程所属的线程组在运行过程中无法修改。&amp;emsp;    &amp;emsp;可能大家听到更多的是线程池的概念，但其实只要使用过线程，那么你就已经使用过了ThreadGroup，只是你自己并不知道而已，我们看下Thread类的构造方法： 1">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/07/10/java多线程（六）线程组和线程池/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/10/java多线程（六）线程组和线程池/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/10/java多线程（六）线程组和线程池/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/10/java多线程（六）线程组和线程池/4.png">
+<meta property="og:updated_time" content="2019-10-06T02:10:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java多线程（六）线程组和线程池">
+<meta name="twitter:description" content="线程组线程组介绍&amp;emsp;    &amp;emsp;java中用线程组(ThreadGroup)来同时管理一批线程，对线程组做的操作相当于对里面所有的线程都做了同样的操作，线程所属的线程组在运行过程中无法修改。&amp;emsp;    &amp;emsp;可能大家听到更多的是线程池的概念，但其实只要使用过线程，那么你就已经使用过了ThreadGroup，只是你自己并不知道而已，我们看下Thread类的构造方法： 1">
+<meta name="twitter:image" content="http://yoursite.com/2018/07/10/java多线程（六）线程组和线程池/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/07/10/java多线程（六）线程组和线程池/">
+
+
+
+
+
+  <title>java多线程（六）线程组和线程池 | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/10/java多线程（六）线程组和线程池/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java多线程（六）线程组和线程池</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-10T18:48:18+08:00">
+                2018-07-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="线程组"><a href="#线程组" class="headerlink" title="线程组"></a>线程组</h1><h2 id="线程组介绍"><a href="#线程组介绍" class="headerlink" title="线程组介绍"></a>线程组介绍</h2><p>&emsp;    &emsp;java中用线程组(ThreadGroup)来同时管理一批线程，对线程组做的操作相当于对里面所有的线程都做了同样的操作，线程所属的线程组在运行过程中无法修改。<br>&emsp;    &emsp;可能大家听到更多的是线程池的概念，但其实只要使用过线程，那么你就已经使用过了ThreadGroup，只是你自己并不知道而已，我们看下Thread类的构造方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">	public Thread(Runnable target) &#123;</span><br><span class="line">    init(null, target, &quot;Thread-&quot; + nextThreadNum(), 0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;可以看到，这个构造方法只需要指定target对象，我们再具体看下init()里面的操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">private void init(ThreadGroup g, Runnable target, String name,</span><br><span class="line">                  long stackSize, AccessControlContext acc) &#123;</span><br><span class="line">    if (name == null) &#123;</span><br><span class="line">        throw new NullPointerException(&quot;name cannot be null&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    this.name = name.toCharArray();</span><br><span class="line"> </span><br><span class="line">    Thread parent = currentThread();</span><br><span class="line">    SecurityManager security = System.getSecurityManager();</span><br><span class="line">    if (g == null) &#123;</span><br><span class="line">        /* Determine if it&apos;s an applet or not */</span><br><span class="line"> </span><br><span class="line">        /* If there is a security manager, ask the security manager</span><br><span class="line">           what to do. */</span><br><span class="line">        if (security != null) &#123;</span><br><span class="line">            g = security.getThreadGroup();</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        /* If the security doesn&apos;t have a strong opinion of the matter</span><br><span class="line">           use the parent thread group. */</span><br><span class="line">        if (g == null) &#123;</span><br><span class="line">            g = parent.getThreadGroup();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    /* checkAccess regardless of whether or not threadgroup is</span><br><span class="line">       explicitly passed in. */</span><br><span class="line">    g.checkAccess();</span><br><span class="line"> </span><br><span class="line">    /*</span><br><span class="line">     * Do we have the required permissions?</span><br><span class="line">     */</span><br><span class="line">    if (security != null) &#123;</span><br><span class="line">        if (isCCLOverridden(getClass())) &#123;</span><br><span class="line">            security.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    g.addUnstarted();</span><br><span class="line"> </span><br><span class="line">    this.group = g;</span><br><span class="line">    this.daemon = parent.isDaemon();</span><br><span class="line">    this.priority = parent.getPriority();</span><br><span class="line">    if (security == null || isCCLOverridden(parent.getClass()))</span><br><span class="line">        this.contextClassLoader = parent.getContextClassLoader();</span><br><span class="line">    else</span><br><span class="line">        this.contextClassLoader = parent.contextClassLoader;</span><br><span class="line">    this.inheritedAccessControlContext =</span><br><span class="line">            acc != null ? acc : AccessController.getContext();</span><br><span class="line">    this.target = target;</span><br><span class="line">    setPriority(priority);</span><br><span class="line">    if (parent.inheritableThreadLocals != null)</span><br><span class="line">        this.inheritableThreadLocals =</span><br><span class="line">            ThreadLocal.createInheritedMap(parent.inheritableThreadLocals);</span><br><span class="line">    /* Stash the specified stack size in case the VM cares */</span><br><span class="line">    this.stackSize = stackSize;</span><br><span class="line"> </span><br><span class="line">    /* Set thread ID */</span><br><span class="line">    tid = nextThreadID();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们主要看方法中对ThreadGroup g参数的处理：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">hread parent = currentThread();</span><br><span class="line">SecurityManager security = System.getSecurityManager();</span><br><span class="line">if (g == null) &#123;</span><br><span class="line">    /* Determine if it&apos;s an applet or not */</span><br><span class="line"> </span><br><span class="line">    /* If there is a security manager, ask the security manager</span><br><span class="line">       what to do. */</span><br><span class="line">    if (security != null) &#123;</span><br><span class="line">        g = security.getThreadGroup();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    /* If the security doesn&apos;t have a strong opinion of the matter</span><br><span class="line">       use the parent thread group. */</span><br><span class="line">    if (g == null) &#123;</span><br><span class="line">        g = parent.getThreadGroup();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;可以看到，虽然我们在创建线程实例的时候并没有指定线程所属的线程组，但是在调用Thread类的构造方法创建实例的时候会进行判断，如果没有指定线程组，会使用默认的线程组，如果是在main方法中的创建的线程，那么它们的默认线程组就是main,简单写个测试类看下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.Thread.ThreadGroup;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/10.</span><br><span class="line"> */</span><br><span class="line">public class TestThreadGroup &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        B b = new B();</span><br><span class="line">        Thread t = new Thread(b);</span><br><span class="line">        System.out.println(&quot;main线程所属线程组：&quot; + Thread.currentThread().getThreadGroup().getName());</span><br><span class="line">        System.out.println(&quot;main线程中的t线程所属线程组：&quot; + t.getThreadGroup().getName());</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br><img src="/2018/07/10/java多线程（六）线程组和线程池/1.png" alt="数据类型示意图"></p>
+<h2 id="线程组使用"><a href="#线程组使用" class="headerlink" title="线程组使用"></a>线程组使用</h2><p>首先介绍一下几个常用的方法：<br>ThreadGroup类提供了两个公共的构造方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> public ThreadGroup(String name) &#123;</span><br><span class="line">    this(Thread.currentThread().getThreadGroup(), name);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public ThreadGroup(ThreadGroup parent, String name) &#123;</span><br><span class="line">    this(checkParentAccess(parent), parent, name);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;ThreadGroup是一个类似树的结构，如果创建ThreadGroup实例的时候没有指定parent，那么就使用当前线程所属的线程组作为parent。<br>&emsp;    &emsp;同时Thread类也提供了几个构造方法用来指定线程的所属线程组：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public Thread(ThreadGroup group, Runnable target, String name) &#123;</span><br><span class="line">    init(group, target, name, 0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public Thread(ThreadGroup group, String name) &#123;</span><br><span class="line">    init(group, null, name, 0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public Thread(ThreadGroup group, Runnable target) &#123;</span><br><span class="line">    init(group, target, &quot;Thread-&quot; + nextThreadNum(), 0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要就是三个参数ThreadGroup group,Runnable target和String name,不同参数构成不同的构造方法，最终调用的都是同一个方法来创建实例。</p>
+<p><strong>ThreadGroup</strong>类同时还提供几个常用方法来操作线程组中的线程：</p>
+<ul>
+<li><strong>获取parent：(system是最顶级的线程组)</strong></li>
+</ul>
+<blockquote>
+<p>public final ThreadGroup getParent()</p>
+</blockquote>
+<ul>
+<li><strong>设置最大优先级：</strong></li>
+</ul>
+<blockquote>
+<p>public final void setMaxPriority(int pri)</p>
+</blockquote>
+<ul>
+<li><strong>获取优先级</strong></li>
+</ul>
+<blockquote>
+<p>public final int getMaxPriority()</p>
+</blockquote>
+<ul>
+<li><strong>中断所有线程：</strong></li>
+</ul>
+<blockquote>
+<p>public final void interrupt()</p>
+</blockquote>
+<ul>
+<li><strong>返回活动线程的数量</strong></li>
+</ul>
+<blockquote>
+<p>public int activeCount()</p>
+</blockquote>
+<ul>
+<li><strong>设置为后台线程</strong></li>
+</ul>
+<blockquote>
+<p>public final void setDaemon(boolean daemon)</p>
+</blockquote>
+<ul>
+<li><strong>是否是后台线程</strong></li>
+</ul>
+<blockquote>
+<p>public final boolean isDaemon()</p>
+</blockquote>
+<p>思考一个问题，我们知道线程是可以设置优先级的，如果所属的线程组也设置了优先级，以哪个为准呢？<br>我们看下ThreadGroup中setMaxPriority()方法的源码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public final void setMaxPriority(int pri) &#123;</span><br><span class="line">    int ngroupsSnapshot;</span><br><span class="line">    ThreadGroup[] groupsSnapshot;</span><br><span class="line">    synchronized (this) &#123;</span><br><span class="line">        checkAccess();</span><br><span class="line">        if (pri &lt; Thread.MIN_PRIORITY || pri &gt; Thread.MAX_PRIORITY) &#123;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        maxPriority = (parent != null) ? Math.min(pri, parent.maxPriority) : pri;</span><br><span class="line">        ngroupsSnapshot = ngroups;</span><br><span class="line">        if (groups != null) &#123;</span><br><span class="line">            groupsSnapshot = Arrays.copyOf(groups, ngroupsSnapshot);</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            groupsSnapshot = null;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    for (int i = 0 ; i &lt; ngroupsSnapshot ; i++) &#123;</span><br><span class="line">        groupsSnapshot[i].setMaxPriority(pri);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>线程组最大优先级的设定：</p>
+<ul>
+<li>系统线程组的最大优先级默认为Thread.MAX_PRIORITY</li>
+<li>创建线程组的时候其最大优先级默认为父线程组（如果未指定父线程组，则其父线程组默认为当前线程所属线程组）的最大优先级</li>
+<li>可以通过setMaxPriority更改最大优先级，但无法超过父线程组的最大优先级</li>
+</ul>
+<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><p>线程的异常处理也是比较重要的一块，如果异常得不到，线程获取的资源就会一直不释放。所以Thread类提供了一个内部接口用来处理线程遇到的异常：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public interface UncaughtExceptionHandler &#123;</span><br><span class="line">    /**</span><br><span class="line">     * Method invoked when the given thread terminates due to the</span><br><span class="line">     * given uncaught exception.</span><br><span class="line">     * &lt;p&gt;Any exception thrown by this method will be ignored by the</span><br><span class="line">     * Java Virtual Machine.</span><br><span class="line">     * @param t the thread</span><br><span class="line">     * @param e the exception</span><br><span class="line">     */</span><br><span class="line">    void uncaughtException(Thread t, Throwable e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>&emsp;    &emsp;我们在创建完Thread类的实例以后，可以通过调用setUncaughtExceptionHandler()方法，通过内部实现类的形式定义对异常的处理，这是Thread类对异常的处理，我们上文也介绍了线程组ThreadGroup是用来管理一组线程并同时对他们进行操作的。那么ThreadGroup中有没有方法可以对线程组中的线程抛出未处理的异常做处理呢？<br>&emsp;    &emsp;答案是肯定的，ThreadGroup类提供了uncaughtException(thread,throwable)方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public void uncaughtException(Thread t, Throwable e) &#123;</span><br><span class="line">    if (parent != null) &#123;</span><br><span class="line">        parent.uncaughtException(t, e);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        Thread.UncaughtExceptionHandler ueh =</span><br><span class="line">            Thread.getDefaultUncaughtExceptionHandler();</span><br><span class="line">        if (ueh != null) &#123;</span><br><span class="line">            ueh.uncaughtException(t, e);</span><br><span class="line">        &#125; else if (!(e instanceof ThreadDeath)) &#123;</span><br><span class="line">            System.err.print(&quot;Exception in thread \&quot;&quot;</span><br><span class="line">                             + t.getName() + &quot;\&quot; &quot;);</span><br><span class="line">            e.printStackTrace(System.err);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;我们可以在创建完ThreadGroup的实例重写这个方法来处理异常：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ThreadGroup group = new ThreadGroup(&quot;线程组&quot;)&#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void uncaughtException(Thread t, Throwable e) &#123;</span><br><span class="line">        System.out.println(&quot;线程组的异常处理机制处理了&quot; + t.getName() + &quot;的异常&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>说了这么多我们看一下代码实例：<br>两个实现了Runnable接口类：<br>A:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.Thread.ThreadGroup;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/10.</span><br><span class="line"> */</span><br><span class="line">public class A implements Runnable&#123;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    @Override</span><br><span class="line">    public void run() &#123;</span><br><span class="line">        int a = 5 / 0;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>B:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.Thread.ThreadGroup;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/10.</span><br><span class="line"> */</span><br><span class="line">public class B implements Runnable&#123;</span><br><span class="line"> </span><br><span class="line">    @Override</span><br><span class="line">    public void run() &#123;</span><br><span class="line">        int a = 5/0;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.Thread.ThreadGroup;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/10.</span><br><span class="line"> */</span><br><span class="line">public class TestThreadGroup &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        ThreadGroup group = new ThreadGroup(&quot;线程组&quot;)&#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void uncaughtException(Thread t, Throwable e) &#123;</span><br><span class="line">                System.out.println(&quot;线程组的异常处理机制处理了&quot; + t.getName() + &quot;的异常&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line"> </span><br><span class="line">        A a = new A();</span><br><span class="line">        B b = new B();</span><br><span class="line"> </span><br><span class="line">        Thread threadA = new Thread(group,a,&quot;A线程&quot;);</span><br><span class="line">        Thread threadB = new Thread(group,b,&quot;B线程&quot;);</span><br><span class="line"> </span><br><span class="line">        threadA.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void uncaughtException(Thread t, Throwable e) &#123;</span><br><span class="line">                System.out.println(&quot;这是&quot; + t.getName() + &quot;的异常处理&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">        threadA.start();</span><br><span class="line">        threadB.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们对线程实现了内部处理异常，对b没有做处理，看下运行结果：<br><img src="/2018/07/10/java多线程（六）线程组和线程池/2.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;从结果中我们可以看到，a线程的未处理的异常被自己处理，b线程中的异常则是被线程组给处理了。</p>
+<p>我们总结一下线程组对于线程中未处理而抛出的异常的处理机制：</p>
+<ol>
+<li>如果线程组的父类有异常处理机制，那么优先选择父类的异常处理机制；</li>
+<li>线程组中的线程如果有自己的异常处理，优先选择自身的异常处理；</li>
+<li>如果异常对象是ThreadDeath对象，则不做处理，否则将异常跟踪栈的信息打印到System.err错误输出流，并结束线程。</li>
+</ol>
+<h1 id="线程池（简单入门）"><a href="#线程池（简单入门）" class="headerlink" title="线程池（简单入门）"></a>线程池（简单入门）</h1><h2 id="线程池介绍"><a href="#线程池介绍" class="headerlink" title="线程池介绍"></a>线程池介绍</h2><p>创建一个线程集合，当需要使用线程的时候去这个集合中取出线程执行，用完再放回去。</p>
+<h2 id="线程池的好处"><a href="#线程池的好处" class="headerlink" title="线程池的好处"></a>线程池的好处</h2><ol>
+<li>控制系统中线程并发的数量；</li>
+<li>节省创建线程的成本；</li>
+</ol>
+<h2 id="线程池的基本使用方法"><a href="#线程池的基本使用方法" class="headerlink" title="线程池的基本使用方法"></a>线程池的基本使用方法</h2><p>线程池最核心的类就是ThreadPoolExecutor类，他提供了四个构造方法用来创建线程池实例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">	public ThreadPoolExecutor(int corePoolSize,</span><br><span class="line">                          int maximumPoolSize,</span><br><span class="line">                          long keepAliveTime,</span><br><span class="line">                          TimeUnit unit,</span><br><span class="line">                          BlockingQueue&lt;Runnable&gt; workQueue) &#123;</span><br><span class="line">    this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,</span><br><span class="line">         Executors.defaultThreadFactory(), defaultHandler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public ThreadPoolExecutor(int corePoolSize,</span><br><span class="line">                          int maximumPoolSize,</span><br><span class="line">                          long keepAliveTime,</span><br><span class="line">                          TimeUnit unit,</span><br><span class="line">                          BlockingQueue&lt;Runnable&gt; workQueue,</span><br><span class="line">                          ThreadFactory threadFactory) &#123;</span><br><span class="line">    this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,</span><br><span class="line">         threadFactory, defaultHandler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public ThreadPoolExecutor(int corePoolSize,</span><br><span class="line">                          int maximumPoolSize,</span><br><span class="line">                          long keepAliveTime,</span><br><span class="line">                          TimeUnit unit,</span><br><span class="line">                          BlockingQueue&lt;Runnable&gt; workQueue,</span><br><span class="line">                          RejectedExecutionHandler handler) &#123;</span><br><span class="line">    this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,</span><br><span class="line">         Executors.defaultThreadFactory(), handler);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">public ThreadPoolExecutor(int corePoolSize,</span><br><span class="line">                          int maximumPoolSize,</span><br><span class="line">                          long keepAliveTime,</span><br><span class="line">                          TimeUnit unit,</span><br><span class="line">                          BlockingQueue&lt;Runnable&gt; workQueue,</span><br><span class="line">                          ThreadFactory threadFactory,</span><br><span class="line">                          RejectedExecutionHandler handler) &#123;</span><br><span class="line">    if (corePoolSize &lt; 0 ||</span><br><span class="line">        maximumPoolSize &lt;= 0 ||</span><br><span class="line">        maximumPoolSize &lt; corePoolSize ||</span><br><span class="line">        keepAliveTime &lt; 0)</span><br><span class="line">        throw new IllegalArgumentException();</span><br><span class="line">    if (workQueue == null || threadFactory == null || handler == null)</span><br><span class="line">        throw new NullPointerException();</span><br><span class="line">    this.corePoolSize = corePoolSize;</span><br><span class="line">    this.maximumPoolSize = maximumPoolSize;</span><br><span class="line">    this.workQueue = workQueue;</span><br><span class="line">    this.keepAliveTime = unit.toNanos(keepAliveTime);</span><br><span class="line">    this.threadFactory = threadFactory;</span><br><span class="line">    this.handler = handler;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到前面三个构造方法最后调用的都是最后一个，我们看下这个方法的几个参数分别代表什么：</p>
+<ul>
+<li><strong>corePoolSize:核心池大小；</strong></li>
+<li><strong>maxmunPoolSize:线程池最大执行数；</strong></li>
+<li><strong>keepAliveTime:线程没有任务执行时保持多久终止；</strong></li>
+<li><strong>unit:keepAliveTime的单位，使用枚举TimeUnit中定义的时间常量；</strong></li>
+<li><strong>workQueue:阻塞队列，用来存储等待执行的任务</strong></li>
+<li><strong>threadFactory:线程工厂，用来创建线程；</strong></li>
+<li><strong>handler:拒绝任务时的策略，有：</strong></li>
+</ul>
+<ol>
+<li>ThreadPoolExecutor.AbortPolicy:丢弃任务并抛出RejectedExecutionException异常。 </li>
+<li>ThreadPoolExecutor.DiscardPolicy：也是丢弃任务，但是不抛出异常。 </li>
+<li>ThreadPoolExecutor.DiscardOldestPolicy：丢弃队列最前面的任务，然后重新尝试执行任务（重复此过程）</li>
+<li>ThreadPoolExecutor.CallerRunsPolicy：由调用线程处理该任务 </li>
+</ol>
+<p>一般不直接通过ThreadPoolExecutor的构造方法创建线程池，而是通过调用Executors中的提供的几个静态方法来创建线程池实例，返回一个ExecutorService对象，主要有以下几种线程池：</p>
+<blockquote>
+<p>newFixedThreadPool(int nThreads)</p>
+</blockquote>
+<p>创建指定线程数量的线程池</p>
+<blockquote>
+<p>newCachedThreadPool()</p>
+</blockquote>
+<p>创建一个弹性缓存线程池，初始时线程数量为0，只有通过execute或者submit提交任务时，才会创建线程</p>
+<blockquote>
+<p>newScheduledThreadPool</p>
+</blockquote>
+<p>创建一个定时器线程池，在执行延迟后执行任务</p>
+<blockquote>
+<p>newSingleThreadExecutor()</p>
+</blockquote>
+<p>创建一个单线程线程池，每次只有一个线程任务，其他任务会等待完成，用来保证执行的顺序</p>
+<p>我们简单写个测试类进行实践：<br>线程类A:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.Thread.ThreadPool;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/9.</span><br><span class="line"> */</span><br><span class="line">public class A implements Runnable&#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void run() &#123;</span><br><span class="line">        for (int i = 0; i &lt; 10; i++) &#123;</span><br><span class="line">            System.out.println(Thread.currentThread().getName() + &quot;==&quot; + i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.Thread.ThreadPool;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">import java.util.concurrent.ExecutorService;</span><br><span class="line">import java.util.concurrent.Executors;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/9.</span><br><span class="line"> */</span><br><span class="line">public class TestThreadPool &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        ExecutorService threadPool = Executors.newFixedThreadPool(3);</span><br><span class="line"> </span><br><span class="line">        Thread threadA =  new Thread(new A(),&quot;A&quot;);</span><br><span class="line">        Thread threadB =  new Thread(new A(),&quot;B&quot;);</span><br><span class="line"> </span><br><span class="line">        threadPool.submit(threadA);</span><br><span class="line">        threadPool.submit(threadB);</span><br><span class="line"> </span><br><span class="line">        threadPool.shutdown();</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br><img src="/2018/07/10/java多线程（六）线程组和线程池/3.png" alt="数据类型示意图"></p>
+<p>可以看到两个线程的执行体都成功执行了。</p>
+<h2 id="线程池工作流程："><a href="#线程池工作流程：" class="headerlink" title="线程池工作流程："></a>线程池工作流程：</h2><p><img src="/2018/07/10/java多线程（六）线程组和线程池/4.png" alt="数据类型示意图"></p>
+<p>我们总结下使用线程池执行线程任务的步骤：</p>
+<ol>
+<li>通过Executors的静态方法创建一个ExecutorService对象，这个对象代表线程池；</li>
+<li>创建线程实例；</li>
+<li>通过submit()方法提交线程任务；</li>
+<li>通过shutdown()方法关闭线程池。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/09/java多线程（五）线程通信/" rel="next" title="java多线程（五）线程通信">
+                <i class="fa fa-chevron-left"></i> java多线程（五）线程通信
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/15/java基础之数据类型/" rel="prev" title="java基础之数据类型">
+                java基础之数据类型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#线程组"><span class="nav-number">1.</span> <span class="nav-text">线程组</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#线程组介绍"><span class="nav-number">1.1.</span> <span class="nav-text">线程组介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程组使用"><span class="nav-number">1.2.</span> <span class="nav-text">线程组使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常处理"><span class="nav-number">1.3.</span> <span class="nav-text">异常处理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线程池（简单入门）"><span class="nav-number">2.</span> <span class="nav-text">线程池（简单入门）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池介绍"><span class="nav-number">2.1.</span> <span class="nav-text">线程池介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池的好处"><span class="nav-number">2.2.</span> <span class="nav-text">线程池的好处</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池的基本使用方法"><span class="nav-number">2.3.</span> <span class="nav-text">线程池的基本使用方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池工作流程："><span class="nav-number">2.4.</span> <span class="nav-text">线程池工作流程：</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
