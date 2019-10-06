@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="SpringIOC介绍&amp;emsp;    &amp;emsp;IOC，也就是我们所说控制反转，在spring中，它通过ioc容器来管理对象，包括对象的生命周期和与其他对象的关系，实现控制反转，将对象-对象 这样的关系转为 对象-容器-对象，它在程序运行时通过反射动态的提供对象来实现依赖注入（DI）。 SpringIOC容器体系&amp;emsp;    &amp;emsp;springIOC的容器体系最重要的接口有Bea">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码学习之springioc容器体系">
+<meta property="og:url" content="http://yoursite.com/2019/04/16/源码学习之springioc容器体系/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="SpringIOC介绍&amp;emsp;    &amp;emsp;IOC，也就是我们所说控制反转，在spring中，它通过ioc容器来管理对象，包括对象的生命周期和与其他对象的关系，实现控制反转，将对象-对象 这样的关系转为 对象-容器-对象，它在程序运行时通过反射动态的提供对象来实现依赖注入（DI）。 SpringIOC容器体系&amp;emsp;    &amp;emsp;springIOC的容器体系最重要的接口有Bea">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之springioc容器体系/1.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之springioc容器体系/2.png">
+<meta property="og:updated_time" content="2019-10-06T14:20:26.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码学习之springioc容器体系">
+<meta name="twitter:description" content="SpringIOC介绍&amp;emsp;    &amp;emsp;IOC，也就是我们所说控制反转，在spring中，它通过ioc容器来管理对象，包括对象的生命周期和与其他对象的关系，实现控制反转，将对象-对象 这样的关系转为 对象-容器-对象，它在程序运行时通过反射动态的提供对象来实现依赖注入（DI）。 SpringIOC容器体系&amp;emsp;    &amp;emsp;springIOC的容器体系最重要的接口有Bea">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/16/源码学习之springioc容器体系/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/04/16/源码学习之springioc容器体系/">
+
+
+
+
+
+  <title>源码学习之springioc容器体系 | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/16/源码学习之springioc容器体系/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">源码学习之springioc容器体系</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-16T20:45:10+08:00">
+                2019-04-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="SpringIOC介绍"><a href="#SpringIOC介绍" class="headerlink" title="SpringIOC介绍"></a>SpringIOC介绍</h1><p>&emsp;    &emsp;IOC，也就是我们所说控制反转，在spring中，它通过ioc容器来管理对象，包括对象的生命周期和与其他对象的关系，实现控制反转，将对象-对象 这样的关系转为 对象-容器-对象，它在程序运行时通过反射动态的提供对象来实现依赖注入（DI）。</p>
+<h1 id="SpringIOC容器体系"><a href="#SpringIOC容器体系" class="headerlink" title="SpringIOC容器体系"></a>SpringIOC容器体系</h1><p>&emsp;    &emsp;springIOC的容器体系最重要的接口有BeanFactroy和ApplicationContext,我们将容器类型也分为BanFactory和ApplicationContext两类，其中BeanFactory代表容器的基本实现，只有容器的基础功能，ApplicationContext则被认为是容器的高级实现，在基础功能上附加了很多额外的功能以供使用。<br>&emsp;    &emsp;根据这个思路，我们来学习spring中的容器体系，按照基础实现和高级实现两条线来分析：</p>
+<h2 id="第一条线，容器的基本实现：BeanFactory"><a href="#第一条线，容器的基本实现：BeanFactory" class="headerlink" title="第一条线，容器的基本实现：BeanFactory"></a>第一条线，容器的基本实现：BeanFactory</h2><p><strong>BeanFactory==》HierarchicalBeanFactory==》ConfigurableBeanFactory ==》…==》DefaultListableBeanFactory</strong></p>
+<p><img src="/2019/04/16/源码学习之springioc容器体系/1.png" alt="数据类型示意图"></p>
+<p>我将UML图附上：</p>
+<p><strong>绿色部分是ioc容器的基本功能实现路线，</strong></p>
+<p><strong>红色部分是继承了顶级接口BeanFactory的三个二级接口</strong></p>
+<p>简单介绍下这些：</p>
+<p><strong>BeanFactory</strong>:顶级接口，定义了容器的基本规范:getBean() etc.</p>
+<p><strong>HierarchicalBeanFactory（二级接口）</strong>：双亲Ioc容器的概念，还记得上一篇解析CntextLoaderListener中我们提到过：CntextLoaderListener和DispatcherServlet共同建立springMVC中的ioc容器体系，其中CntextLoaderListener创建的是Root WebApplicationContext,是作为DispatcherServlet创建的springMVC WebApplication的双亲容器存在的，这个双亲的概念就是从HierarchicalBeanFactory开始的。</p>
+<p><strong>ListableBeanFactory(二级接口)</strong>：引入beanDefinition的概念，将容器中的bean对象以集合形式获取，不需要通过名称一个个来获取，将容器需要实现类似预加载所有beanDefinition的功能时可以通过该接口实现。</p>
+<p><strong>AutowireCapableBeanFactory(二级接口)</strong>：通过源码上的注释我们可以了解到这个接口的作用是让那些非spring管理的对象也能拥有spring自动注入的特性。同时spring中常问到的spring中的装配方式也是在这边提到的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Constant that indicates no externally defined autowiring. Note that</span><br><span class="line"> * BeanFactoryAware etc and annotation-driven injection will still be applied.</span><br><span class="line"> * @see #createBean</span><br><span class="line"> * @see #autowire</span><br><span class="line"> * @see #autowireBeanProperties</span><br><span class="line"> */</span><br><span class="line">int AUTOWIRE_NO = 0;</span><br><span class="line">/**</span><br><span class="line"> * Constant that indicates autowiring bean properties by name</span><br><span class="line"> * (applying to all bean property setters).</span><br><span class="line"> * @see #createBean</span><br><span class="line"> * @see #autowire</span><br><span class="line"> * @see #autowireBeanProperties</span><br><span class="line"> */</span><br><span class="line">int AUTOWIRE_BY_NAME = 1;</span><br><span class="line">/**</span><br><span class="line"> * Constant that indicates autowiring bean properties by type</span><br><span class="line"> * (applying to all bean property setters).</span><br><span class="line"> * @see #createBean</span><br><span class="line"> * @see #autowire</span><br><span class="line"> * @see #autowireBeanProperties</span><br><span class="line"> */</span><br><span class="line">int AUTOWIRE_BY_TYPE = 2;</span><br><span class="line">/**</span><br><span class="line"> * Constant that indicates autowiring the greediest constructor that</span><br><span class="line"> * can be satisfied (involves resolving the appropriate constructor).</span><br><span class="line"> * @see #createBean</span><br><span class="line"> * @see #autowire</span><br><span class="line"> */</span><br><span class="line">int AUTOWIRE_CONSTRUCTOR = 3;</span><br><span class="line">/**</span><br><span class="line"> * Constant that indicates determining an appropriate autowire strategy</span><br><span class="line"> * through introspection of the bean class.</span><br><span class="line"> * @see #createBean</span><br><span class="line"> * @see #autowire</span><br><span class="line"> * @deprecated as of Spring 3.0: If you are using mixed autowiring strategies,</span><br><span class="line"> * prefer annotation-based autowiring for clearer demarcation of autowiring needs.</span><br><span class="line"> */</span><br><span class="line">@Deprecated</span><br><span class="line">int AUTOWIRE_AUTODETECT = 4;</span><br></pre></td></tr></table></figure>
+
+<p><strong>ConfigurableBeanFactory</strong>:提供一系列可插拔的配置项,填充BeanFactory的功能。</p>
+<p><strong>DeFaultLsitableBeanFactory</strong>:这个类是这条设计线的第一个具体实现类，它实现了ioc容器的所有基本功能。</p>
+<h2 id="第二条线，容器的高级实现：ApplicationContext"><a href="#第二条线，容器的高级实现：ApplicationContext" class="headerlink" title="第二条线，容器的高级实现：ApplicationContext"></a>第二条线，容器的高级实现：ApplicationContext</h2><p><strong>BeanFactory==》ListableBeanFactory==》Application==》WebApplication</strong><br><img src="/2019/04/16/源码学习之springioc容器体系/2.png" alt="数据类型示意图"></p>
+<p>我将UML图附上：</p>
+<p><strong>绿色部分是ioc容器的高级功能的实现路线</strong></p>
+<p><strong>红色部分是最终的几个具体实现类：</strong></p>
+<p><strong>ApplicationContext:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">public interface ApplicationContext extends EnvironmentCapable, ListableBeanFactory, HierarchicalBeanFactory,</span><br><span class="line">      MessageSource, ApplicationEventPublisher, ResourcePatternResolver &#123;</span><br></pre></td></tr></table></figure>
+
+<p>之所以说ApplicationContext是ioc容器的高级实现，是因为他在beanFactory的基础功能上附加了很多其他功能来对应用实现支持，这部分附加的内容主要就是通过继承的这些类实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">* Central interface to provide configuration for an application.</span><br><span class="line">* This is read-only while the application is running, but may be</span><br><span class="line">* reloaded if the implementation supports this.</span><br><span class="line">*</span><br><span class="line">* &lt;p&gt;An ApplicationContext provides:</span><br><span class="line">* &lt;ul&gt;</span><br><span class="line">* &lt;li&gt;Bean factory methods for accessing application components.</span><br><span class="line">* Inherited from &#123;@link org.springframework.beans.factory.ListableBeanFactory&#125;.</span><br><span class="line">* &lt;li&gt;The ability to load file resources in a generic fashion.</span><br><span class="line">* Inherited from the &#123;@link org.springframework.core.io.ResourceLoader&#125; interface.</span><br><span class="line">* &lt;li&gt;The ability to publish events to registered listeners.</span><br><span class="line">* Inherited from the &#123;@link ApplicationEventPublisher&#125; interface.</span><br><span class="line">* &lt;li&gt;The ability to resolve messages, supporting internationalization.</span><br><span class="line">* Inherited from the &#123;@link MessageSource&#125; interface.</span><br><span class="line">* &lt;li&gt;Inheritance from a parent context. Definitions in a descendant context</span><br><span class="line">* will always take priority. This means, for example, that a single parent</span><br><span class="line">* context can be used by an entire web application, while each servlet has</span><br><span class="line">* its own child context that is independent of that of any other servlet.</span><br><span class="line">* &lt;/ul&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ApplicationContext为应用提供配置，通过：</span><br><span class="line">ListableBeanFactory可以访问应用中的组件；</span><br><span class="line">ResourceLoader可以加载资源；</span><br><span class="line">ApplicationEventPublisher可以注册监听器分发事件；</span><br><span class="line">MessageSource可以支持国际化；</span><br></pre></td></tr></table></figure>
+
+<p><strong>WeblicationContext：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">public interface WebApplicationContext extends ApplicationContext &#123;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Context attribute to bind root WebApplicationContext to on successful startup.</span><br><span class="line">    * &lt;p&gt;Note: If the startup of the root context fails, this attribute can contain</span><br><span class="line">    * an exception or error as value. Use WebApplicationContextUtils for convenient</span><br><span class="line">    * lookup of the root WebApplicationContext.</span><br><span class="line">    * @see org.springframework.web.context.support.WebApplicationContextUtils#getWebApplicationContext</span><br><span class="line">    * @see org.springframework.web.context.support.WebApplicationContextUtils#getRequiredWebApplicationContext</span><br><span class="line">    */</span><br><span class="line">   String ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE = WebApplicationContext.class.getName() + &quot;.ROOT&quot;;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Scope identifier for request scope: &quot;request&quot;.</span><br><span class="line">    * Supported in addition to the standard scopes &quot;singleton&quot; and &quot;prototype&quot;.</span><br><span class="line">    */</span><br><span class="line">   String SCOPE_REQUEST = &quot;request&quot;;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Scope identifier for session scope: &quot;session&quot;.</span><br><span class="line">    * Supported in addition to the standard scopes &quot;singleton&quot; and &quot;prototype&quot;.</span><br><span class="line">    */</span><br><span class="line">   String SCOPE_SESSION = &quot;session&quot;;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Scope identifier for global session scope: &quot;globalSession&quot;.</span><br><span class="line">    * Supported in addition to the standard scopes &quot;singleton&quot; and &quot;prototype&quot;.</span><br><span class="line">    */</span><br><span class="line">   String SCOPE_GLOBAL_SESSION = &quot;globalSession&quot;;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Scope identifier for the global web application scope: &quot;application&quot;.</span><br><span class="line">    * Supported in addition to the standard scopes &quot;singleton&quot; and &quot;prototype&quot;.</span><br><span class="line">    */</span><br><span class="line">   String SCOPE_APPLICATION = &quot;application&quot;;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Name of the ServletContext environment bean in the factory.</span><br><span class="line">    * @see javax.servlet.ServletContext</span><br><span class="line">    */</span><br><span class="line">   String SERVLET_CONTEXT_BEAN_NAME = &quot;servletContext&quot;;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Name of the ServletContext/PortletContext init-params environment bean in the factory.</span><br><span class="line">    * &lt;p&gt;Note: Possibly merged with ServletConfig/PortletConfig parameters.</span><br><span class="line">    * ServletConfig parameters override ServletContext parameters of the same name.</span><br><span class="line">    * @see javax.servlet.ServletContext#getInitParameterNames()</span><br><span class="line">    * @see javax.servlet.ServletContext#getInitParameter(String)</span><br><span class="line">    * @see javax.servlet.ServletConfig#getInitParameterNames()</span><br><span class="line">    * @see javax.servlet.ServletConfig#getInitParameter(String)</span><br><span class="line">    */</span><br><span class="line">   String CONTEXT_PARAMETERS_BEAN_NAME = &quot;contextParameters&quot;;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Name of the ServletContext/PortletContext attributes environment bean in the factory.</span><br><span class="line">    * @see javax.servlet.ServletContext#getAttributeNames()</span><br><span class="line">    * @see javax.servlet.ServletContext#getAttribute(String)</span><br><span class="line">    */</span><br><span class="line">   String CONTEXT_ATTRIBUTES_BEAN_NAME = &quot;contextAttributes&quot;;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Return the standard Servlet API ServletContext for this application.</span><br><span class="line">    * &lt;p&gt;Also available for a Portlet application, in addition to the PortletContext.</span><br><span class="line">    */</span><br><span class="line">   ServletContext getServletContext();</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>重点是最后一个方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Return the standard Servlet API ServletContext for this application.</span><br><span class="line"> * &lt;p&gt;Also available for a Portlet application, in addition to the PortletContext.</span><br><span class="line"> */</span><br><span class="line">ServletContext getServletContext();</span><br></pre></td></tr></table></figure>
+
+<p>通过这个方法将spring中的ioc容器与web应用中的ServletContext联系起来。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;    &emsp;从UML图可以看到，整个ioc体系是非常复杂的，在面向接口+单一职责的设计下，一个庞大的接口体系成型，这样设计的好处是显而易见的，我们可以非常方便的设计出符合自己需求的容器，打造自定义的容器以供使用。<br>&emsp;    &emsp;这里只是简单介绍了springIOC容器，后面会更加深入的进行解析，同时会通过阅读源码穿插设计模式的内容。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/22/源码学习之spring-aop（二）增强使用/" rel="next" title="源码学习之spring aop（二）增强使用">
+                <i class="fa fa-chevron-left"></i> 源码学习之spring aop（二）增强使用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/17/设计模式之代理模式/" rel="prev" title="设计模式之代理模式">
+                设计模式之代理模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SpringIOC介绍"><span class="nav-number">1.</span> <span class="nav-text">SpringIOC介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SpringIOC容器体系"><span class="nav-number">2.</span> <span class="nav-text">SpringIOC容器体系</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#第一条线，容器的基本实现：BeanFactory"><span class="nav-number">2.1.</span> <span class="nav-text">第一条线，容器的基本实现：BeanFactory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第二条线，容器的高级实现：ApplicationContext"><span class="nav-number">2.2.</span> <span class="nav-text">第二条线，容器的高级实现：ApplicationContext</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
