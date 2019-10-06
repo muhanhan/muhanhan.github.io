@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;    先看下map的类图: &amp;emsp;    &amp;emsp;    我们主要学习HashMap,LinkedHashMap,Hashtable,WeakedHashMap和TreeMap。 map介绍&amp;emsp;    &amp;emsp;    map在java中用来保存具有映射关系的数据，以键值对的形式保存，一个key对应一个value，key不可以重复。可以把map">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java集合框架（四）Map">
+<meta property="og:url" content="http://yoursite.com/2018/07/02/java集合框架（四）Map/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;    先看下map的类图: &amp;emsp;    &amp;emsp;    我们主要学习HashMap,LinkedHashMap,Hashtable,WeakedHashMap和TreeMap。 map介绍&amp;emsp;    &amp;emsp;    map在java中用来保存具有映射关系的数据，以键值对的形式保存，一个key对应一个value，key不可以重复。可以把map">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/07/02/java集合框架（四）Map/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/02/java集合框架（四）Map/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/02/java集合框架（四）Map/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/02/java集合框架（四）Map/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/02/java集合框架（四）Map/5.png">
+<meta property="og:image" content="http://yoursite.com/2018/07/02/java集合框架（四）Map/6.png">
+<meta property="og:updated_time" content="2019-10-06T01:30:17.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java集合框架（四）Map">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    先看下map的类图: &amp;emsp;    &amp;emsp;    我们主要学习HashMap,LinkedHashMap,Hashtable,WeakedHashMap和TreeMap。 map介绍&amp;emsp;    &amp;emsp;    map在java中用来保存具有映射关系的数据，以键值对的形式保存，一个key对应一个value，key不可以重复。可以把map">
+<meta name="twitter:image" content="http://yoursite.com/2018/07/02/java集合框架（四）Map/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/07/02/java集合框架（四）Map/">
+
+
+
+
+
+  <title>java集合框架（四）Map | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/02/java集合框架（四）Map/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java集合框架（四）Map</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-02T15:16:35+08:00">
+                2018-07-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;    先看下map的类图:<br><img src="/2018/07/02/java集合框架（四）Map/1.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    我们主要学习HashMap,LinkedHashMap,Hashtable,WeakedHashMap和TreeMap。</p>
+<h1 id="map介绍"><a href="#map介绍" class="headerlink" title="map介绍"></a>map介绍</h1><p>&emsp;    &emsp;    map在java中用来保存具有映射关系的数据，以键值对的形式保存，一个key对应一个value，key不可以重复。可以把map中的key部分看成一个set集合，无序不重复，把value部分看成是一个list集合，都可以通过索引来进行访问，只不过这里的索引不是数字下标而是map中的key。</p>
+<h1 id="map主要实现和基本用法"><a href="#map主要实现和基本用法" class="headerlink" title="map主要实现和基本用法"></a>map主要实现和基本用法</h1><p>&emsp;    &emsp;    map和set的实现结构基本相同，从两者的类图中也可以看出来。事实上java中就是先有得map集合，再有得set集合，set集合是被当成一个value全都是null的map集合。</p>
+<h2 id="HashMap-使用最多的实现类"><a href="#HashMap-使用最多的实现类" class="headerlink" title="HashMap(使用最多的实现类)"></a>HashMap(使用最多的实现类)</h2><p>测试代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.ColleactionAndMap;</span><br><span class="line"> </span><br><span class="line">import java.util.HashMap;</span><br><span class="line">import java.util.Iterator;</span><br><span class="line">import java.util.Map;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/6/30.</span><br><span class="line"> */</span><br><span class="line">public class TestMap &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        HashMap hashMap = new HashMap();</span><br><span class="line"> </span><br><span class="line">        hashMap.put(null,1);</span><br><span class="line">        hashMap.put(null,2);</span><br><span class="line">        hashMap.put(&quot;jack&quot;,&quot;jack&quot;);</span><br><span class="line">        hashMap.put(&quot;tom&quot;,&quot;tom&quot;);</span><br><span class="line">        hashMap.put(&quot;jak&quot;,&quot;jack&quot;);</span><br><span class="line">        hashMap.put(2,&quot;2&quot;);</span><br><span class="line">        hashMap.put(1,&quot;1&quot;);</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">        System.out.println(hashMap);</span><br><span class="line"> </span><br><span class="line">        System.out.println(hashMap.keySet());  //以集合形式获取map的所有key</span><br><span class="line"> </span><br><span class="line">        System.out.println(hashMap.get(1));</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">        System.out.println(&quot;是否保存&apos;33&apos;的key===&quot; + hashMap.containsKey(&quot;33&quot;));</span><br><span class="line"> </span><br><span class="line">        System.out.println(&quot;是否保存&apos;33&apos;的value===&quot; + hashMap.containsValue(&quot;33&quot;));</span><br><span class="line"> </span><br><span class="line">        System.out.println(hashMap.entrySet());  //以集合形式获取map中的entry</span><br><span class="line"> </span><br><span class="line">        //迭代hashmap的4中常见方式</span><br><span class="line"> </span><br><span class="line">        //1.通过迭代器迭代entryset</span><br><span class="line">        System.out.println(&quot;通过迭代器迭代entryset&quot;);</span><br><span class="line">        Iterator it = hashMap.entrySet().iterator();</span><br><span class="line">        while(it.hasNext())&#123;</span><br><span class="line">            Map.Entry entry = (Map.Entry) it.next();</span><br><span class="line">            System.out.println(entry.getKey() + &quot;====&quot; + entry.getValue());</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">        //2。for循环entryset  推荐</span><br><span class="line">        System.out.println(&quot;推荐使用for循环entryset&quot;);</span><br><span class="line">        for (Object o:hashMap.entrySet()) &#123;</span><br><span class="line">            Map.Entry&lt;Object,Object&gt; entry = (Map.Entry&lt;Object, Object&gt;) o;</span><br><span class="line">            System.out.println(entry.getKey() + &quot;====&quot; + entry.getValue());</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line"> </span><br><span class="line">        //3.遍历key获取values</span><br><span class="line">        System.out.println(&quot;遍历key获取values&quot;);</span><br><span class="line">        for (Object o:hashMap.keySet()) &#123;</span><br><span class="line">            System.out.println(o + &quot;===&quot; + hashMap.get(o));</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        //4。遍历value</span><br><span class="line">        System.out.println(&quot;遍历value&quot;);</span><br><span class="line">        for (Object o:hashMap.values()) &#123;</span><br><span class="line">            System.out.println(o);</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br> <img src="/2018/07/02/java集合框架（四）Map/2.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    通过上面的结果可以看到，hashmap中支持插入null作为key，key是唯一的，插入重复的key时，后插入的value会代替之前的value。我们还注意到插入的顺序和我们输出的顺序不一致，这是因为HashMap在插入key时，会通过计算hashcode来自己确定存储位置，所以是无序的。HashMap还可以以集合的形式返回所有的key，通过HashMap的keySet()可以对map的对象进行迭代。通过get（Object key）方法，可以获取到对应的value。</p>
+<h2 id="LinkedHashMap"><a href="#LinkedHashMap" class="headerlink" title="LinkedHashMap"></a>LinkedHashMap</h2><p>测试代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.ColleactionAndMap;</span><br><span class="line"> </span><br><span class="line">import java.util.LinkedHashMap;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/2.</span><br><span class="line"> */</span><br><span class="line">public class TestLinkedHashMap &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        LinkedHashMap linkedHashMap = new LinkedHashMap();</span><br><span class="line"> </span><br><span class="line">        linkedHashMap.put(null,1);</span><br><span class="line">        linkedHashMap.put(null,2);</span><br><span class="line">        linkedHashMap.put(&quot;jack&quot;,&quot;jack&quot;);</span><br><span class="line">        linkedHashMap.put(&quot;tom&quot;,&quot;tom&quot;);</span><br><span class="line">        linkedHashMap.put(&quot;jak&quot;,&quot;jack&quot;);</span><br><span class="line">        linkedHashMap.put(2,&quot;2&quot;);</span><br><span class="line">        linkedHashMap.put(1,&quot;1&quot;);</span><br><span class="line"> </span><br><span class="line">        System.out.println(linkedHashMap);</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br> <img src="/2018/07/02/java集合框架（四）Map/3.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;    LinkedHashMap在HashMap的基础上，通过链表来维护插入的key的顺序，保证放入和取出的顺序是一致的。<br>&emsp;    &emsp;    因为需要维护插入的顺序，所以性能上没有HashMap好。</p>
+<h2 id="Hashtable"><a href="#Hashtable" class="headerlink" title="Hashtable"></a>Hashtable</h2><p>&emsp;    &emsp;    Hashtable和HashMap的用法基本相同，区别在于Hashtable是线程安全的，不支持null作为key。 </p>
+<h2 id="WeakedHashMap"><a href="#WeakedHashMap" class="headerlink" title="WeakedHashMap"></a>WeakedHashMap</h2><p>&emsp;    &emsp;    WeakedHashMap和HashMap的用法相同，区别的是WeakedHashMap中放的是弱引用（java引用相关参考）<br>&emsp;    &emsp;    我们用代码看下是什么意思：<br>测试代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.ColleactionAndMap;</span><br><span class="line"> </span><br><span class="line">import java.util.WeakHashMap;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/2.</span><br><span class="line"> */</span><br><span class="line">public class TestWeakedHashMap &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        WeakHashMap weakHashMap = new WeakHashMap();</span><br><span class="line">        weakHashMap.put(new String(&quot;jack&quot;),&quot;jack&quot;);</span><br><span class="line">        weakHashMap.put(new String(&quot;tom&quot;),&quot;tom&quot;);</span><br><span class="line">        weakHashMap.put(new String(&quot;pony&quot;),&quot;pony&quot;);</span><br><span class="line"> </span><br><span class="line">        System.out.println(weakHashMap);</span><br><span class="line">        System.gc();</span><br><span class="line">        System.out.println(weakHashMap);</span><br><span class="line"> </span><br><span class="line">        String tony = &quot;tony&quot;;</span><br><span class="line">        weakHashMap.put(tony,tony);</span><br><span class="line">        System.gc();</span><br><span class="line">        System.out.println(weakHashMap);</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br><img src="/2018/07/02/java集合框架（四）Map/4.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;可以看到第一次放入的三个数据，在调用了System.gc()以后，全都被回收了，最后增加的数据保留了下面，这就是因为上面三个全都属于弱引用，最后那个则是强饮用。</p>
+<p>*使用WeakedHashMap时，里面要注意全都是弱引用，否则就失去了使用它的意义。</p>
+<h2 id="TreeMap"><a href="#TreeMap" class="headerlink" title="TreeMap"></a>TreeMap</h2><p>&emsp;    &emsp;对照TreeSet, TreeSet内部通过红黑树来存储数据，要求插入的对象都实现compator接口，依次来保证内部元素处于有序状态。TreeMap也是通过红黑树实现了内部对象的排序。我们用代码看下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.ColleactionAndMap;</span><br><span class="line"> </span><br><span class="line">import java.util.Comparator;</span><br><span class="line">import java.util.TreeMap;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/2.</span><br><span class="line"> */</span><br><span class="line">public class TestTreeMap &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        TreeMap treeMap = new TreeMap();</span><br><span class="line">        treeMap.put(1,1);</span><br><span class="line">        treeMap.put(2,1);</span><br><span class="line">        treeMap.put(3,1);</span><br><span class="line">        treeMap.put(4,1);</span><br><span class="line">        System.out.println(treeMap);</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">        TreeMap treeMap1 = new TreeMap(new Comparator() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public int compare(Object o1, Object o2) &#123;</span><br><span class="line">                int a = (int) o1;</span><br><span class="line">                int b = (int) o2;</span><br><span class="line">                if(a &lt; b)</span><br><span class="line">                    return 1;</span><br><span class="line">                if(a == b)</span><br><span class="line">                    return 0;</span><br><span class="line">                if(a &gt; b)</span><br><span class="line">                    return -1;</span><br><span class="line">                return 0;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"> </span><br><span class="line">        treeMap1.put(1,1);</span><br><span class="line">        treeMap1.put(2,1);</span><br><span class="line">        treeMap1.put(3,1);</span><br><span class="line">        treeMap1.put(4,1);</span><br><span class="line">        System.out.println(treeMap1);</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：<br><img src="/2018/07/02/java集合框架（四）Map/5.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;和TreeSet一样，TreeMap中的对象需要实现Compator接口，否则无法进行排序，抛出异常。</p>
+<p>&emsp;    &emsp;在实例化时，通过内部类直接重写compare（）方法，可以实现定制排序的效果。</p>
+<p>*除非需要map中的对象总是处于有序状态，此时选择TreeMap，其他时候就应该尽量使用其他集合，因为排序会额外消耗时间。</p>
+<h1 id="HashMap和Hashtable底层分析（jdk1-7）"><a href="#HashMap和Hashtable底层分析（jdk1-7）" class="headerlink" title="HashMap和Hashtable底层分析（jdk1.7）"></a>HashMap和Hashtable底层分析（jdk1.7）</h1><h2 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h2><p>&emsp;    &emsp;我们从HashMap的源码中来分析下HashMap初始化/新增／扩容这三个过程。</p>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>&emsp;    &emsp;先记住这三个参数，后面会介绍这三个用途。<br>&emsp;    &emsp;默认容量：16</p>
+<blockquote>
+<p>static final int DEFAULT_INITIAL_CAPACITY = 1 &lt;&lt; 4; // aka 16</p>
+</blockquote>
+<p>&emsp;    &emsp;默认加载因子：0.75f</p>
+<blockquote>
+<p>static final float DEFAULT_LOAD_FACTOR = 0.75f;</p>
+</blockquote>
+<p>&emsp;    &emsp;扩容因子：</p>
+<blockquote>
+<p>int threshold;</p>
+</blockquote>
+<p>HashMap的三个构造方法，其实调用的都是最后一个：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public HashMap() &#123;</span><br><span class="line">    this(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">    this(initialCapacity, DEFAULT_LOAD_FACTOR);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public HashMap(int initialCapacity, float loadFactor) &#123;</span><br><span class="line">    if (initialCapacity &lt; 0)</span><br><span class="line">        throw new IllegalArgumentException(&quot;Illegal initial capacity: &quot; +</span><br><span class="line">                                           initialCapacity);</span><br><span class="line">    if (initialCapacity &gt; MAXIMUM_CAPACITY)</span><br><span class="line">        initialCapacity = MAXIMUM_CAPACITY;</span><br><span class="line">    if (loadFactor &lt;= 0 || Float.isNaN(loadFactor))</span><br><span class="line">        throw new IllegalArgumentException(&quot;Illegal load factor: &quot; +</span><br><span class="line">                                           loadFactor);</span><br><span class="line"> </span><br><span class="line">    this.loadFactor = loadFactor;</span><br><span class="line">    threshold = initialCapacity;</span><br><span class="line">    init();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;我们直接看最后一个构造方法，我们可以看到在这个方法里面没有生成任何对象，只是对初始化容量initialCapacity，加载因子loadFactory还有扩容因子threshold做了简单的赋值。<br>&emsp;    &emsp;这里的init（）方法是留给HashMap的子类实现的，这里没有任何实际意义。</p>
+<h3 id="新增"><a href="#新增" class="headerlink" title="新增"></a>新增</h3><p>&emsp;    &emsp;HashMap中的新增对象都是通过put（key,value）方法来实现，它是以什么形式存储数据的，null是怎么处理的，重复的key是怎么判断的，都在这个put（）方法中实现，我们一起看下这部分的源码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">public V put(K key, V value) &#123;</span><br><span class="line">    if (table == EMPTY_TABLE) &#123;</span><br><span class="line">        inflateTable(threshold);</span><br><span class="line">    &#125;</span><br><span class="line">    if (key == null)</span><br><span class="line">        return putForNullKey(value);</span><br><span class="line">    int hash = hash(key);</span><br><span class="line">    int i = indexFor(hash, table.length);</span><br><span class="line">    for (Entry&lt;K,V&gt; e = table[i]; e != null; e = e.next) &#123;</span><br><span class="line">        Object k;</span><br><span class="line">        if (e.hash == hash &amp;&amp; ((k = e.key) == key || key.equals(k))) &#123;</span><br><span class="line">            V oldValue = e.value;</span><br><span class="line">            e.value = value;</span><br><span class="line">            e.recordAccess(this);</span><br><span class="line">            return oldValue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    modCount++;</span><br><span class="line">    addEntry(hash, key, value, i);</span><br><span class="line">    return null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>transient Entry&lt;K,V&gt;[] table = (Entry&lt;K,V&gt;[]) EMPTY_TABLE;</p>
+</blockquote>
+<p>&emsp;    &emsp;table是HashMap中的声明的一个Entry类型的数组，这个对象是map中的一个内部实现类，用于保存key-value这种键值对类型的数据。<br>&emsp;    &emsp;看下inflateTable（）这个方法，inflate是膨胀的意思，可以看出，这就是给table初始化的方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">private void inflateTable(int toSize) &#123;</span><br><span class="line">    // Find a power of 2 &gt;= toSize</span><br><span class="line">    int capacity = roundUpToPowerOf2(toSize);</span><br><span class="line"> </span><br><span class="line">    threshold = (int) Math.min(capacity * loadFactor, MAXIMUM_CAPACITY + 1);</span><br><span class="line">    table = new Entry[capacity];</span><br><span class="line">    initHashSeedAsNeeded(capacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;在HashMap中，数组的容量总是2的次幂，这是因为2的次幂在计算机中运行效率最高，扩容因子在这里被重新赋值，具体计算就是容量*加载因子。这个数值将用来判断何时需要扩容Entry数组。根据计算出的容量，完成对table的初始化，默认是一个大小为16的数组。<br>&emsp;    &emsp;继续看下，put（）方法，可以看到HashMap之所以支持null作为key，就是它对null做了特殊处理，看下putForNullKey（）方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">private V putForNullKey(V value) &#123;</span><br><span class="line">    for (Entry&lt;K,V&gt; e = table[0]; e != null; e = e.next) &#123;</span><br><span class="line">        if (e.key == null) &#123;</span><br><span class="line">            V oldValue = e.value;</span><br><span class="line">            e.value = value;</span><br><span class="line">            e.recordAccess(this);</span><br><span class="line">            return oldValue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    modCount++;</span><br><span class="line">    addEntry(0, null, value, 0);</span><br><span class="line">    return null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;可以看到，当key是null，会去table第一个位置找对应的数据，如果有的话，新的value会替代原有的value放在第一个位置，同时返回老得value。可以for循环有个判断条件是e = e.next，我们继续往下看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">int hash = hash(key);</span><br><span class="line">int i = indexFor(hash, table.length);</span><br><span class="line">for (Entry&lt;K,V&gt; e = table[i]; e != null; e = e.next) &#123;</span><br><span class="line">    Object k;</span><br><span class="line">    if (e.hash == hash &amp;&amp; ((k = e.key) == key || key.equals(k))) &#123;</span><br><span class="line">        V oldValue = e.value;</span><br><span class="line">        e.value = value;</span><br><span class="line">        e.recordAccess(this);</span><br><span class="line">        return oldValue;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">modCount++;</span><br><span class="line">addEntry(hash, key, value, i);</span><br><span class="line">return null;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;可以看到非null类型的key处理步骤其实和null差不多，都是计算key的hash值，找到对应的存储位置来进行操作，这里的e.next是用来查询链表中的下一个数据，这涉及到HashMap内部的存储，用一个图说明下HashMap的存储：<br> <img src="/2018/07/02/java集合框架（四）Map/6.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;HashMap内部使用数组来存储数据，这个数组是一个链表数组，里面存放Entry对象，Entry有三个属性，hash，key，value，key和value就是我们放进map的数据，hash则是通过hash（object）方法计算出的hashcode，所以HashMap的存储过程是这样理解的：</p>
+<p>&emsp;    &emsp;我们put一个key，value进map，首先拿到这个key，通过hashcode找到对应位置的数据，这是一个链表，先比较链表中的第一个对象的value，看是否相同，是的话，替换value，返回老的value，不是则和链表的下一个数据进行比较。</p>
+<h3 id="扩容"><a href="#扩容" class="headerlink" title="扩容"></a>扩容</h3><p>&emsp;    &emsp;我们已经知道，put（key，value），最后其实执行的操作就是addEntry(hash,key,value)，我们对table进行的扩容也是在这个方法中进行的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">void addEntry(int hash, K key, V value, int bucketIndex) &#123;</span><br><span class="line">    if ((size &gt;= threshold) &amp;&amp; (null != table[bucketIndex])) &#123;</span><br><span class="line">        resize(2 * table.length);</span><br><span class="line">        hash = (null != key) ? hash(key) : 0;</span><br><span class="line">        bucketIndex = indexFor(hash, table.length);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    createEntry(hash, key, value, bucketIndex);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;通过比较数组中已占用的空间和扩容因子，如果已占用的大小已经大于等于扩容因子了，那么直接在原有大小的基础上扩展一倍的空间。</p>
+<h2 id="Hashtable-1"><a href="#Hashtable-1" class="headerlink" title="Hashtable"></a>Hashtable</h2><p>&emsp;    &emsp;Hashtable和Vector一样，也是从最初的jdk就存在的一个集合，命名甚至都没有遵守驼峰命名的规则，现在基本不再使用这个集合，但是从研究的角度还是有必要了解下的：</p>
+<h3 id="初始化-1"><a href="#初始化-1" class="headerlink" title="初始化"></a>初始化</h3><p>&emsp;    &emsp;看下Hashtable的有关构造函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public Hashtable() &#123;</span><br><span class="line">    this(11, 0.75f);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">	public Hashtable(int initialCapacity) &#123;</span><br><span class="line">    this(initialCapacity, 0.75f);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public Hashtable(int initialCapacity, float loadFactor) &#123;</span><br><span class="line">    if (initialCapacity &lt; 0)</span><br><span class="line">        throw new IllegalArgumentException(&quot;Illegal Capacity: &quot;+</span><br><span class="line">                                           initialCapacity);</span><br><span class="line">    if (loadFactor &lt;= 0 || Float.isNaN(loadFactor))</span><br><span class="line">        throw new IllegalArgumentException(&quot;Illegal Load: &quot;+loadFactor);</span><br><span class="line"> </span><br><span class="line">    if (initialCapacity==0)</span><br><span class="line">        initialCapacity = 1;</span><br><span class="line">    this.loadFactor = loadFactor;</span><br><span class="line">    table = new Entry[initialCapacity];</span><br><span class="line">    threshold = (int)Math.min(initialCapacity * loadFactor, MAX_ARRAY_SIZE + 1);</span><br><span class="line">    initHashSeedAsNeeded(initialCapacity);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;可以看到，Hashtable在实例化的过程中就对table对象完成了初始化过程，默认容量为11，加载因子也是0.75f。</p>
+<h3 id="新增-1"><a href="#新增-1" class="headerlink" title="新增"></a>新增</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">public Hashtable(int initialCapacity, float loadFactor) &#123;</span><br><span class="line">    if (initialCapacity &lt; 0)</span><br><span class="line">        throw new IllegalArgumentException(&quot;Illegal Capacity: &quot;+</span><br><span class="line">                                           initialCapacity);</span><br><span class="line">    if (loadFactor &lt;= 0 || Float.isNaN(loadFactor))</span><br><span class="line">        throw new IllegalArgumentException(&quot;Illegal Load: &quot;+loadFactor);</span><br><span class="line"> </span><br><span class="line">    if (initialCapacity==0)</span><br><span class="line">        initialCapacity = 1;</span><br><span class="line">    this.loadFactor = loadFactor;</span><br><span class="line">    table = new Entry[initialCapacity];</span><br><span class="line">    threshold = (int)Math.min(initialCapacity * loadFactor, MAX_ARRAY_SIZE + 1);</span><br><span class="line">    initHashSeedAsNeeded(initialCapacity);</span><br><span class="line">&#125;</span><br><span class="line">可以看到，Hashtable在实例化的过程中就对table对象完成了初始化过程，默认容量为11，加载因子也是0.75f。</span><br><span class="line">新增：</span><br><span class="line">public synchronized V put(K key, V value) &#123;</span><br><span class="line">    // Make sure the value is not null</span><br><span class="line">    if (value == null) &#123;</span><br><span class="line">        throw new NullPointerException();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    // Makes sure the key is not already in the hashtable.</span><br><span class="line">    Entry tab[] = table;</span><br><span class="line">    int hash = hash(key);</span><br><span class="line">    int index = (hash &amp; 0x7FFFFFFF) % tab.length;</span><br><span class="line">    for (Entry&lt;K,V&gt; e = tab[index] ; e != null ; e = e.next) &#123;</span><br><span class="line">        if ((e.hash == hash) &amp;&amp; e.key.equals(key)) &#123;</span><br><span class="line">            V old = e.value;</span><br><span class="line">            e.value = value;</span><br><span class="line">            return old;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    modCount++;</span><br><span class="line">    if (count &gt;= threshold) &#123;</span><br><span class="line">        // Rehash the table if the threshold is exceeded</span><br><span class="line">        rehash();</span><br><span class="line"> </span><br><span class="line">        tab = table;</span><br><span class="line">        hash = hash(key);</span><br><span class="line">        index = (hash &amp; 0x7FFFFFFF) % tab.length;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    // Creates the new entry.</span><br><span class="line">    Entry&lt;K,V&gt; e = tab[index];</span><br><span class="line">    tab[index] = new Entry&lt;&gt;(hash, key, value, e);</span><br><span class="line">    count++;</span><br><span class="line">    return null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;可以看到，Hashtable之所以不支持null作为key，就是因为在新增的代码中对null做了处理，直接抛出了异常。<br>&emsp;    &emsp;后面的插入以及扩容操作基本大同小异。</p>
+<h1 id="map集合比较"><a href="#map集合比较" class="headerlink" title="map集合比较"></a>map集合比较</h1><p>&emsp;    &emsp;HashMap,LinkedHashMap,TreeMap和Hashtable这四个的使用，可以参考以下：</p>
+<ol>
+<li>HashMap是为了快速查询而设计的，当需要使用map集合时，如果没有特殊需求，首选HashMap；</li>
+<li>LinkedHashMap作为HashMap的子类，额外通过链表来对插入的数据做了管理，使得插入和取出的顺序相同，在迭代查询上有优势，插入删除操作还是HashMap更好；</li>
+<li>TreeMap使用红黑树，使得内部数据总是处于排序状态，但是这耗费了额外的性能，如果没有这个排序的需要，尽量不要使用TreeMap；</li>
+<li>需要线程安全，可以使用Hashtable.</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/06/30/java集合框架（三）Queue/" rel="next" title="java集合框架（三）Queue">
+                <i class="fa fa-chevron-left"></i> java集合框架（三）Queue
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/06/java多线程（二）线程生命周期/" rel="prev" title="java多线程（二）线程生命周期">
+                java多线程（二）线程生命周期 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#map介绍"><span class="nav-number">1.</span> <span class="nav-text">map介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#map主要实现和基本用法"><span class="nav-number">2.</span> <span class="nav-text">map主要实现和基本用法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#HashMap-使用最多的实现类"><span class="nav-number">2.1.</span> <span class="nav-text">HashMap(使用最多的实现类)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LinkedHashMap"><span class="nav-number">2.2.</span> <span class="nav-text">LinkedHashMap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hashtable"><span class="nav-number">2.3.</span> <span class="nav-text">Hashtable</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WeakedHashMap"><span class="nav-number">2.4.</span> <span class="nav-text">WeakedHashMap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TreeMap"><span class="nav-number">2.5.</span> <span class="nav-text">TreeMap</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HashMap和Hashtable底层分析（jdk1-7）"><span class="nav-number">3.</span> <span class="nav-text">HashMap和Hashtable底层分析（jdk1.7）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#HashMap"><span class="nav-number">3.1.</span> <span class="nav-text">HashMap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化"><span class="nav-number">3.1.1.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#新增"><span class="nav-number">3.1.2.</span> <span class="nav-text">新增</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#扩容"><span class="nav-number">3.1.3.</span> <span class="nav-text">扩容</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hashtable-1"><span class="nav-number">3.2.</span> <span class="nav-text">Hashtable</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#新增-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">新增</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#map集合比较"><span class="nav-number">4.</span> <span class="nav-text">map集合比较</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
