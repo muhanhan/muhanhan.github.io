@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;今天开始学习spring中的另一个重要部分：aop，由于aop中涉及到很多相关概念，本文就做一个基础介绍，先让大家认识一下aop。 AOP概念&amp;emsp;    &amp;emsp;AOP,也就是面向切面编程。我们都知道java是面向对象的语言，按照这个原则，每个对象都应该只做属于它自己的事（单一职责原则），但在实际开发中，有些场景用面向对象不是很好理解，比如对一个工程的所">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码学习之spring aop（一）aop基础">
+<meta property="og:url" content="http://yoursite.com/2019/04/17/源码学习之spring-aop（一）aop基础/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;今天开始学习spring中的另一个重要部分：aop，由于aop中涉及到很多相关概念，本文就做一个基础介绍，先让大家认识一下aop。 AOP概念&amp;emsp;    &amp;emsp;AOP,也就是面向切面编程。我们都知道java是面向对象的语言，按照这个原则，每个对象都应该只做属于它自己的事（单一职责原则），但在实际开发中，有些场景用面向对象不是很好理解，比如对一个工程的所">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/04/17/源码学习之spring-aop（一）aop基础/1.png">
+<meta property="og:updated_time" content="2019-10-06T15:01:09.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码学习之spring aop（一）aop基础">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;今天开始学习spring中的另一个重要部分：aop，由于aop中涉及到很多相关概念，本文就做一个基础介绍，先让大家认识一下aop。 AOP概念&amp;emsp;    &amp;emsp;AOP,也就是面向切面编程。我们都知道java是面向对象的语言，按照这个原则，每个对象都应该只做属于它自己的事（单一职责原则），但在实际开发中，有些场景用面向对象不是很好理解，比如对一个工程的所">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/17/源码学习之spring-aop（一）aop基础/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/04/17/源码学习之spring-aop（一）aop基础/">
+
+
+
+
+
+  <title>源码学习之spring aop（一）aop基础 | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/17/源码学习之spring-aop（一）aop基础/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">源码学习之spring aop（一）aop基础</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-17T09:18:40+08:00">
+                2019-04-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;今天开始学习spring中的另一个重要部分：aop，由于aop中涉及到很多相关概念，本文就做一个基础介绍，先让大家认识一下aop。</p>
+<h1 id="AOP概念"><a href="#AOP概念" class="headerlink" title="AOP概念"></a>AOP概念</h1><p>&emsp;    &emsp;AOP,也就是面向切面编程。我们都知道java是面向对象的语言，按照这个原则，每个对象都应该只做属于它自己的事（单一职责原则），但在实际开发中，有些场景用面向对象不是很好理解，比如对一个工程的所有方法都添加一个打印日志的功能，这是个很常见的写法，但从面向对象的角度来说，这段代码就不容易理解,它属于侵入式的写法，对于这种场景，提出了aop的概念，打印日志的操作就像一个切面注入所有的方法中，这样子，aop反而成了oop的一种补充。<br>&emsp;    &emsp;通过aop的实现，在不改变原先业务逻辑的情况，还可以加入我们需要的横切逻辑，这就是aop带来的好处。</p>
+<h1 id="AOP术语"><a href="#AOP术语" class="headerlink" title="AOP术语"></a>AOP术语</h1><p><strong>Join point</strong>：连接点，也就是我们aop操作发生的地方，可能是一个方法，也可能是一个类的初始化前，这取决我们设置的筛选逻辑；</p>
+<p><strong>Pointcut</strong>：切入点，当一个连接点被执行的时候，那么他就成为了一个切入点，切入点就是接下来会执行aop逻辑的地方；</p>
+<p><strong>Advice</strong>：增强，也就是我们要执行的aop的逻辑；</p>
+<p><strong>Aspect</strong>：切面，切面由切点和增强组成。切面中有连接点的定义，还有横切逻辑的定义。</p>
+<p><strong>Introduction</strong>：引介，可以理解为一种特殊的增强，通过引介，哪怕这个类没有实现某接口，也可以动态的使它实现该接口。</p>
+<p><strong>Target object</strong>：也就是被代理的对象</p>
+<p><strong>AOP proxy</strong>:spring中的aop代理</p>
+<p><strong>Weaving</strong>：织入，将增强添加到目标类的具体连接点的过程就叫织入。</p>
+<h2 id="aop-proxy类型"><a href="#aop-proxy类型" class="headerlink" title="aop proxy类型"></a>aop proxy类型</h2><p>spring中的代理主要有两种方法：</p>
+<ol>
+<li>jdk动态代理.</li>
+<li>cglib动态代理</li>
+</ol>
+<h2 id="advice类型"><a href="#advice类型" class="headerlink" title="advice类型"></a>advice类型</h2><p>spring目前提供了五种类型的增强：</p>
+<ul>
+<li><p>Before advice:前置增强，在目标方法执行前实施增强；</p>
+</li>
+<li><p>After returning advice:返回后增强，在目前方法返回结果后实施增强；</p>
+</li>
+<li><p>After throwing advice:异常抛出增强，在目标方法抛出异常后实施增强；</p>
+</li>
+<li><p>After (finally) advice: 后置增强，在目标方法执行后实施增强；</p>
+</li>
+<li><p>Around advice:环绕增强，在目标方法执行前后实施增强；</p>
+</li>
+</ul>
+<h1 id="AOP使用"><a href="#AOP使用" class="headerlink" title="AOP使用"></a>AOP使用</h1><p>&emsp;    &emsp;和spring中bean的使用一样，我们的aop也是既可以通过注解来实现，同样也可以通过xml配置文件来实现，实现方式不重要，毕竟我们主要是学习其中的实现。<br>&emsp;    &emsp;我们用一个简单的场景来看下spring aop的使用;在小区的门口，有一个广播喇叭，每天下午都会开始广播，但是开始时间和播放时间都不是固定的，门卫张大爷就想了个办法，广播开始前，他就通知大家广播要开始了，结束以后再告诉大家今天的广播结束了。<br>&emsp;    &emsp;在我们上面这个场景中：</p>
+<p>喇叭就是我们需要代理的目标对象</p>
+<p>张大爷就是切面，连接点就是喇叭开始广播，广播开始前的通知就是前置通知，广播结束后的通知就是后置通知。</p>
+<p>接下来我们用代码来实现下：</p>
+<p>喇叭：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.aop;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author liu.jiawei</span><br><span class="line"> * @create 2019-03-15 00:08</span><br><span class="line"> **/</span><br><span class="line">public class Trumpet &#123;</span><br><span class="line">    /**</span><br><span class="line">     * 广播</span><br><span class="line">     */</span><br><span class="line">    public void broadcast()&#123;</span><br><span class="line">        System.out.println(&quot;广播中。。。&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>张大爷：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.aop;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author liu.jiawei</span><br><span class="line"> * @create 2019-03-15 00:10</span><br><span class="line"> **/</span><br><span class="line">public class Zhangdaye &#123;</span><br><span class="line"> </span><br><span class="line">    /**</span><br><span class="line">     *前置通知</span><br><span class="line">     */</span><br><span class="line">    public void noticeBeforeBroadcast()&#123;</span><br><span class="line">        System.out.println(&quot;张大爷友情提醒：广播要开始啦。。。&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    /**</span><br><span class="line">     * 后置通知</span><br><span class="line">     */</span><br><span class="line">    public void noticeAfterBroadcast()&#123;</span><br><span class="line">        System.out.println(&quot;张大爷友情提醒：今天的广播结束啦。。。&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>配置文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line">    &lt;bean id=&quot;trumpet&quot; class=&quot;com.ljw.aop.Trumpet&quot;/&gt;</span><br><span class="line">    &lt;bean id=&quot;zhangdaye&quot; class=&quot;com.ljw.aop.Zhangdaye&quot;/&gt;</span><br><span class="line"> </span><br><span class="line">    &lt;aop:config&gt;</span><br><span class="line">        &lt;aop:pointcut id=&quot;pc&quot; expression=&quot;execution(* com.ljw.aop.Trumpet.broadcast())&quot;&gt;&lt;/aop:pointcut&gt;</span><br><span class="line">        &lt;aop:aspect ref=&quot;zhangdaye&quot;&gt;</span><br><span class="line">            &lt;aop:before method=&quot;noticeBeforeBroadcast&quot; pointcut-ref=&quot;pc&quot;&gt;&lt;/aop:before&gt;</span><br><span class="line">            &lt;aop:after method=&quot;noticeAfterBroadcast&quot; pointcut-ref=&quot;pc&quot;&gt;&lt;/aop:after&gt;</span><br><span class="line">        &lt;/aop:aspect&gt;</span><br><span class="line">    &lt;/aop:config&gt;</span><br><span class="line"> </span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
+
+<p>测试类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.aop;</span><br><span class="line"> </span><br><span class="line">import org.springframework.context.ApplicationContext;</span><br><span class="line">import org.springframework.context.support.FileSystemXmlApplicationContext;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * @author liu.jiawei</span><br><span class="line"> * @create 2019-03-15 00:15</span><br><span class="line"> **/</span><br><span class="line">public class TestBroadcast &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        ApplicationContext context = new FileSystemXmlApplicationContext(&quot;//Users/liujiawei/code view/spring/SpringMVCWithOutMaven/web/WEB-INF/broadcast.xml&quot;);</span><br><span class="line">        Trumpet trumpet = (Trumpet) context.getBean(&quot;trumpet&quot;);</span><br><span class="line">        trumpet.broadcast();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>运行结果：<br><img src="/2019/04/17/源码学习之spring-aop（一）aop基础/1.png" alt="数据类型示意图"></p>
+<p>通过上面这个简单的例子，希望能帮助到大家理解aop的概念。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/16/源码学习之springioc容器体系/" rel="next" title="源码学习之springioc容器体系">
+                <i class="fa fa-chevron-left"></i> 源码学习之springioc容器体系
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/17/设计模式之代理模式/" rel="prev" title="设计模式之代理模式">
+                设计模式之代理模式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP概念"><span class="nav-number">1.</span> <span class="nav-text">AOP概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP术语"><span class="nav-number">2.</span> <span class="nav-text">AOP术语</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#aop-proxy类型"><span class="nav-number">2.1.</span> <span class="nav-text">aop proxy类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#advice类型"><span class="nav-number">2.2.</span> <span class="nav-text">advice类型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#AOP使用"><span class="nav-number">3.</span> <span class="nav-text">AOP使用</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
