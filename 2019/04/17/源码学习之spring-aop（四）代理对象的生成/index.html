@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;在Spring AOP中，创建代理对象是很重要的一部分内容，还记得之前写的代理模式的那篇文章么，在那个里面，我们封装了一个getProxy()方法，用来返回生成的代理对象，其实这个就是模仿的Spring的写法，Spring通过AopProxy提供接口方法getProxy()用来获取代理对象，具体的实现则是交由自己的子类实现。 AopProxy&amp;emsp;    &amp;e">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码学习之spring aop（四）代理对象的生成">
+<meta property="og:url" content="http://yoursite.com/2019/04/17/源码学习之spring-aop（四）代理对象的生成/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;在Spring AOP中，创建代理对象是很重要的一部分内容，还记得之前写的代理模式的那篇文章么，在那个里面，我们封装了一个getProxy()方法，用来返回生成的代理对象，其实这个就是模仿的Spring的写法，Spring通过AopProxy提供接口方法getProxy()用来获取代理对象，具体的实现则是交由自己的子类实现。 AopProxy&amp;emsp;    &amp;e">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/04/17/源码学习之spring-aop（四）代理对象的生成/1.png">
+<meta property="og:updated_time" content="2019-10-06T14:29:17.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码学习之spring aop（四）代理对象的生成">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;在Spring AOP中，创建代理对象是很重要的一部分内容，还记得之前写的代理模式的那篇文章么，在那个里面，我们封装了一个getProxy()方法，用来返回生成的代理对象，其实这个就是模仿的Spring的写法，Spring通过AopProxy提供接口方法getProxy()用来获取代理对象，具体的实现则是交由自己的子类实现。 AopProxy&amp;emsp;    &amp;e">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/17/源码学习之spring-aop（四）代理对象的生成/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/04/17/源码学习之spring-aop（四）代理对象的生成/">
+
+
+
+
+
+  <title>源码学习之spring aop（四）代理对象的生成 | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/17/源码学习之spring-aop（四）代理对象的生成/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">源码学习之spring aop（四）代理对象的生成</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-17T09:50:22+08:00">
+                2019-04-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;在Spring AOP中，创建代理对象是很重要的一部分内容，还记得之前写的代理模式的那篇文章么，在那个里面，我们封装了一个getProxy()方法，用来返回生成的代理对象，其实这个就是模仿的Spring的写法，Spring通过AopProxy提供接口方法getProxy()用来获取代理对象，具体的实现则是交由自己的子类实现。</p>
+<h1 id="AopProxy"><a href="#AopProxy" class="headerlink" title="AopProxy"></a>AopProxy</h1><p>&emsp;    &emsp;我们先来认识一下AopProxy:</p>
+<h2 id="AopProxy-1"><a href="#AopProxy-1" class="headerlink" title="AopProxy"></a>AopProxy</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Delegate interface for a configured AOP proxy, allowing for the creation</span><br><span class="line"> * of actual proxy objects.</span><br><span class="line"> *</span><br><span class="line"> * &lt;p&gt;Out-of-the-box implementations are available for JDK dynamic proxies</span><br><span class="line"> * and for CGLIB proxies, as applied by &#123;@link DefaultAopProxyFactory&#125;.</span><br><span class="line"> *</span><br><span class="line"> * @author Rod Johnson</span><br><span class="line"> * @author Juergen Hoeller</span><br><span class="line"> * @see DefaultAopProxyFactory</span><br><span class="line"> */</span><br><span class="line">public interface AopProxy &#123;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Create a new proxy object.</span><br><span class="line">    * &lt;p&gt;Uses the AopProxy&apos;s default class loader (if necessary for proxy creation):</span><br><span class="line">    * usually, the thread context class loader.</span><br><span class="line">    * @return the new proxy object (never &#123;@code null&#125;)</span><br><span class="line">    * @see Thread#getContextClassLoader()</span><br><span class="line">    */</span><br><span class="line">   Object getProxy();</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Create a new proxy object.</span><br><span class="line">    * &lt;p&gt;Uses the given class loader (if necessary for proxy creation).</span><br><span class="line">    * &#123;@code null&#125; will simply be passed down and thus lead to the low-level</span><br><span class="line">    * proxy facility&apos;s default, which is usually different from the default chosen</span><br><span class="line">    * by the AopProxy implementation&apos;s &#123;@link #getProxy()&#125; method.</span><br><span class="line">    * @param classLoader the class loader to create the proxy with</span><br><span class="line">    * (or &#123;@code null&#125; for the low-level proxy facility&apos;s default)</span><br><span class="line">    * @return the new proxy object (never &#123;@code null&#125;)</span><br><span class="line">    */</span><br><span class="line">   Object getProxy(ClassLoader classLoader);</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;Spring 通过AopProxy接口，它通过getProxy()用来提供代理对象,他有两个子类，对应通过JDK和CGLIB生成的代理对象：<br><img src="/2019/04/17/源码学习之spring-aop（四）代理对象的生成/1.png" alt="数据类型示意图"></p>
+<h1 id="JdkDynamicAopProxy"><a href="#JdkDynamicAopProxy" class="headerlink" title="JdkDynamicAopProxy"></a>JdkDynamicAopProxy</h1><p>&emsp;    &emsp;简单回顾一下,在之前代理模式中，我们的jdk动态代理的实现主要是通过实现InvocationHandler，代理对象的获取则是通过Proxy.new ProxyInstance(ClassLoader,Interface,InvocationHandler)完成，现在我们看下Spring中的实现：</p>
+<h2 id="JdkDynamicAopProxy-1"><a href="#JdkDynamicAopProxy-1" class="headerlink" title="JdkDynamicAopProxy"></a>JdkDynamicAopProxy</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializable &#123;</span><br><span class="line">//省略部分代码</span><br><span class="line">   @Override</span><br><span class="line">   public Object getProxy() &#123;</span><br><span class="line">      return getProxy(ClassUtils.getDefaultClassLoader());</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   @Override</span><br><span class="line">   public Object getProxy(ClassLoader classLoader) &#123;</span><br><span class="line">      if (logger.isDebugEnabled()) &#123;</span><br><span class="line">         logger.debug(&quot;Creating JDK dynamic proxy: target source is &quot; + this.advised.getTargetSource());</span><br><span class="line">      &#125;</span><br><span class="line">      Class&lt;?&gt;[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised);</span><br><span class="line">      findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);</span><br><span class="line">      return Proxy.newProxyInstance(classLoader, proxiedInterfaces, this);</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;可以看到，在获取代理对象这部分，Spring的实现过程也是类似的,通过调用Proxy的newProxyInstance方法，获取对应的代理对象。三个参数：一个是类加载器，一个是代理接口，还有一个就是实现了InvocationHandler接口的对象作为回调入口。</p>
+<h1 id="CglibAopProxy"><a href="#CglibAopProxy" class="headerlink" title="CglibAopProxy"></a>CglibAopProxy</h1><p>&emsp;    &emsp;在代理模式中，我们cglib动态代理的代理对象是通过Enhancer对象返回的，当时我们设置了它的两个属性：enhancer.setSuperClass(),enhancer.setCallBack(),前者用来设置代理目标，后者用来设置回调，也就是设置拦截器，我们看下Spring中的cglib动态代理对象是怎么获取的：</p>
+<h2 id="CglibAopProxy-1"><a href="#CglibAopProxy-1" class="headerlink" title="CglibAopProxy"></a>CglibAopProxy</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public Object getProxy(ClassLoader classLoader) &#123;</span><br><span class="line">   if (logger.isDebugEnabled()) &#123;</span><br><span class="line">      logger.debug(&quot;Creating CGLIB proxy: target source is &quot; + this.advised.getTargetSource());</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   try &#123;</span><br><span class="line">      Class&lt;?&gt; rootClass = this.advised.getTargetClass();</span><br><span class="line">      Assert.state(rootClass != null, &quot;Target class must be available for creating a CGLIB proxy&quot;);</span><br><span class="line"> </span><br><span class="line">      Class&lt;?&gt; proxySuperClass = rootClass;</span><br><span class="line">      if (ClassUtils.isCglibProxyClass(rootClass)) &#123;</span><br><span class="line">         proxySuperClass = rootClass.getSuperclass();</span><br><span class="line">         Class&lt;?&gt;[] additionalInterfaces = rootClass.getInterfaces();</span><br><span class="line">         for (Class&lt;?&gt; additionalInterface : additionalInterfaces) &#123;</span><br><span class="line">            this.advised.addInterface(additionalInterface);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">      // Validate the class, writing log messages as necessary.</span><br><span class="line">      validateClassIfNecessary(proxySuperClass, classLoader);</span><br><span class="line"> </span><br><span class="line">      // Configure CGLIB Enhancer...</span><br><span class="line">      Enhancer enhancer = createEnhancer();</span><br><span class="line">      if (classLoader != null) &#123;</span><br><span class="line">         enhancer.setClassLoader(classLoader);</span><br><span class="line">         if (classLoader instanceof SmartClassLoader &amp;&amp;</span><br><span class="line">               ((SmartClassLoader) classLoader).isClassReloadable(proxySuperClass)) &#123;</span><br><span class="line">            enhancer.setUseCache(false);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      enhancer.setSuperclass(proxySuperClass);</span><br><span class="line">      enhancer.setInterfaces(AopProxyUtils.completeProxiedInterfaces(this.advised));</span><br><span class="line">      enhancer.setNamingPolicy(SpringNamingPolicy.INSTANCE);</span><br><span class="line">      enhancer.setStrategy(new ClassLoaderAwareUndeclaredThrowableStrategy(classLoader));</span><br><span class="line"> </span><br><span class="line">      Callback[] callbacks = getCallbacks(rootClass);</span><br><span class="line">      Class&lt;?&gt;[] types = new Class&lt;?&gt;[callbacks.length];</span><br><span class="line">      for (int x = 0; x &lt; types.length; x++) &#123;</span><br><span class="line">         types[x] = callbacks[x].getClass();</span><br><span class="line">      &#125;</span><br><span class="line">      // fixedInterceptorMap only populated at this point, after getCallbacks call above</span><br><span class="line">      enhancer.setCallbackFilter(new ProxyCallbackFilter(</span><br><span class="line">            this.advised.getConfigurationOnlyCopy(), this.fixedInterceptorMap, this.fixedInterceptorOffset));</span><br><span class="line">      enhancer.setCallbackTypes(types);</span><br><span class="line"> </span><br><span class="line">      // Generate the proxy class and create a proxy instance.</span><br><span class="line">      return createProxyClassAndInstance(enhancer, callbacks);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>Enhancer对象是cglib中的主要操作类，我们通过它来返回代理对象，在之前的代理模式中，我们只使用到了enhancer.setsuperclass()和enhancer.setCallBack()这两个属性，前者用来设置目标对象，后者用来设置回调入口，最后通过enhancer.create()返回代理对象。</p>
+<pre><code>在CglibAopProxy中，同样使用的是enhancer对象，只不过spring中设置的属性更加完善：</code></pre><p>&emsp;    &emsp;比如通过enhancer.setCallbacks()添加了多个拦截器，</p>
+<p>&emsp;    &emsp;又通过enhancer.setCallBackFilter()对具体使用的拦截器做了处理。</p>
+<p>最后还是通过enhancer.create()返回代理对象。</p>
+<h1 id="CallbackFilter"><a href="#CallbackFilter" class="headerlink" title="CallbackFilter"></a>CallbackFilter</h1><p>&emsp;    &emsp;这里简单的说明下CallbackFilter这个接口，通过实现这个接口重写其中的accept()方法，可以根据场景选择对应的拦截器来处理，返回的int值是回调方法中的序值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * CallbackFilter to assign Callbacks to methods.</span><br><span class="line"> */</span><br><span class="line">private static class ProxyCallbackFilter implements CallbackFilter &#123;</span><br><span class="line"> </span><br><span class="line">   private final AdvisedSupport advised;</span><br><span class="line"> </span><br><span class="line">   private final Map&lt;String, Integer&gt; fixedInterceptorMap;</span><br><span class="line"> </span><br><span class="line">   private final int fixedInterceptorOffset;</span><br><span class="line"> </span><br><span class="line">   public ProxyCallbackFilter(AdvisedSupport advised, Map&lt;String, Integer&gt; fixedInterceptorMap, int fixedInterceptorOffset) &#123;</span><br><span class="line">      this.advised = advised;</span><br><span class="line">      this.fixedInterceptorMap = fixedInterceptorMap;</span><br><span class="line">      this.fixedInterceptorOffset = fixedInterceptorOffset;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Implementation of CallbackFilter.accept() to return the index of the</span><br><span class="line">    * callback we need.</span><br><span class="line">    * &lt;p&gt;The callbacks for each proxy are built up of a set of fixed callbacks</span><br><span class="line">    * for general use and then a set of callbacks that are specific to a method</span><br><span class="line">    * for use on static targets with a fixed advice chain.</span><br><span class="line">    * &lt;p&gt;The callback used is determined thus:</span><br><span class="line">    * &lt;dl&gt;</span><br><span class="line">    * &lt;dt&gt;For exposed proxies&lt;/dt&gt;</span><br><span class="line">    * &lt;dd&gt;Exposing the proxy requires code to execute before and after the</span><br><span class="line">    * method/chain invocation. This means we must use</span><br><span class="line">    * DynamicAdvisedInterceptor, since all other interceptors can avoid the</span><br><span class="line">    * need for a try/catch block&lt;/dd&gt;</span><br><span class="line">    * &lt;dt&gt;For Object.finalize():&lt;/dt&gt;</span><br><span class="line">    * &lt;dd&gt;No override for this method is used.&lt;/dd&gt;</span><br><span class="line">    * &lt;dt&gt;For equals():&lt;/dt&gt;</span><br><span class="line">    * &lt;dd&gt;The EqualsInterceptor is used to redirect equals() calls to a</span><br><span class="line">    * special handler to this proxy.&lt;/dd&gt;</span><br><span class="line">    * &lt;dt&gt;For methods on the Advised class:&lt;/dt&gt;</span><br><span class="line">    * &lt;dd&gt;the AdvisedDispatcher is used to dispatch the call directly to</span><br><span class="line">    * the target&lt;/dd&gt;</span><br><span class="line">    * &lt;dt&gt;For advised methods:&lt;/dt&gt;</span><br><span class="line">    * &lt;dd&gt;If the target is static and the advice chain is frozen then a</span><br><span class="line">    * FixedChainStaticTargetInterceptor specific to the method is used to</span><br><span class="line">    * invoke the advice chain. Otherwise a DyanmicAdvisedInterceptor is</span><br><span class="line">    * used.&lt;/dd&gt;</span><br><span class="line">    * &lt;dt&gt;For non-advised methods:&lt;/dt&gt;</span><br><span class="line">    * &lt;dd&gt;Where it can be determined that the method will not return &#123;@code this&#125;</span><br><span class="line">    * or when &#123;@code ProxyFactory.getExposeProxy()&#125; returns &#123;@code false&#125;,</span><br><span class="line">    * then a Dispatcher is used. For static targets, the StaticDispatcher is used;</span><br><span class="line">    * and for dynamic targets, a DynamicUnadvisedInterceptor is used.</span><br><span class="line">    * If it possible for the method to return &#123;@code this&#125; then a</span><br><span class="line">    * StaticUnadvisedInterceptor is used for static targets - the</span><br><span class="line">    * DynamicUnadvisedInterceptor already considers this.&lt;/dd&gt;</span><br><span class="line">    * &lt;/dl&gt;</span><br><span class="line">    */</span><br><span class="line">   @Override</span><br><span class="line">   public int accept(Method method) &#123;</span><br><span class="line">      if (AopUtils.isFinalizeMethod(method)) &#123;</span><br><span class="line">         logger.debug(&quot;Found finalize() method - using NO_OVERRIDE&quot;);</span><br><span class="line">         return NO_OVERRIDE;</span><br><span class="line">      &#125;</span><br><span class="line">      if (!this.advised.isOpaque() &amp;&amp; method.getDeclaringClass().isInterface() &amp;&amp;</span><br><span class="line">            method.getDeclaringClass().isAssignableFrom(Advised.class)) &#123;</span><br><span class="line">         if (logger.isDebugEnabled()) &#123;</span><br><span class="line">            logger.debug(&quot;Method is declared on Advised interface: &quot; + method);</span><br><span class="line">         &#125;</span><br><span class="line">         return DISPATCH_ADVISED;</span><br><span class="line">      &#125;</span><br><span class="line">      // We must always proxy equals, to direct calls to this.</span><br><span class="line">      if (AopUtils.isEqualsMethod(method)) &#123;</span><br><span class="line">         logger.debug(&quot;Found &apos;equals&apos; method: &quot; + method);</span><br><span class="line">         return INVOKE_EQUALS;</span><br><span class="line">      &#125;</span><br><span class="line">      // We must always calculate hashCode based on the proxy.</span><br><span class="line">      if (AopUtils.isHashCodeMethod(method)) &#123;</span><br><span class="line">         logger.debug(&quot;Found &apos;hashCode&apos; method: &quot; + method);</span><br><span class="line">         return INVOKE_HASHCODE;</span><br><span class="line">      &#125;</span><br><span class="line">      Class&lt;?&gt; targetClass = this.advised.getTargetClass();</span><br><span class="line">      // Proxy is not yet available, but that shouldn&apos;t matter.</span><br><span class="line">      List&lt;?&gt; chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);</span><br><span class="line">      boolean haveAdvice = !chain.isEmpty();</span><br><span class="line">      boolean exposeProxy = this.advised.isExposeProxy();</span><br><span class="line">      boolean isStatic = this.advised.getTargetSource().isStatic();</span><br><span class="line">      boolean isFrozen = this.advised.isFrozen();</span><br><span class="line">      if (haveAdvice || !isFrozen) &#123;</span><br><span class="line">         // If exposing the proxy, then AOP_PROXY must be used.</span><br><span class="line">         if (exposeProxy) &#123;</span><br><span class="line">            if (logger.isDebugEnabled()) &#123;</span><br><span class="line">               logger.debug(&quot;Must expose proxy on advised method: &quot; + method);</span><br><span class="line">            &#125;</span><br><span class="line">            return AOP_PROXY;</span><br><span class="line">         &#125;</span><br><span class="line">         String key = method.toString();</span><br><span class="line">         // Check to see if we have fixed interceptor to serve this method.</span><br><span class="line">         // Else use the AOP_PROXY.</span><br><span class="line">         if (isStatic &amp;&amp; isFrozen &amp;&amp; this.fixedInterceptorMap.containsKey(key)) &#123;</span><br><span class="line">            if (logger.isDebugEnabled()) &#123;</span><br><span class="line">               logger.debug(&quot;Method has advice and optimisations are enabled: &quot; + method);</span><br><span class="line">            &#125;</span><br><span class="line">            // We know that we are optimising so we can use the FixedStaticChainInterceptors.</span><br><span class="line">            int index = this.fixedInterceptorMap.get(key);</span><br><span class="line">            return (index + this.fixedInterceptorOffset);</span><br><span class="line">         &#125;</span><br><span class="line">         else &#123;</span><br><span class="line">            if (logger.isDebugEnabled()) &#123;</span><br><span class="line">               logger.debug(&quot;Unable to apply any optimisations to advised method: &quot; + method);</span><br><span class="line">            &#125;</span><br><span class="line">            return AOP_PROXY;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         // See if the return type of the method is outside the class hierarchy</span><br><span class="line">         // of the target type. If so we know it never needs to have return type</span><br><span class="line">         // massage and can use a dispatcher.</span><br><span class="line">         // If the proxy is being exposed, then must use the interceptor the</span><br><span class="line">         // correct one is already configured. If the target is not static, then</span><br><span class="line">         // cannot use a dispatcher because the target cannot be released.</span><br><span class="line">         if (exposeProxy || !isStatic) &#123;</span><br><span class="line">            return INVOKE_TARGET;</span><br><span class="line">         &#125;</span><br><span class="line">         Class&lt;?&gt; returnType = method.getReturnType();</span><br><span class="line">         if (targetClass == returnType) &#123;</span><br><span class="line">            if (logger.isDebugEnabled()) &#123;</span><br><span class="line">               logger.debug(&quot;Method &quot; + method +</span><br><span class="line">                     &quot;has return type same as target type (may return this) - using INVOKE_TARGET&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            return INVOKE_TARGET;</span><br><span class="line">         &#125;</span><br><span class="line">         else if (returnType.isPrimitive() || !returnType.isAssignableFrom(targetClass)) &#123;</span><br><span class="line">            if (logger.isDebugEnabled()) &#123;</span><br><span class="line">               logger.debug(&quot;Method &quot; + method +</span><br><span class="line">                     &quot; has return type that ensures this cannot be returned- using DISPATCH_TARGET&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            return DISPATCH_TARGET;</span><br><span class="line">         &#125;</span><br><span class="line">         else &#123;</span><br><span class="line">            if (logger.isDebugEnabled()) &#123;</span><br><span class="line">               logger.debug(&quot;Method &quot; + method +</span><br><span class="line">                     &quot;has return type that is assignable from the target type (may return this) - &quot; +</span><br><span class="line">                     &quot;using INVOKE_TARGET&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            return INVOKE_TARGET;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="ProxyFactoryBean"><a href="#ProxyFactoryBean" class="headerlink" title="ProxyFactoryBean"></a>ProxyFactoryBean</h1><p>&emsp;    &emsp;上面介绍了<strong>ProcyFactory</strong>获取代理对象的主要逻辑，在介绍引介增强时，我们还使用到了<strong>ProxyFactoryBean</strong>,这里我们来看下<strong>ProxyFactoryBean</strong>里面的处理逻辑。<br>&emsp;    &emsp;<strong>ProxyFactoryBean</strong>实现了FactoryBean,是一个工厂bean，工厂bean获取对象的方式是通过重写的getObject()来返回的，所以我们直接去看<strong>ProxyFactoryBean</strong>的getObject()方法：</p>
+<p>&emsp;    &emsp;<strong>ProxyFactoryBean#getObject：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public Object getObject() throws BeansException &#123;</span><br><span class="line">   initializeAdvisorChain();</span><br><span class="line">   if (isSingleton()) &#123;</span><br><span class="line">      return getSingletonInstance();</span><br><span class="line">   &#125;</span><br><span class="line">   else &#123;</span><br><span class="line">      if (this.targetName == null) &#123;</span><br><span class="line">         logger.warn(&quot;Using non-singleton proxies with singleton targets is often undesirable. &quot; +</span><br><span class="line">               &quot;Enable prototype proxies by setting the &apos;targetName&apos; property.&quot;);</span><br><span class="line">      &#125;</span><br><span class="line">      return newPrototypeInstance();</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;这里的逻辑主要有两部分：一个是处理增强链initializeAdvisorChain，还有就是获取代理对象getInstance。</p>
+<h1 id="initializeAdvisorChain"><a href="#initializeAdvisorChain" class="headerlink" title="initializeAdvisorChain"></a>initializeAdvisorChain</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">private synchronized void initializeAdvisorChain() throws AopConfigException, BeansException &#123;</span><br><span class="line">     //省略部分代码</span><br><span class="line">      // Globals can&apos;t be last unless we specified a targetSource using the property...</span><br><span class="line">      if (this.interceptorNames[this.interceptorNames.length - 1].endsWith(GLOBAL_SUFFIX) &amp;&amp;</span><br><span class="line">            this.targetName == null &amp;&amp; this.targetSource == EMPTY_TARGET_SOURCE) &#123;</span><br><span class="line">         throw new AopConfigException(&quot;Target required after globals&quot;);</span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">      // Materialize interceptor chain from bean names.</span><br><span class="line">      for (String name : this.interceptorNames) </span><br><span class="line">         else &#123;</span><br><span class="line">            // If we get here, we need to add a named interceptor.</span><br><span class="line">            // We must check if it&apos;s a singleton or prototype.</span><br><span class="line">            Object advice;</span><br><span class="line">            if (this.singleton || this.beanFactory.isSingleton(name)) &#123;</span><br><span class="line">               // Add the real Advisor/Advice to the chain.</span><br><span class="line">               advice = this.beanFactory.getBean(name);</span><br><span class="line">            &#125;</span><br><span class="line">            else &#123;</span><br><span class="line">               // It&apos;s a prototype Advice or Advisor: replace with a prototype.</span><br><span class="line">               // Avoid unnecessary creation of prototype bean just for advisor chain initialization.</span><br><span class="line">               advice = new PrototypePlaceholderAdvisor(name);</span><br><span class="line">            &#125;</span><br><span class="line">            addAdvisorOnChainCreation(advice, name);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   this.advisorChainInitialized = true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">private void addAdvisorOnChainCreation(Object next, String name) &#123;</span><br><span class="line">   // We need to convert to an Advisor if necessary so that our source reference</span><br><span class="line">   // matches what we find from superclass interceptors.</span><br><span class="line">   Advisor advisor = namedBeanToAdvisor(next);</span><br><span class="line">   if (logger.isTraceEnabled()) &#123;</span><br><span class="line">      logger.trace(&quot;Adding advisor with name &apos;&quot; + name + &quot;&apos;&quot;);</span><br><span class="line">   &#125;</span><br><span class="line">   addAdvisor(advisor);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * List of Advisors. If an Advice is added, it will be wrapped</span><br><span class="line"> * in an Advisor before being added to this List.</span><br><span class="line"> */</span><br><span class="line">private List&lt;Advisor&gt; advisors = new LinkedList&lt;Advisor&gt;();</span><br></pre></td></tr></table></figure>
+
+<p>还记得我们使用ProxyFactoryBean时的参数么：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;target&quot; class=&quot;com.ljw.testSpringMode.aop.advice.Trumpet&quot;&gt;&lt;/bean&gt;</span><br><span class="line"> </span><br><span class="line">&lt;bean id=&quot;introduction&quot; class=&quot;com.ljw.testSpringMode.aop.advice.MonitorIntroduction&quot;/&gt;</span><br><span class="line"> </span><br><span class="line">&lt;bean id=&quot;trumpet&quot; class=&quot;org.springframework.aop.framework.ProxyFactoryBean&quot;</span><br><span class="line">    p:proxyInterfaces=&quot;com.ljw.testSpringMode.aop.advice.MonitorAccess&quot;</span><br><span class="line">    p:interceptorNames=&quot;introduction&quot;</span><br><span class="line">    p:target-ref=&quot;target&quot;</span><br><span class="line">    p:proxyTargetClass=&quot;true&quot;</span><br><span class="line">/&gt;</span><br></pre></td></tr></table></figure>
+
+<p>我们的interceptorNames参数就是在这个里面使用到，根据这些id，直接获取对应的bean对象，最后使用一个list维护这些增强。</p>
+<h1 id="getInstance"><a href="#getInstance" class="headerlink" title="getInstance"></a>getInstance</h1><p>处理完了增强链以后，接着根据bean的类型返回对应的代理示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">if (isSingleton()) &#123;</span><br><span class="line">   return getSingletonInstance();</span><br><span class="line">&#125;</span><br><span class="line">else &#123;</span><br><span class="line">   if (this.targetName == null) &#123;</span><br><span class="line">      logger.warn(&quot;Using non-singleton proxies with singleton targets is often undesirable. &quot; +</span><br><span class="line">            &quot;Enable prototype proxies by setting the &apos;targetName&apos; property.&quot;);</span><br><span class="line">   &#125;</span><br><span class="line">   return newPrototypeInstance();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们这里关注下单例的场景：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">private synchronized Object getSingletonInstance() &#123;</span><br><span class="line">   if (this.singletonInstance == null) &#123;</span><br><span class="line">      this.targetSource = freshTargetSource();</span><br><span class="line">      if (this.autodetectInterfaces &amp;&amp; getProxiedInterfaces().length == 0 &amp;&amp; !isProxyTargetClass()) &#123;</span><br><span class="line">         // Rely on AOP infrastructure to tell us what interfaces to proxy.</span><br><span class="line">         Class&lt;?&gt; targetClass = getTargetClass();</span><br><span class="line">         if (targetClass == null) &#123;</span><br><span class="line">            throw new FactoryBeanNotInitializedException(&quot;Cannot determine target class for proxy&quot;);</span><br><span class="line">         &#125;</span><br><span class="line">         setInterfaces(ClassUtils.getAllInterfacesForClass(targetClass, this.proxyClassLoader));</span><br><span class="line">      &#125;</span><br><span class="line">      // Initialize the shared singleton instance.</span><br><span class="line">      super.setFrozen(this.freezeProxy);</span><br><span class="line">      this.singletonInstance = getProxy(createAopProxy());</span><br><span class="line">   &#125;</span><br><span class="line">   return this.singletonInstance;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里我们看到了一个熟悉的方法getProxy(),哦，原来ProxyFactoryBean内部获取代理示例的逻辑和FactoryBean是一样的，只不过它利用factoryBean的特性对增强链进行了维护。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;    &emsp;Spring Aop生成代理对象主要有两种方式:jdk和cglib，前者通过反射实现，只能针对接口类，后者通过cglib动态生成子类实现，无法对private 和 final修饰的内容进行代理，Spring AOP的代理级别是方法级别。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/17/设计模式之代理模式/" rel="next" title="设计模式之代理模式">
+                <i class="fa fa-chevron-left"></i> 设计模式之代理模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/05/17/锁的优化/" rel="prev" title="锁的优化">
+                锁的优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AopProxy"><span class="nav-number">1.</span> <span class="nav-text">AopProxy</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AopProxy-1"><span class="nav-number">1.1.</span> <span class="nav-text">AopProxy</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JdkDynamicAopProxy"><span class="nav-number">2.</span> <span class="nav-text">JdkDynamicAopProxy</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JdkDynamicAopProxy-1"><span class="nav-number">2.1.</span> <span class="nav-text">JdkDynamicAopProxy</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CglibAopProxy"><span class="nav-number">3.</span> <span class="nav-text">CglibAopProxy</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CglibAopProxy-1"><span class="nav-number">3.1.</span> <span class="nav-text">CglibAopProxy</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CallbackFilter"><span class="nav-number">4.</span> <span class="nav-text">CallbackFilter</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ProxyFactoryBean"><span class="nav-number">5.</span> <span class="nav-text">ProxyFactoryBean</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#initializeAdvisorChain"><span class="nav-number">6.</span> <span class="nav-text">initializeAdvisorChain</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#getInstance"><span class="nav-number">7.</span> <span class="nav-text">getInstance</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
