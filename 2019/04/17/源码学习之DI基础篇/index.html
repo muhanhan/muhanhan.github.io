@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;接上文beanDefinition的内容，接下来会介绍spring中的依赖注入部分。 DI&amp;emsp;    &amp;emsp;当我们用bean定义来描述一个bean的时候，这个bean往往需要依赖于其他对象，IOC容器在实例化这个bean的时候，会将依赖的对象进行注入，这个过程就叫依赖注入。依赖注入主要有两种方式：  Constructor-based dependen">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码学习之DI基础篇">
+<meta property="og:url" content="http://yoursite.com/2019/04/17/源码学习之DI基础篇/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;接上文beanDefinition的内容，接下来会介绍spring中的依赖注入部分。 DI&amp;emsp;    &amp;emsp;当我们用bean定义来描述一个bean的时候，这个bean往往需要依赖于其他对象，IOC容器在实例化这个bean的时候，会将依赖的对象进行注入，这个过程就叫依赖注入。依赖注入主要有两种方式：  Constructor-based dependen">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-10-07T02:15:47.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码学习之DI基础篇">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;接上文beanDefinition的内容，接下来会介绍spring中的依赖注入部分。 DI&amp;emsp;    &amp;emsp;当我们用bean定义来描述一个bean的时候，这个bean往往需要依赖于其他对象，IOC容器在实例化这个bean的时候，会将依赖的对象进行注入，这个过程就叫依赖注入。依赖注入主要有两种方式：  Constructor-based dependen">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/04/17/源码学习之DI基础篇/">
+
+
+
+
+
+  <title>源码学习之DI基础篇 | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/17/源码学习之DI基础篇/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">源码学习之DI基础篇</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-17T09:02:57+08:00">
+                2019-04-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;接上文beanDefinition的内容，接下来会介绍spring中的依赖注入部分。</p>
+<h1 id="DI"><a href="#DI" class="headerlink" title="DI"></a>DI</h1><p>&emsp;    &emsp;当我们用bean定义来描述一个bean的时候，这个bean往往需要依赖于其他对象，IOC容器在实例化这个bean的时候，会将依赖的对象进行注入，这个过程就叫依赖注入。依赖注入主要有两种方式：</p>
+<ol>
+<li>Constructor-based dependency injection</li>
+<li>Setter-based dependency injection</li>
+</ol>
+<h2 id="Constructor-based-dependency-injection构造函数注入"><a href="#Constructor-based-dependency-injection构造函数注入" class="headerlink" title="Constructor-based dependency injection构造函数注入"></a>Constructor-based dependency injection构造函数注入</h2><p> 当对象存在有参构造函数时（或者存在静态工厂方法），通过<constructor-arg>来指定构造函数的参数。</constructor-arg></p>
+<h3 id="参数是对象时"><a href="#参数是对象时" class="headerlink" title="参数是对象时"></a>参数是对象时</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">package x.y;</span><br><span class="line"> </span><br><span class="line">public class Foo &#123;</span><br><span class="line"> </span><br><span class="line">    public Foo(Bar bar, Baz baz) &#123;</span><br><span class="line">        // ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;beans&gt;</span><br><span class="line">    &lt;bean id=&quot;foo&quot; class=&quot;x.y.Foo&quot;&gt;</span><br><span class="line">        &lt;constructor-arg ref=&quot;bar&quot;/&gt;</span><br><span class="line">        &lt;constructor-arg ref=&quot;baz&quot;/&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br><span class="line"> </span><br><span class="line">    &lt;bean id=&quot;bar&quot; class=&quot;x.y.Bar&quot;/&gt;</span><br><span class="line"> </span><br><span class="line">    &lt;bean id=&quot;baz&quot; class=&quot;x.y.Baz&quot;/&gt;</span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="参数是简单数据类型（基本数据类型-String）"><a href="#参数是简单数据类型（基本数据类型-String）" class="headerlink" title="参数是简单数据类型（基本数据类型+String）"></a>参数是简单数据类型（基本数据类型+String）</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">package examples;</span><br><span class="line"> </span><br><span class="line">public class ExampleBean &#123;</span><br><span class="line"> </span><br><span class="line">    // Number of years to calculate the Ultimate Answer</span><br><span class="line">    private int years;</span><br><span class="line"> </span><br><span class="line">    // The Answer to Life, the Universe, and Everything</span><br><span class="line">    private String ultimateAnswer;</span><br><span class="line"> </span><br><span class="line">    public ExampleBean(int years, String ultimateAnswer) &#123;</span><br><span class="line">        this.years = years;</span><br><span class="line">        this.ultimateAnswer = ultimateAnswer;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据类型来进行配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;exampleBean&quot; class=&quot;examples.ExampleBean&quot;&gt;</span><br><span class="line">    &lt;constructor-arg type=&quot;int&quot; value=&quot;7500000&quot;/&gt;</span><br><span class="line">    &lt;constructor-arg type=&quot;java.lang.String&quot; value=&quot;42&quot;/&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如果两个类型相同，可能会引起歧义的情况，则可以使用下标来指定构造函数参数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;exampleBean&quot; class=&quot;examples.ExampleBean&quot;&gt;</span><br><span class="line">    &lt;constructor-arg index=&quot;0&quot; value=&quot;7500000&quot;/&gt;</span><br><span class="line">    &lt;constructor-arg index=&quot;1&quot; value=&quot;42&quot;/&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Setter-based-dependency-injection属性注入"><a href="#Setter-based-dependency-injection属性注入" class="headerlink" title="Setter-based dependency injection属性注入"></a>Setter-based dependency injection属性注入</h2><p>&emsp;    &emsp;当对象不存在有参构造函数或者静态工厂方法时，则可以使用<property>标签调用成员变量的setter方法进行注入：</property></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class ExampleBean &#123;</span><br><span class="line"> </span><br><span class="line">    private AnotherBean beanOne;</span><br><span class="line"> </span><br><span class="line">    private YetAnotherBean beanTwo;</span><br><span class="line"> </span><br><span class="line">    private int i;</span><br><span class="line"> </span><br><span class="line">    public void setBeanOne(AnotherBean beanOne) &#123;</span><br><span class="line">        this.beanOne = beanOne;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setBeanTwo(YetAnotherBean beanTwo) &#123;</span><br><span class="line">        this.beanTwo = beanTwo;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setIntegerProperty(int i) &#123;</span><br><span class="line">        this.i = i;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">  	&lt;bean id=&quot;exampleBean&quot; class=&quot;examples.ExampleBean&quot;&gt;</span><br><span class="line">    &lt;!-- setter injection using the nested ref element --&gt;</span><br><span class="line">    &lt;property name=&quot;beanOne&quot;&gt;</span><br><span class="line">        &lt;ref bean=&quot;anotherExampleBean&quot;/&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line"> </span><br><span class="line">    &lt;!-- setter injection using the neater ref attribute --&gt;</span><br><span class="line">    &lt;property name=&quot;beanTwo&quot; ref=&quot;yetAnotherBean&quot;/&gt;</span><br><span class="line">    &lt;property name=&quot;integerProperty&quot; value=&quot;1&quot;/&gt;</span><br><span class="line">&lt;/bean&gt;</span><br><span class="line"> </span><br><span class="line">&lt;bean id=&quot;anotherExampleBean&quot; class=&quot;examples.AnotherBean&quot;/&gt;</span><br><span class="line">&lt;bean id=&quot;yetAnotherBean&quot; class=&quot;examples.YetAnotherBean&quot;/&gt;</span><br></pre></td></tr></table></figure>
+
+<h1 id="中数据类型的支持："><a href="#中数据类型的支持：" class="headerlink" title="中数据类型的支持："></a><strong><property>中数据类型的支持：</property></strong></h1><h2 id="Straight-values-primitives-Strings-and-so-on"><a href="#Straight-values-primitives-Strings-and-so-on" class="headerlink" title="Straight values (primitives, Strings, and so on)"></a><strong>Straight values (primitives, Strings, and so on)</strong></h2><p>Property中对于简单数据的配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;myDataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;</span><br><span class="line">    &lt;!-- results in a setDriverClassName(String) call --&gt;</span><br><span class="line">    &lt;property name=&quot;driverClassName&quot; value=&quot;com.mysql.jdbc.Driver&quot;/&gt;</span><br><span class="line">    &lt;property name=&quot;url&quot; value=&quot;jdbc:mysql://localhost:3306/mydb&quot;/&gt;</span><br><span class="line">    &lt;property name=&quot;username&quot; value=&quot;root&quot;/&gt;</span><br><span class="line">    &lt;property name=&quot;password&quot; value=&quot;masterkaoli&quot;/&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+
+<p>上面这种配置，还可以使用p-namespace来表示，这两个是等价的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;myDataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot;</span><br><span class="line">    destroy-method=&quot;close&quot;</span><br><span class="line">    p:driverClassName=&quot;com.mysql.jdbc.Driver&quot;</span><br><span class="line">    p:url=&quot;jdbc:mysql://localhost:3306/mydb&quot;</span><br><span class="line">    p:username=&quot;root&quot;</span><br><span class="line">    p:password=&quot;masterkaoli&quot;/&gt;</span><br></pre></td></tr></table></figure>
+
+<p>spring中还支持对properties形式的解析：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;mappings&quot;</span><br><span class="line">    class=&quot;org.springframework.beans.factory.config.PropertyPlaceholderConfigurer&quot;&gt;</span><br><span class="line"> </span><br><span class="line">    &lt;!-- typed as a java.util.Properties --&gt;</span><br><span class="line">    &lt;property name=&quot;properties&quot;&gt;</span><br><span class="line">        &lt;value&gt;</span><br><span class="line">            jdbc.driver.className=com.mysql.jdbc.Driver</span><br><span class="line">            jdbc.url=jdbc:mysql://localhost:3306/mydb</span><br><span class="line">        &lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Collections"><a href="#Collections" class="headerlink" title="Collections"></a><strong>Collections</strong></h2><p> 除了简单的数据类型外，property还支持集合的处理：<list>, <set>, <map>,  <props></props></map></set></list></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;moreComplexObject&quot; class=&quot;example.ComplexObject&quot;&gt;</span><br><span class="line">    &lt;!-- results in a setAdminEmails(java.util.Properties) call --&gt;</span><br><span class="line">    &lt;property name=&quot;adminEmails&quot;&gt;</span><br><span class="line">        &lt;props&gt;</span><br><span class="line">            &lt;prop key=&quot;administrator&quot;&gt;administrator@example.org&lt;/prop&gt;</span><br><span class="line">            &lt;prop key=&quot;support&quot;&gt;support@example.org&lt;/prop&gt;</span><br><span class="line">            &lt;prop key=&quot;development&quot;&gt;development@example.org&lt;/prop&gt;</span><br><span class="line">        &lt;/props&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;!-- results in a setSomeList(java.util.List) call --&gt;</span><br><span class="line">    &lt;property name=&quot;someList&quot;&gt;</span><br><span class="line">        &lt;list&gt;</span><br><span class="line">            &lt;value&gt;a list element followed by a reference&lt;/value&gt;</span><br><span class="line">            &lt;ref bean=&quot;myDataSource&quot; /&gt;</span><br><span class="line">        &lt;/list&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;!-- results in a setSomeMap(java.util.Map) call --&gt;</span><br><span class="line">    &lt;property name=&quot;someMap&quot;&gt;</span><br><span class="line">        &lt;map&gt;</span><br><span class="line">            &lt;entry key=&quot;an entry&quot; value=&quot;just some string&quot;/&gt;</span><br><span class="line">            &lt;entry key =&quot;a ref&quot; value-ref=&quot;myDataSource&quot;/&gt;</span><br><span class="line">        &lt;/map&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;!-- results in a setSomeSet(java.util.Set) call --&gt;</span><br><span class="line">    &lt;property name=&quot;someSet&quot;&gt;</span><br><span class="line">        &lt;set&gt;</span><br><span class="line">            &lt;value&gt;just some string&lt;/value&gt;</span><br><span class="line">            &lt;ref bean=&quot;myDataSource&quot; /&gt;</span><br><span class="line">        &lt;/set&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+
+<h1 id="ref-和-depends-on"><a href="#ref-和-depends-on" class="headerlink" title="ref 和 depends-on"></a><strong>ref 和 depends-on</strong></h1><p>&emsp;    &emsp;<strong>ref</strong>:当bean A依赖于bean B时,可以使用ref来表示AB之间的依赖关系。<br>&emsp;    &emsp;<strong>depends-on</strong>:当bean A和bean B没有明显的依赖关系，但是有部分功能需要bean B初始化完成以后才能正确执行，这种情况bean A也对bean B有依赖关系，这个时候就可以使用depends-on来进行表示。</p>
+<h1 id="Method-injection"><a href="#Method-injection" class="headerlink" title="Method injection"></a>Method injection</h1><p> &emsp;    &emsp;在我们的使用中，还会有这种场景，bean A依赖于bean B，当A的scope是singleton，B的scope是prototype时，此时每次请求A都需要返回一个新的B的实例。正常的实现的话会是这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">// a class that uses a stateful Command-style class to perform some processing</span><br><span class="line">package fiona.apple;</span><br><span class="line"> </span><br><span class="line">// Spring-API imports</span><br><span class="line">import org.springframework.beans.BeansException;</span><br><span class="line">import org.springframework.context.ApplicationContext;</span><br><span class="line">import org.springframework.context.ApplicationContextAware;</span><br><span class="line"> </span><br><span class="line">public class CommandManager implements ApplicationContextAware &#123;</span><br><span class="line"> </span><br><span class="line">    private ApplicationContext applicationContext;</span><br><span class="line"> </span><br><span class="line">    public Object process(Map commandState) &#123;</span><br><span class="line">        // grab a new instance of the appropriate Command</span><br><span class="line">        Command command = createCommand();</span><br><span class="line">        // set the state on the (hopefully brand new) Command instance</span><br><span class="line">        command.setState(commandState);</span><br><span class="line">        return command.execute();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    protected Command createCommand() &#123;</span><br><span class="line">        // notice the Spring API dependency!</span><br><span class="line">        return this.applicationContext.getBean(&quot;command&quot;, Command.class);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setApplicationContext(</span><br><span class="line">            ApplicationContext applicationContext) throws BeansException &#123;</span><br><span class="line">        this.applicationContext = applicationContext;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过this.applicationContext.getBean(“command”, Command.class)来实现每次返回B实例。</p>
+<p>这样做的确实现了我们的要求，但同时也导致了业务代码和spring框架代码的耦合，要知道spring一直在做的都是各种手段解耦，怎么会允许这种事发生呢。所以spring提供了<lookup-method>通过方法注入这种途径来解决这类问题，使得代码可以更加整洁。</lookup-method></p>
+<p>它的使用方式如下（还是用上面的例子）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">package fiona.apple;</span><br><span class="line"> </span><br><span class="line">// no more Spring imports!</span><br><span class="line"> </span><br><span class="line">public abstract class CommandManager &#123;</span><br><span class="line"> </span><br><span class="line">    public Object process(Object commandState) &#123;</span><br><span class="line">        // grab a new instance of the appropriate Command interface</span><br><span class="line">        Command command = createCommand();</span><br><span class="line">        // set the state on the (hopefully brand new) Command instance</span><br><span class="line">        command.setState(commandState);</span><br><span class="line">        return command.execute();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    // okay... but where is the implementation of this method?</span><br><span class="line">    protected abstract Command createCommand();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>把原来返B实例的方法改成抽象方法，这里需要注意，这个格式是有固定结构的：</p>
+<blockquote>
+<p>&lt;public|protected&gt; [abstract] <return-type> theMethodName(no-arguments);</return-type></p>
+</blockquote>
+<p>然后在配置文件中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- a stateful bean deployed as a prototype (non-singleton) --&gt;</span><br><span class="line">&lt;bean id=&quot;myCommand&quot; class=&quot;fiona.apple.AsyncCommand&quot; scope=&quot;prototype&quot;&gt;</span><br><span class="line">    &lt;!-- inject dependencies here as required --&gt;</span><br><span class="line">&lt;/bean&gt;</span><br><span class="line"> </span><br><span class="line">&lt;!-- commandProcessor uses statefulCommandHelper --&gt;</span><br><span class="line">&lt;bean id=&quot;commandManager&quot; class=&quot;fiona.apple.CommandManager&quot;&gt;</span><br><span class="line">    &lt;lookup-method name=&quot;createCommand&quot; bean=&quot;myCommand&quot;/&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这里定义的抽象方法createCommand()方法并不需要我们来实现，我们只需要在配置文件中通过<lookup-method>来指定这个方法需要返回的对象即可。</lookup-method></p>
+<p>除了在bean定义中使用<lookup-method>外,spring同样提供了注解的形式：</lookup-method></p>
+<ul>
+<li>第一种</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public abstract class CommandManager &#123;</span><br><span class="line"> </span><br><span class="line">    public Object process(Object commandState) &#123;</span><br><span class="line">        Command command = createCommand();</span><br><span class="line">        command.setState(commandState);</span><br><span class="line">        return command.execute();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    @Lookup(&quot;myCommand&quot;)</span><br><span class="line">    protected abstract Command createCommand();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第二种</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public abstract class CommandManager &#123;</span><br><span class="line"> </span><br><span class="line">    public Object process(Object commandState) &#123;</span><br><span class="line">        MyCommand command = createCommand();</span><br><span class="line">        command.setState(commandState);</span><br><span class="line">        return command.execute();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    @Lookup</span><br><span class="line">    protected abstract MyCommand createCommand();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/16/源码学习之springioc容器体系/" rel="next" title="源码学习之springioc容器体系">
+                <i class="fa fa-chevron-left"></i> 源码学习之springioc容器体系
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/17/源码学习之DI代码片/" rel="prev" title="源码学习之DI代码篇">
+                源码学习之DI代码篇 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DI"><span class="nav-number">1.</span> <span class="nav-text">DI</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Constructor-based-dependency-injection构造函数注入"><span class="nav-number">1.1.</span> <span class="nav-text">Constructor-based dependency injection构造函数注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#参数是对象时"><span class="nav-number">1.1.1.</span> <span class="nav-text">参数是对象时</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参数是简单数据类型（基本数据类型-String）"><span class="nav-number">1.1.2.</span> <span class="nav-text">参数是简单数据类型（基本数据类型+String）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Setter-based-dependency-injection属性注入"><span class="nav-number">1.2.</span> <span class="nav-text">Setter-based dependency injection属性注入</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#中数据类型的支持："><span class="nav-number">2.</span> <span class="nav-text">中数据类型的支持：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Straight-values-primitives-Strings-and-so-on"><span class="nav-number">2.1.</span> <span class="nav-text">Straight values (primitives, Strings, and so on)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Collections"><span class="nav-number">2.2.</span> <span class="nav-text">Collections</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ref-和-depends-on"><span class="nav-number">3.</span> <span class="nav-text">ref 和 depends-on</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Method-injection"><span class="nav-number">4.</span> <span class="nav-text">Method injection</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
