@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="SpringIOC容器初始化分为三个过程：  BeanDefinition的Resource定位 BeanDefinition的载入 BeanDefinition的注册  这里主要介绍Resource定位过程。 Resource的资源定位&amp;emsp;    &amp;emsp;我们知道IOC容器中管理的对象是BeanDefinition，这是POJO对象在spring内部的存储形式 ，我们所说的Resou">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码学习之ioc容器初始化三部曲（一）">
+<meta property="og:url" content="http://yoursite.com/2019/04/16/源码学习之ioc容器初始化三部曲（一）/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="SpringIOC容器初始化分为三个过程：  BeanDefinition的Resource定位 BeanDefinition的载入 BeanDefinition的注册  这里主要介绍Resource定位过程。 Resource的资源定位&amp;emsp;    &amp;emsp;我们知道IOC容器中管理的对象是BeanDefinition，这是POJO对象在spring内部的存储形式 ，我们所说的Resou">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之ioc容器初始化三部曲（一）/1.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之ioc容器初始化三部曲（一）/4.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之ioc容器初始化三部曲（一）/2.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之ioc容器初始化三部曲（一）/3.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之ioc容器初始化三部曲（一）/5.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之ioc容器初始化三部曲（一）/6.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之ioc容器初始化三部曲（一）/7.png">
+<meta property="og:updated_time" content="2019-10-07T02:50:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码学习之ioc容器初始化三部曲（一）">
+<meta name="twitter:description" content="SpringIOC容器初始化分为三个过程：  BeanDefinition的Resource定位 BeanDefinition的载入 BeanDefinition的注册  这里主要介绍Resource定位过程。 Resource的资源定位&amp;emsp;    &amp;emsp;我们知道IOC容器中管理的对象是BeanDefinition，这是POJO对象在spring内部的存储形式 ，我们所说的Resou">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/16/源码学习之ioc容器初始化三部曲（一）/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/04/16/源码学习之ioc容器初始化三部曲（一）/">
+
+
+
+
+
+  <title>源码学习之ioc容器初始化三部曲（一） | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/16/源码学习之ioc容器初始化三部曲（一）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">源码学习之ioc容器初始化三部曲（一）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-16T22:59:13+08:00">
+                2019-04-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>SpringIOC容器初始化分为三个过程：</p>
+<ol>
+<li>BeanDefinition的Resource定位</li>
+<li>BeanDefinition的载入</li>
+<li>BeanDefinition的注册</li>
+</ol>
+<p>这里主要介绍Resource定位过程。</p>
+<h1 id="Resource的资源定位"><a href="#Resource的资源定位" class="headerlink" title="Resource的资源定位"></a>Resource的资源定位</h1><p>&emsp;    &emsp;我们知道IOC容器中管理的对象是BeanDefinition，这是POJO对象在spring内部的存储形式 ，我们所说的Resource定位指的是BeanDefinition的资源定位，也就是将我们外部的资源（xml,properties .etc）通过ResourceLoader加载进来并以Resource的形式返回。</p>
+<h2 id="Resource介绍"><a href="#Resource介绍" class="headerlink" title="Resource介绍"></a>Resource介绍</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Java’s standard java.net.URL class and standard handlers for various URL prefixes unfortunately are not quite adequate enough for all access to low-level resources. For example, there is no standardized URL implementation that may be used to access a resource that needs to be obtained from the classpath, or relative to aServletContext. While it is possible to register new handlers for specialized URL prefixes (similar to existing handlers for prefixes such as http:), this is generally quite complicated, and the URL interface still lacks some desirable functionality, such as a method to check for the existence of the resource being pointed to.</span><br></pre></td></tr></table></figure>
+
+<p>根据spring文档上的说明，Resource设计的目的是丰富java对资源文件的操作，比如jdk中缺少的对类路径和容器中的资源的操作类。</p>
+<p>Resource中的主要操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">public interface Resource extends InputStreamSource &#123;</span><br><span class="line"> </span><br><span class="line">   boolean exists();</span><br><span class="line"> </span><br><span class="line">   boolean isReadable();</span><br><span class="line"> </span><br><span class="line">   boolean isOpen();</span><br><span class="line"> </span><br><span class="line">   URL getURL() throws IOException;</span><br><span class="line"> </span><br><span class="line">   URI getURI() throws IOException;</span><br><span class="line"> </span><br><span class="line">   File getFile() throws IOException;</span><br><span class="line"> </span><br><span class="line">   long contentLength() throws IOException;</span><br><span class="line"> </span><br><span class="line">   long lastModified() throws IOException;</span><br><span class="line"> </span><br><span class="line">   Resource createRelative(String relativePath) throws IOException;</span><br><span class="line"> </span><br><span class="line">   String getFilename();</span><br><span class="line"> </span><br><span class="line">   String getDescription();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2019/04/16/源码学习之ioc容器初始化三部曲（一）/1.png" alt="数据类型示意图"></p>
+<p>这里列出了一部分Resource的类图，其中框出来的ClassPathResource和ServletContextResource就是针对类路径的资源和容器中的资源的Resource对象.</p>
+<h2 id="Reource中对于资源的处理策略："><a href="#Reource中对于资源的处理策略：" class="headerlink" title="Reource中对于资源的处理策略："></a>Reource中对于资源的处理策略：</h2><p><img src="/2019/04/16/源码学习之ioc容器初始化三部曲（一）/4.png" alt="数据类型示意图"></p>
+<p>对于不同路径内容的资源,spring的处理策略：</p>
+<p>同时spring中还内置了一些资源对象,这里简单介绍下常用的几个：</p>
+<h3 id="UrlResource"><a href="#UrlResource" class="headerlink" title="UrlResource"></a>UrlResource</h3><p>&emsp;    &emsp;对于形如ftp:,http:.file:这种路径的资源，可以使用UrlResource对路径进行包装并对资源进行操作。</p>
+<p>eg:</p>
+<blockquote>
+<p>“file:///some/resource/path/myTemplate.txt”</p>
+</blockquote>
+<blockquote>
+<p>“<a href="http://myhost.com/resource/path/myTemplate.txt&quot;" target="_blank" rel="noopener">http://myhost.com/resource/path/myTemplate.txt&quot;</a></p>
+</blockquote>
+<blockquote>
+<p>“<a href="ftp://XXXXXXX&quot;" target="_blank" rel="noopener">ftp://XXXXXXX&quot;</a></p>
+</blockquote>
+<h3 id="ClassPathResource"><a href="#ClassPathResource" class="headerlink" title="ClassPathResource"></a>ClassPathResource</h3><p>&emsp;    &emsp;对于形如classpath：这种路径的资源，可以使用ClassPathResource对路径进行包装并对资源进行操作。</p>
+<p>eg：</p>
+<blockquote>
+<p>“classpath:some/resource/path/myTemplate.txt”</p>
+</blockquote>
+<h3 id="FileSystemResource"><a href="#FileSystemResource" class="headerlink" title="FileSystemResource"></a>FileSystemResource</h3><p>&emsp;    &emsp;对于给定的文件或者URL，可以使用FileSysTemResource进行包装并对资源进行操作。</p>
+<p>eg:</p>
+<blockquote>
+<p>“some/resource/path/myTemplate.txt”</p>
+</blockquote>
+<blockquote>
+<p>“E:/code/SpringMVC/src/resources/Beans.xml”</p>
+</blockquote>
+<h3 id="ServletContextResource"><a href="#ServletContextResource" class="headerlink" title="ServletContextResource"></a>ServletContextResource</h3><p>&emsp;    &emsp;针对WEB应用根目录下的资源可以使用ServletContextResource进行包装并对资源进行操作。</p>
+<p>eg：</p>
+<blockquote>
+<p>“/WEB-INF/config.xml”</p>
+</blockquote>
+<p>同一个资源也可以有多种表达方式，不同的路径表达在spring中也会使用不同的对象来进行包装：<br><strong>//使用绝对路径</strong></p>
+<blockquote>
+<p>FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext(“E:/code/SpringMVC/src/resources/Beans.xml”);</p>
+</blockquote>
+<p>Resource定位时的返回的对象：<br><img src="/2019/04/16/源码学习之ioc容器初始化三部曲（一）/2.png" alt="数据类型示意图"></p>
+<p><strong>//使用classpath描述路径</strong></p>
+<blockquote>
+<p>FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext(“classpath:Beans.xml”);</p>
+</blockquote>
+<p>Resource定位时的返回的对象：<br><img src="/2019/04/16/源码学习之ioc容器初始化三部曲（一）/3.png" alt="数据类型示意图"></p>
+<p><strong>Resource可以理解是spring对资源的一种包装，它根据资源路径中的内容包装成对应的Resource对象来供使用。</strong></p>
+<h2 id="ResourceLoader介绍"><a href="#ResourceLoader介绍" class="headerlink" title="ResourceLoader介绍"></a>ResourceLoader介绍</h2><p>上面提到Resource是spring对资源的一种包装，帮我们完成”包装”这个操作的就是ResourceLoader对象。</p>
+<p>ResourceLoader中的内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">public interface ResourceLoader &#123;</span><br><span class="line"> </span><br><span class="line">   /** Pseudo URL prefix for loading from the class path: &quot;classpath:&quot; */</span><br><span class="line">   String CLASSPATH_URL_PREFIX = ResourceUtils.CLASSPATH_URL_PREFIX;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">   Resource getResource(String location);</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">   ClassLoader getClassLoader();</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>里面提供了getResource的方法，将location转化为Resource对象。</p>
+<h3 id="ResouceLoader的处理路线"><a href="#ResouceLoader的处理路线" class="headerlink" title="ResouceLoader的处理路线"></a>ResouceLoader的处理路线</h3><p>我们再看下RsourceLoader的结构体系：<br><img src="/2019/04/16/源码学习之ioc容器初始化三部曲（一）/5.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;可以看到对于location的处理，ResourceLoader中有两个处理分支：<br>第一条是ResourceLoaderèResourcePatternResolverèPathMatchingResourcePatternResolver;</p>
+<p>第二条是ResourceLoaderèDefaultResourceLoader。</p>
+<p>我们看下ResourcePatternResolver、PathMatchingResourcePatternResolver和DefaultResourceLoader的内容：</p>
+<p><strong>ResourcePatternResolver：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public interface ResourcePatternResolver extends ResourceLoader &#123;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Pseudo URL prefix for all matching resources from the class path: &quot;classpath*:&quot;</span><br><span class="line">    * This differs from ResourceLoader&apos;s classpath URL prefix in that it</span><br><span class="line">    * retrieves all matching resources for a given name (e.g. &quot;/beans.xml&quot;),</span><br><span class="line">    * for example in the root of all deployed JAR files.</span><br><span class="line">    * @see org.springframework.core.io.ResourceLoader#CLASSPATH_URL_PREFIX</span><br><span class="line">    */</span><br><span class="line">   String CLASSPATH_ALL_URL_PREFIX = &quot;classpath*:&quot;;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">   Resource[] getResources(String locationPattern) throws IOException;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>ResourcePatternResolver的实现类PathMatchingResourcePatternResolver:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">public class PathMatchingResourcePatternResolver implements ResourcePatternResolver &#123;</span><br><span class="line"> </span><br><span class="line">//省略部分无关代码</span><br><span class="line"> </span><br><span class="line">   @Override</span><br><span class="line">   public Resource getResource(String location) &#123;</span><br><span class="line">      return getResourceLoader().getResource(location);</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   @Override</span><br><span class="line">   public Resource[] getResources(String locationPattern) throws IOException &#123;</span><br><span class="line">      Assert.notNull(locationPattern, &quot;Location pattern must not be null&quot;);</span><br><span class="line">      if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) &#123;</span><br><span class="line">         // a class path resource (multiple resources for same name possible)</span><br><span class="line">         if (getPathMatcher().isPattern(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()))) &#123;</span><br><span class="line">            // a class path resource pattern</span><br><span class="line">            return findPathMatchingResources(locationPattern);</span><br><span class="line">         &#125;</span><br><span class="line">         else &#123;</span><br><span class="line">            // all class path resources with the given name</span><br><span class="line">            return findAllClassPathResources(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()));</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         // Only look for a pattern after a prefix here</span><br><span class="line">         // (to not get fooled by a pattern symbol in a strange prefix).</span><br><span class="line">         int prefixEnd = locationPattern.indexOf(&quot;:&quot;) + 1;</span><br><span class="line">         if (getPathMatcher().isPattern(locationPattern.substring(prefixEnd))) &#123;</span><br><span class="line">            // a file pattern</span><br><span class="line">            return findPathMatchingResources(locationPattern);</span><br><span class="line">         &#125;</span><br><span class="line">         else &#123;</span><br><span class="line">            // a single resource with the given name</span><br><span class="line">            return new Resource[] &#123;getResourceLoader().getResource(locationPattern)&#125;;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>DefaultResourceLoader：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public class DefaultResourceLoader implements ResourceLoader &#123;</span><br><span class="line"> </span><br><span class="line">//省略部分无关代码</span><br><span class="line">  </span><br><span class="line">   @Override</span><br><span class="line">   public Resource getResource(String location) &#123;</span><br><span class="line">      Assert.notNull(location, &quot;Location must not be null&quot;);</span><br><span class="line">      if (location.startsWith(&quot;/&quot;)) &#123;</span><br><span class="line">         return getResourceByPath(location);</span><br><span class="line">      &#125;</span><br><span class="line">      else if (location.startsWith(CLASSPATH_URL_PREFIX)) &#123;</span><br><span class="line">         return new ClassPathResource(location.substring(CLASSPATH_URL_PREFIX.length()), getClassLoader());</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         try &#123;</span><br><span class="line">            // Try to parse the location as a URL...</span><br><span class="line">            URL url = new URL(location);</span><br><span class="line">            return new UrlResource(url);</span><br><span class="line">         &#125;</span><br><span class="line">         catch (MalformedURLException ex) &#123;</span><br><span class="line">            // No URL -&gt; resolve as resource path.</span><br><span class="line">            return getResourceByPath(location);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>在介绍这两条路线之前，我们先来了解一下spring中类路径的概念：</p>
+<p>classpath:和classpath*:的区别</p>
+<p>在web应用中，java文件最终都会编译为class文件，这些class文件连同应用中的配置文件等都会存储在classes文件夹中，类路径的概念就是针对classes来说的。</p>
+<blockquote>
+<p>classpath:在classes找符合条件的文件，只能返回一个文件；<br> classpath<em>:在classes和jar中的classes寻找符合条件的文件，可以返回多个文件；<br>了解了classpath:和classpath</em>:的区别后，我们再结合上面的代码来看：</p>
+</blockquote>
+<p>DefaultResourceLoader实现ResourceLoader接口，主要针对classpath:为前缀的情况，通过getResource()获取单个资源;</p>
+<p>PathMatchingResourcePatternResolver实现ResourcePatternResolver接口，扩展了ResourceLoader的功能，还可以处理classpath*:为前缀的情况，通过getresources()获取所有符合条件的资源。</p>
+<p>&emsp;    &emsp;spring中通常描述文件还会结合Ant-style pattern来一起进行,在spring的配置中，经常可以看到这种类似的描述：</p>
+<blockquote>
+<p>classpath<em>:spring/*</em>/config.xml</p>
+</blockquote>
+<p>这种就是类路径结合Ant-style pattern，我们介绍下Ant-style pattern的代表意义：<br><img src="/2019/04/16/源码学习之ioc容器初始化三部曲（一）/6.png" alt="数据类型示意图"></p>
+<h1 id="Resource定位过程分析"><a href="#Resource定位过程分析" class="headerlink" title="Resource定位过程分析"></a>Resource定位过程分析</h1><p>&emsp;    &emsp;之前IOC容器的介绍中说过ApplicationContext作为IOC容器的高级实现，扩展了很多功能，其中就包括了通过ResourceLoader获取Resource的功能，针对不同类型的Resource，spring提供了对应的ApplicationContext的实现类，比如</p>
+<p><strong>FileSystemApplicationContext</strong>用来读取位于文件系统的资源；</p>
+<p><strong>ClassPathApplicationContext</strong>用来读取类路径的资源；</p>
+<p><strong>XmlWebApplicationContext</strong>用于读取Web应用中的资源。</p>
+<p>我们用FileSystemApplicationContext为例，看下里面的Resource的定位过程：</p>
+<p>FileSystemApplicationContext的构造方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public FileSystemXmlApplicationContext(String[] configLocations, boolean refresh, ApplicationContext parent)</span><br><span class="line">      throws BeansException &#123;</span><br><span class="line"> </span><br><span class="line">   super(parent);</span><br><span class="line">   setConfigLocations(configLocations);</span><br><span class="line">   if (refresh) &#123;</span><br><span class="line">      refresh();</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>IOC容器的初始化的入口都是调用基类AbstractApplicationContext的refresh()方法：</p>
+<p>在AbstractApplicationContext的refresh中定义ioc容器初始化的整个过程，我们这里暂时只关注Resource定位这一部分，它是在</p>
+<blockquote>
+<p>ConfigurableListableBeanFactory beanFactory = this.obtainFreshBeanFactory();</p>
+</blockquote>
+<p>进行.</p>
+<p>这个方法会返回一个BeanFactory的实例：</p>
+<p><strong>AbstractApplicationContext#ObtainFreshBeanFactory</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Tell the subclass to refresh the internal bean factory.</span><br><span class="line"> * @return the fresh BeanFactory instance</span><br><span class="line"> * @see #refreshBeanFactory()</span><br><span class="line"> * @see #getBeanFactory()</span><br><span class="line"> */</span><br><span class="line">protected ConfigurableListableBeanFactory obtainFreshBeanFactory() &#123;</span><br><span class="line">   refreshBeanFactory();</span><br><span class="line">   ConfigurableListableBeanFactory beanFactory = getBeanFactory();</span><br><span class="line">   if (logger.isDebugEnabled()) &#123;</span><br><span class="line">      logger.debug(&quot;Bean factory for &quot; + getDisplayName() + &quot;: &quot; + beanFactory);</span><br><span class="line">   &#125;</span><br><span class="line">   return beanFactory;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关注<strong>refreshBeanFactory</strong>方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * This implementation performs an actual refresh of this context&apos;s underlying</span><br><span class="line"> * bean factory, shutting down the previous bean factory (if any) and</span><br><span class="line"> * initializing a fresh bean factory for the next phase of the context&apos;s lifecycle.</span><br><span class="line"> */</span><br><span class="line">@Override</span><br><span class="line">protected final void refreshBeanFactory() throws BeansException &#123;</span><br><span class="line">   if (hasBeanFactory()) &#123;</span><br><span class="line">      destroyBeans();</span><br><span class="line">      closeBeanFactory();</span><br><span class="line">   &#125;</span><br><span class="line">   try &#123;</span><br><span class="line">      DefaultListableBeanFactory beanFactory = createBeanFactory();</span><br><span class="line">      beanFactory.setSerializationId(getId());</span><br><span class="line">      customizeBeanFactory(beanFactory);</span><br><span class="line">      loadBeanDefinitions(beanFactory);</span><br><span class="line">      synchronized (this.beanFactoryMonitor) &#123;</span><br><span class="line">         this.beanFactory = beanFactory;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   catch (IOException ex) &#123;</span><br><span class="line">      throw new ApplicationContextException(&quot;I/O error parsing bean definition source for &quot; + getDisplayName(), ex);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我将需要注意的地方标红，这里使用DeFaultListableBeanFactry作为容器的默认实现，然后调用loadBeanDefinitions()，</p>
+<p>这个方法的具体执行是在FileSystemApplicationContext的基类AbstractXmlApplicationContext中：</p>
+<p><strong>AbstractXmlApplicationContext#loadBeanDefinitions(XmlBeanDefinitionReader):</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">protected void loadBeanDefinitions(XmlBeanDefinitionReader reader) throws BeansException, IOException &#123;</span><br><span class="line">   Resource[] configResources = getConfigResources();</span><br><span class="line">   if (configResources != null) &#123;</span><br><span class="line">      reader.loadBeanDefinitions(configResources);</span><br><span class="line">   &#125;</span><br><span class="line">   String[] configLocations = getConfigLocations();</span><br><span class="line">   if (configLocations != null) &#123;</span><br><span class="line">      reader.loadBeanDefinitions(configLocations);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>这里说明下，在spring中是通过<strong>BeanDefinitionReader</strong>对资源进行操作，在我们这里，loadBeanDefinitions的执行是在<strong>XmlBeanDefinitionReader</strong>的基类<strong>AbstractBeanDefinitionReader</strong>中进行的，传入的参数就是我们的路径描述信息：</p>
+<p><strong>AbstractBeanDefinitionReader#loadBeanDefinitions(location,Set<resource>):</resource></strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Load bean definitions from the specified resource location.</span><br><span class="line"> * &lt;p&gt;The location can also be a location pattern, provided that the</span><br><span class="line"> * ResourceLoader of this bean definition reader is a ResourcePatternResolver.</span><br><span class="line"> * @param location the resource location, to be loaded with the ResourceLoader</span><br><span class="line"> * (or ResourcePatternResolver) of this bean definition reader</span><br><span class="line"> * @param actualResources a Set to be filled with the actual Resource objects</span><br><span class="line"> * that have been resolved during the loading process. May be &#123;@code null&#125;</span><br><span class="line"> * to indicate that the caller is not interested in those Resource objects.</span><br><span class="line"> * @return the number of bean definitions found</span><br><span class="line"> * @throws BeanDefinitionStoreException in case of loading or parsing errors</span><br><span class="line"> * @see #getResourceLoader()</span><br><span class="line"> * @see #loadBeanDefinitions(org.springframework.core.io.Resource)</span><br><span class="line"> * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])</span><br><span class="line"> */</span><br><span class="line">public int loadBeanDefinitions(String location, Set&lt;Resource&gt; actualResources) throws BeanDefinitionStoreException &#123;</span><br><span class="line">   ResourceLoader resourceLoader = getResourceLoader();</span><br><span class="line">   if (resourceLoader == null) &#123;</span><br><span class="line">      throw new BeanDefinitionStoreException(</span><br><span class="line">            &quot;Cannot import bean definitions from location [&quot; + location + &quot;]: no ResourceLoader available&quot;);</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   if (resourceLoader instanceof ResourcePatternResolver) &#123;</span><br><span class="line">      // Resource pattern matching available.</span><br><span class="line">      try &#123;</span><br><span class="line">         Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);</span><br><span class="line">         int loadCount = loadBeanDefinitions(resources);</span><br><span class="line">         if (actualResources != null) &#123;</span><br><span class="line">            for (Resource resource : resources) &#123;</span><br><span class="line">               actualResources.add(resource);</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">         if (logger.isDebugEnabled()) &#123;</span><br><span class="line">            logger.debug(&quot;Loaded &quot; + loadCount + &quot; bean definitions from location pattern [&quot; + location + &quot;]&quot;);</span><br><span class="line">         &#125;</span><br><span class="line">         return loadCount;</span><br><span class="line">      &#125;</span><br><span class="line">      catch (IOException ex) &#123;</span><br><span class="line">         throw new BeanDefinitionStoreException(</span><br><span class="line">               &quot;Could not resolve bean definition resource pattern [&quot; + location + &quot;]&quot;, ex);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   else &#123;</span><br><span class="line">      // Can only load single resources by absolute URL.</span><br><span class="line">      Resource resource = resourceLoader.getResource(location);</span><br><span class="line">      int loadCount = loadBeanDefinitions(resource);</span><br><span class="line">      if (actualResources != null) &#123;</span><br><span class="line">         actualResources.add(resource);</span><br><span class="line">      &#125;</span><br><span class="line">      if (logger.isDebugEnabled()) &#123;</span><br><span class="line">         logger.debug(&quot;Loaded &quot; + loadCount + &quot; bean definitions from location [&quot; + location + &quot;]&quot;);</span><br><span class="line">      &#125;</span><br><span class="line">      return loadCount;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到在方法中对于不同分支的处理是通过这个判断来完成的：</p>
+<blockquote>
+<p>resourceLoader instanceof ResourcePatternResolver</p>
+</blockquote>
+<p>对于我们这里的FileSystemApplicationContext而言，使用的resourceLoader是在这个地方被指定的：</p>
+<p><strong>AbstractXmlApplicationContext#loadBeanfinitions(DefaultListableBeanFactory)</strong></p>
+<blockquote>
+<p>XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);</p>
+</blockquote>
+<p>这个调用的是<strong>XmlBeanDefinitionReader的基类AbstractBeanDefinitionReader</strong>的构造方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">protected AbstractBeanDefinitionReader(BeanDefinitionRegistry registry) &#123;</span><br><span class="line"> </span><br><span class="line">    Assert.notNull(registry, &quot;BeanDefinitionRegistry must not be null&quot;);</span><br><span class="line"> </span><br><span class="line">    this.registry = registry;</span><br><span class="line"> </span><br><span class="line">    if(this.registry instanceof ResourceLoader) &#123;</span><br><span class="line"> </span><br><span class="line">        this.resourceLoader = (ResourceLoader)this.registry;</span><br><span class="line"> </span><br><span class="line">    &#125; else &#123;</span><br><span class="line"> </span><br><span class="line">        this.resourceLoader = new PathMatchingResourcePatternResolver();</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    if(this.registry instanceof EnvironmentCapable) &#123;</span><br><span class="line"> </span><br><span class="line">        this.environment = ((EnvironmentCapable)this.registry).getEnvironment();</span><br><span class="line"> </span><br><span class="line">    &#125; else &#123;</span><br><span class="line"> </span><br><span class="line">        this.environment = new StandardEnvironment();</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以，在我们这边使用的具体的ResourceLoader对象是PathMatchingResourcePatternResolver:</p>
+<p>我们回到AbstractBeanDefinitionReader#loadBeanDefinitions(location,Set<resource>)，去</resource></p>
+<p>PathMatchingResourcePatternResolver里面看下getResources的处理：</p>
+<p>PathMatchingResourcePatternResolver#getResources(locationPattern)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line"> </span><br><span class="line">public Resource[] getResources(String locationPattern) throws IOException &#123;</span><br><span class="line"> </span><br><span class="line">   Assert.notNull(locationPattern, &quot;Location pattern must not be null&quot;);</span><br><span class="line"> </span><br><span class="line">   if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) &#123;</span><br><span class="line"> </span><br><span class="line">      // a class path resource (multiple resources for same name possible)</span><br><span class="line"> </span><br><span class="line">      if (getPathMatcher().isPattern(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()))) &#123;</span><br><span class="line"> </span><br><span class="line">         // a class path resource pattern</span><br><span class="line"> </span><br><span class="line">         return findPathMatchingResources(locationPattern);</span><br><span class="line"> </span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">      else &#123;</span><br><span class="line"> </span><br><span class="line">         // all class path resources with the given name</span><br><span class="line"> </span><br><span class="line">         return findAllClassPathResources(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()));</span><br><span class="line"> </span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   else &#123;</span><br><span class="line"> </span><br><span class="line">      // Only look for a pattern after a prefix here</span><br><span class="line"> </span><br><span class="line">      // (to not get fooled by a pattern symbol in a strange prefix).</span><br><span class="line"> </span><br><span class="line">      int prefixEnd = locationPattern.indexOf(&quot;:&quot;) + 1;</span><br><span class="line"> </span><br><span class="line">      if (getPathMatcher().isPattern(locationPattern.substring(prefixEnd))) &#123;</span><br><span class="line"> </span><br><span class="line">         // a file pattern</span><br><span class="line"> </span><br><span class="line">         return findPathMatchingResources(locationPattern);</span><br><span class="line"> </span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">      else &#123;</span><br><span class="line"> </span><br><span class="line">         // a single resource with the given name</span><br><span class="line"> </span><br><span class="line">         return new Resource[] &#123;getResourceLoader().getResource(locationPattern)&#125;;</span><br><span class="line"> </span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里面的处理逻辑不复杂，通过locationPattern的前缀做第一步处理，然后根据是否是Ant-style，完成第二步处理：<br><img src="/2019/04/16/源码学习之ioc容器初始化三部曲（一）/7.png" alt="数据类型示意图"></p>
+<p>对于是否是Ant-style pattern 的判断则是通过调用AntPathMatcher的isPattern来实现的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line"> </span><br><span class="line">public boolean isPattern(String path) &#123;</span><br><span class="line"> </span><br><span class="line">   return (path.indexOf(&apos;*&apos;) != -1 || path.indexOf(&apos;?&apos;) != -1);</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>只要路径中出现了’*’或者’?’，那么就是ant-style。</p>
+<ol>
+<li><p>单个资源通过DefaultResourceLoader的getResource()来获取；</p>
+</li>
+<li><p>多个资源且路径包含Ant-style通过PathMatchingResourcePatternResolver的findPathMatchingResources()来获取；</p>
+</li>
+<li><p>多个资源且路径不包含Ant-style通过PathMatchingResourcePatternResolver的findAllClassPathResources()来获取。</p>
+</li>
+</ol>
+<p>获取到Resource以后，下面就将执行BeanDefinition的载入和注册工作。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
+<li>Resouce是spring对资源的包装，也是我们对资源进行操作的对象；</li>
+<li>我们通过ResourceLoader来获取Resource，通过解析资源路径的结构（前缀，是否Ant-style）决定具体调用的方法。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/16/源码学习之springioc容器体系/" rel="next" title="源码学习之springioc容器体系">
+                <i class="fa fa-chevron-left"></i> 源码学习之springioc容器体系
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/16/源码学习之ioc容器初始化三部曲（二）/" rel="prev" title="源码学习之ioc容器初始化三部曲（二）">
+                源码学习之ioc容器初始化三部曲（二） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Resource的资源定位"><span class="nav-number">1.</span> <span class="nav-text">Resource的资源定位</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Resource介绍"><span class="nav-number">1.1.</span> <span class="nav-text">Resource介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reource中对于资源的处理策略："><span class="nav-number">1.2.</span> <span class="nav-text">Reource中对于资源的处理策略：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UrlResource"><span class="nav-number">1.2.1.</span> <span class="nav-text">UrlResource</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ClassPathResource"><span class="nav-number">1.2.2.</span> <span class="nav-text">ClassPathResource</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FileSystemResource"><span class="nav-number">1.2.3.</span> <span class="nav-text">FileSystemResource</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ServletContextResource"><span class="nav-number">1.2.4.</span> <span class="nav-text">ServletContextResource</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ResourceLoader介绍"><span class="nav-number">1.3.</span> <span class="nav-text">ResourceLoader介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ResouceLoader的处理路线"><span class="nav-number">1.3.1.</span> <span class="nav-text">ResouceLoader的处理路线</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Resource定位过程分析"><span class="nav-number">2.</span> <span class="nav-text">Resource定位过程分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
