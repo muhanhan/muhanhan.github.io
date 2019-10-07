@@ -79,14 +79,26 @@
 
 
 
+<meta name="description" content="&amp;emsp;    &amp;emsp;本篇对于树的整理主要是为了java中的TreeMap,TreeSet和Jdk8中对HashMap和ConcurrentHashMap中引入的红黑树服务，所以只会对树中的一部分知识点进行整理，算是一个科普文。&amp;emsp;    &amp;emsp;数据结构可以分为物理结构和逻辑结构，树就属于逻辑结构，可以通过多种物理结构来表达，比如数据和链表。 树的定义&amp;emsp;    &amp;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="数据结构之树">
 <meta property="og:url" content="http://yoursite.com/2019/06/04/数据结构之树/index.html">
 <meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;本篇对于树的整理主要是为了java中的TreeMap,TreeSet和Jdk8中对HashMap和ConcurrentHashMap中引入的红黑树服务，所以只会对树中的一部分知识点进行整理，算是一个科普文。&amp;emsp;    &amp;emsp;数据结构可以分为物理结构和逻辑结构，树就属于逻辑结构，可以通过多种物理结构来表达，比如数据和链表。 树的定义&amp;emsp;    &amp;">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-02T16:21:38.000Z">
+<meta property="og:image" content="http://yoursite.com/2019/06/04/数据结构之树/1.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/04/数据结构之树/1.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/04/数据结构之树/1.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/04/数据结构之树/2.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/04/数据结构之树/3.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/04/数据结构之树/4.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/04/数据结构之树/5.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/04/数据结构之树/6.jpeg">
+<meta property="og:updated_time" content="2019-10-07T14:22:00.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="数据结构之树">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;本篇对于树的整理主要是为了java中的TreeMap,TreeSet和Jdk8中对HashMap和ConcurrentHashMap中引入的红黑树服务，所以只会对树中的一部分知识点进行整理，算是一个科普文。&amp;emsp;    &amp;emsp;数据结构可以分为物理结构和逻辑结构，树就属于逻辑结构，可以通过多种物理结构来表达，比如数据和链表。 树的定义&amp;emsp;    &amp;">
+<meta name="twitter:image" content="http://yoursite.com/2019/06/04/数据结构之树/1.jpeg">
 
 
 
@@ -348,7 +360,53 @@
       
 
       
-        
+        <p>&emsp;    &emsp;本篇对于树的整理主要是为了java中的TreeMap,TreeSet和Jdk8中对HashMap和ConcurrentHashMap中引入的红黑树服务，所以只会对树中的一部分知识点进行整理，算是一个科普文。<br>&emsp;    &emsp;数据结构可以分为物理结构和逻辑结构，树就属于逻辑结构，可以通过多种物理结构来表达，比如数据和链表。</p>
+<h1 id="树的定义"><a href="#树的定义" class="headerlink" title="树的定义"></a>树的定义</h1><p>&emsp;    &emsp;树是n(n&gt;= 0)个节点的有限集，当n = 0时，称为空树，在任意一个非空树中，有如下特点：</p>
+<ol>
+<li>有且仅有一个特定的称为根的节点；</li>
+<li>当n&gt;1时，其余节点可分为m(m &gt; 0)个互不相交的有限集，每一个集合本身又是一个树，并称为根的子树。<br><img src="/2019/06/04/数据结构之树/1.jpeg" alt="数据类型示意图"></li>
+</ol>
+<h1 id="二叉树-Binary-Tree"><a href="#二叉树-Binary-Tree" class="headerlink" title="二叉树(Binary Tree)"></a>二叉树(Binary Tree)</h1><p>&emsp;    &emsp;二叉树是树的一种特殊形式。这种树的每个节点最多有两个孩子节点，也可能只有一个或者没有。<br>&emsp;    &emsp;它的结构如下：<br><img src="/2019/06/04/数据结构之树/1.jpeg" alt="数据类型示意图"></p>
+<h2 id="满二叉树"><a href="#满二叉树" class="headerlink" title="满二叉树"></a>满二叉树</h2><p>&emsp;    &emsp;当二叉树的所有非叶子节点都存在左右孩子，并且所有叶子节点都在同一层级上，那么这个树就是满二叉树。</p>
+<h2 id="二叉查找树-Binary-Search-Tree"><a href="#二叉查找树-Binary-Search-Tree" class="headerlink" title="二叉查找树(Binary Search Tree)"></a>二叉查找树(Binary Search Tree)</h2><p>&emsp;    &emsp;二叉查找树在二叉树的基础上增加了几个条件：</p>
+<ul>
+<li>如果左子树不为空，则左子树上所有节点的值均小于根节点的值；</li>
+<li>如果右子树不为空，则右子树上所有节点的值均大于根节点的值</li>
+<li>左，右子树也都是二叉查找树<br><img src="/2019/06/04/数据结构之树/1.jpeg" alt="数据类型示意图"></li>
+</ul>
+<h2 id="二叉树的查找"><a href="#二叉树的查找" class="headerlink" title="二叉树的查找"></a>二叉树的查找</h2><p>&emsp;    &emsp;二叉查找树的好处在于可以保证找到一个数据的最多次数不超过树的层级。<br>&emsp;    &emsp;比如查询数据10的过程：</p>
+<ol>
+<li>和根节点9比较，10&gt;9,去右孩子节点</li>
+<li>10 &lt; 13,去左孩子节点</li>
+<li>10 &lt; 11,去左孩子节点，</li>
+<li>10 = 10， 找到数据</li>
+</ol>
+<p>可以看到在查找数据方面，二叉查找树体现它的优势，那么插入数据是不是也有优势呢？</p>
+<h2 id="二叉树的插入"><a href="#二叉树的插入" class="headerlink" title="二叉树的插入"></a>二叉树的插入</h2><p><img src="/2019/06/04/数据结构之树/2.jpeg" alt="数据类型示意图"></p>
+<p>假设初始的二叉查找树只有三个节点，根节点值为9，左孩子值为8，右孩子值为12：</p>
+<p>接下来我们依次插入如下五个节点：7,6,5,4,3。依照二叉查找树的特性，结果会变成什么样呢？<br><img src="/2019/06/04/数据结构之树/3.jpeg" alt="数据类型示意图"></p>
+<p>可以看到，要不是右边还有一个右节点，这都退化成线形结构了，这显然是不行的，在这个基础上，又有了红黑树，一个自平衡的二叉查找树。</p>
+<h1 id="红黑树-RedBlack-Tree"><a href="#红黑树-RedBlack-Tree" class="headerlink" title="红黑树(RedBlack Tree)"></a>红黑树(RedBlack Tree)</h1><p>&emsp;    &emsp;红黑树就是一个通过变色和旋转保持自平衡的二叉查找树。</p>
+<p>红黑树的定义：</p>
+<ol>
+<li>节点是红色或黑色。</li>
+<li>根节点是黑色。</li>
+<li>每个叶子节点都是黑色的空节点（NIL节点）。</li>
+<li>每个红色节点的两个子节点都是黑色。(从每个叶子到根的所有路径上不能有两个连续的红色节点)</li>
+<li>从任一节点到其每个叶子的所有路径都包含相同数目的黑色节点。</li>
+</ol>
+<p><img src="/2019/06/04/数据结构之树/4.jpeg" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;如果需要往其中添加节点时，会根据上述的五个规则，来调整整个树结构以保证符合要求，具体的操作就是变色和旋转，变色就是改变节点的颜色，旋转分为左旋转和右旋转。</p>
+<h2 id="左旋转："><a href="#左旋转：" class="headerlink" title="左旋转："></a>左旋转：</h2><p>&emsp;    &emsp;逆时针旋转红黑树的两个节点，使得父节点被自己的右孩子取代，而自己成为自己的左孩子。说起来很怪异，大家看下图：<br><img src="/2019/06/04/数据结构之树/5.jpeg" alt="数据类型示意图"></p>
+<p>图中，身为右孩子的Y取代了X的位置，而X变成了自己的左孩子。此为左旋转。</p>
+<h2 id="右旋转："><a href="#右旋转：" class="headerlink" title="右旋转："></a>右旋转：</h2><p>&emsp;    &emsp;顺时针旋转红黑树的两个节点，使得父节点被自己的左孩子取代，而自己成为自己的右孩子。大家看下图：<br><img src="/2019/06/04/数据结构之树/6.jpeg" alt="数据类型示意图"></p>
+<p>图中，身为左孩子的Y取代了X的位置，而X变成了自己的右孩子。此为右旋转。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;    &emsp;红黑树的自平衡我感觉比较复杂，一时不容易理解，这里也只是为了解其原理辅助阅读java集合中源码服务，所以不做深入。</p>
+<p>*主要参考了：</p>
+<blockquote>
+<p><a href="https://juejin.im/post/5a27c6946fb9a04509096248" target="_blank" rel="noopener">https://juejin.im/post/5a27c6946fb9a04509096248</a><br>并借用了其中的图</p>
+</blockquote>
+
       
     </div>
     
@@ -436,8 +494,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -488,6 +555,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#树的定义"><span class="nav-number">1.</span> <span class="nav-text">树的定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二叉树-Binary-Tree"><span class="nav-number">2.</span> <span class="nav-text">二叉树(Binary Tree)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#满二叉树"><span class="nav-number">2.1.</span> <span class="nav-text">满二叉树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二叉查找树-Binary-Search-Tree"><span class="nav-number">2.2.</span> <span class="nav-text">二叉查找树(Binary Search Tree)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二叉树的查找"><span class="nav-number">2.3.</span> <span class="nav-text">二叉树的查找</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二叉树的插入"><span class="nav-number">2.4.</span> <span class="nav-text">二叉树的插入</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#红黑树-RedBlack-Tree"><span class="nav-number">3.</span> <span class="nav-text">红黑树(RedBlack Tree)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#左旋转："><span class="nav-number">3.1.</span> <span class="nav-text">左旋转：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#右旋转："><span class="nav-number">3.2.</span> <span class="nav-text">右旋转：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
