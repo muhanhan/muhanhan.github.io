@@ -79,14 +79,39 @@
 
 
 
+<meta name="description" content="&amp;emsp;    &amp;emsp;之前介绍了分布式一致性中的几个常用协议：2PC,3PC等，这里介绍下ZooKeeper中使用到的zab协议（ZooKeeper 原子广播协议）。 Zab协议介绍&amp;emsp;    &amp;emsp;为了保证分布式中的一致性，ZooKeeper基于zab协议来实现，这个协议转为zookeeper设计，是一个支持崩溃恢复的一致性协议，基于该协议，Zookeeper实现了一种主">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Zookeeper（一）zab协议">
 <meta property="og:url" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/index.html">
 <meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;之前介绍了分布式一致性中的几个常用协议：2PC,3PC等，这里介绍下ZooKeeper中使用到的zab协议（ZooKeeper 原子广播协议）。 Zab协议介绍&amp;emsp;    &amp;emsp;为了保证分布式中的一致性，ZooKeeper基于zab协议来实现，这个协议转为zookeeper设计，是一个支持崩溃恢复的一致性协议，基于该协议，Zookeeper实现了一种主">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-02T16:11:25.000Z">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/1.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/2.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/3.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/4.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/5.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/6.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/7.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/8.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/9.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/10.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/11.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/12.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/13.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/14.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/15.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/16.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/17.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/18.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/19.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/20.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/21.jpeg">
+<meta property="og:updated_time" content="2019-10-07T14:11:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Zookeeper（一）zab协议">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;之前介绍了分布式一致性中的几个常用协议：2PC,3PC等，这里介绍下ZooKeeper中使用到的zab协议（ZooKeeper 原子广播协议）。 Zab协议介绍&amp;emsp;    &amp;emsp;为了保证分布式中的一致性，ZooKeeper基于zab协议来实现，这个协议转为zookeeper设计，是一个支持崩溃恢复的一致性协议，基于该协议，Zookeeper实现了一种主">
+<meta name="twitter:image" content="http://yoursite.com/2019/08/07/Zookeeper（一）zab协议/1.jpeg">
 
 
 
@@ -348,7 +373,131 @@
       
 
       
-        
+        <p>&emsp;    &emsp;之前介绍了分布式一致性中的几个常用协议：2PC,3PC等，这里介绍下ZooKeeper中使用到的zab协议（ZooKeeper 原子广播协议）。</p>
+<h1 id="Zab协议介绍"><a href="#Zab协议介绍" class="headerlink" title="Zab协议介绍"></a>Zab协议介绍</h1><p>&emsp;    &emsp;为了保证分布式中的一致性，ZooKeeper基于zab协议来实现，这个协议转为zookeeper设计，是一个支持崩溃恢复的一致性协议，基于该协议，Zookeeper实现了一种主从模式的系统架构来保持集群中各个副本之间的数据一致性。<br>如果用一句话来介绍zab协议，那就是：</p>
+<p><strong>zab协议定义了对于那些会改变zookeeper数据状态的事务请求的处理方式</strong></p>
+<p>具体来说就是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">所有事务必须由一个全局唯一的服务器来协调处理，这样的服务器被称为Leader服务器，而余下的其他服务器则成为Follower服务器。Leader服务器负责将一个客户端事务请求转换为一个Proposal(提议)，并将该Proposal分发给集群中所有的Follower服务器。之后Leader服务器需要等待所有Follower服务器的反馈，一旦超过半数的Follower服务器进行了正确的反馈后，那么Leader就会再次向所有的Follower服务器分发Commit消息，要求将前一个Proposal进行提交。</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="角色"><a href="#角色" class="headerlink" title="角色"></a>角色</h1><p>&emsp;    &emsp;在一个正常运行的ZooKeeper集群中，有以下三个角色：</p>
+<ul>
+<li>Leader </li>
+</ul>
+<p>一个Zookeeper集群同一时间只会有一个实际工作的Leader，它会发起并维护与各Follwer及Observer间的心跳。所有的写操作必须要通过Leader完成再由Leader将写操作广播给其它服务器。</p>
+<ul>
+<li>Follower </li>
+</ul>
+<p>一个Zookeeper集群可能同时存在多个Follower，它会响应Leader的心跳。Follower可直接处理并返回客户端的读请求，同时会将写请求转发给Leader处理，并且负责在Leader处理写请求时对请求进行投票。</p>
+<ul>
+<li>Observer </li>
+</ul>
+<p>角色与Follower类似，但是无投票权。</p>
+<h1 id="心跳检测"><a href="#心跳检测" class="headerlink" title="心跳检测"></a>心跳检测</h1><p>&emsp;    &emsp;Leader会主动发起与Follower和Observer之间的心跳检测<br><img src="/2019/08/07/Zookeeper（一）zab协议/1.jpeg" alt="数据类型示意图"></p>
+<h1 id="读请求"><a href="#读请求" class="headerlink" title="读请求"></a>读请求</h1><p>&emsp;    &emsp;读请求可以发生zookeeper中的任何一台机器上，接受请求的机器都会从本地内存中返回数据给客户端。<br><img src="/2019/08/07/Zookeeper（一）zab协议/2.jpeg" alt="数据类型示意图"></p>
+<h1 id="写请求"><a href="#写请求" class="headerlink" title="写请求"></a>写请求</h1><p>&emsp;    &emsp;在zookeeper中，只有leader服务器才可以接受写请求，如果请求发生在follower服务器或者observer服务器上，那么会将请求转发给leader服务器，然后leader服务器会向所有的follower服务器发出proposal，只有获取到半数的follower服务器的ack回复（自身也有一个ack，所以只要再获取半数就够了），就会广播一条commit要求各个服务器提交刚刚的proposal，最后返回结果给客户端。<br>&emsp;    &emsp;<strong>写请求分到到leader服务器:</strong><br><img src="/2019/08/07/Zookeeper（一）zab协议/3.jpeg" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;<strong>写请求分发到非leader服务器上：</strong><br><img src="/2019/08/07/Zookeeper（一）zab协议/4.jpeg" alt="数据类型示意图"></p>
+<p>*Observer服务器不会参与投票，这个投票包括leader选举的投票和事务请求的投票</p>
+<h1 id="服务器相关信息"><a href="#服务器相关信息" class="headerlink" title="服务器相关信息"></a>服务器相关信息</h1><h2 id="状态"><a href="#状态" class="headerlink" title="状态"></a>状态</h2><p>&emsp;    &emsp;ZooKeeper服务器共有四种状态：</p>
+<ul>
+<li><p>LOOKING<br>&emsp;    &emsp;当前集群中还没有选举出leader，这个时候会发起leader选举。</p>
+</li>
+<li><p>LEADING<br>&emsp;    &emsp;该服务器的角色是leader</p>
+</li>
+<li><p>OBSERVEING<br>&emsp;    &emsp;该服务器的角色是observer</p>
+</li>
+<li><p>FOLLOWING<br>&emsp;    &emsp;该服务器的角色是follower</p>
+</li>
+</ul>
+<h2 id="myid"><a href="#myid" class="headerlink" title="myid"></a>myid</h2><p>&emsp;    &emsp;myid相当于zookeeper服务器自己指定的一个不重复的id值，每个服务器下的zoo.conf配置文件中会有这么一个配置：</p>
+<blockquote>
+<p>server.id= ip：port：port</p>
+</blockquote>
+<p>&emsp;    &emsp;同时还会有一个myid文件，里面的id值和上面的server.id中的id对应。<br>&emsp;    &emsp;这是自定义的一个策略，在选取leader时会用到这个参数。</p>
+<h1 id="ZXID"><a href="#ZXID" class="headerlink" title="ZXID"></a>ZXID</h1><p>&emsp;    &emsp;每个事务请求都会有leader服务器进行处理，对于这些请求，leader会将它转化为一个proposal并分配一个全局位置的事务id，就是zxid。<br>&emsp;    &emsp;Zxid有64位，高32位代表leader的epoch，代表这个第几轮选出的leader，如果一个leader重启后又加入集群，那么follower会根据epoch判断需要执行的请求。低32位是一个递增的id。</p>
+<h1 id="数据信息"><a href="#数据信息" class="headerlink" title="数据信息"></a>数据信息</h1><ul>
+<li><p>LogicClock<br>&emsp;    &emsp;通过一个自增的id来表示当前服务器选举的轮次，所有的投票都必须在同一个轮次中</p>
+</li>
+<li><p>state<br>&emsp;    &emsp;服务器状态</p>
+</li>
+<li><p>self_id<br>&emsp;    &emsp;自己的serverid</p>
+</li>
+<li><p>self_zxid<br>&emsp;    &emsp;自身的事务id</p>
+</li>
+<li><p>vote_id<br>&emsp;    &emsp;投票对象的serverid</p>
+</li>
+<li><p>vote_zxid<br>&emsp;    &emsp;投票对象的事务id</p>
+</li>
+</ul>
+<h1 id="FastLeaderElection"><a href="#FastLeaderElection" class="headerlink" title="FastLeaderElection"></a>FastLeaderElection</h1><p>&emsp;    &emsp;Zookeeper中内部使用的选举算法是FastLeaderElection，解决了paxos中收敛速度慢的问题。主要有以下四个步骤:</p>
+<ol>
+<li>自身投票</li>
+</ol>
+<p>&emsp;    &emsp;每个服务器在最开始都会投票给自己，此时在自己的票箱中保存着自身的投票(myid,vote_id)</p>
+<ol start="2">
+<li>接收外部投票</li>
+</ol>
+<p>&emsp;    &emsp;每个服务器会以(logicClock,myid,zxid,)的形式广播自己的投片，收到其他服务器的投票时，首先判断选举的轮次，也就是logicclock的大小：</p>
+<ul>
+<li><p>对方的logicClock小于自己<br>&emsp;    &emsp;说明对方的选举轮次小于，直接忽略掉；</p>
+</li>
+<li><p>对方的logicClock大于自己<br>&emsp;    &emsp;说明自己的选举轮次低于对方，更新自己的选举轮次，重新广播投票；</p>
+</li>
+<li><p>对方的logicClock等于自己<br>&emsp;    &emsp;说明大家处于同一选举轮次，进行选票pk</p>
+</li>
+</ul>
+<ol start="3">
+<li><p>选票pk<br>&emsp;    &emsp;LoginClock相同时,先比较zxid，再比较myid，然后根据pk结果重新更新自己的票箱，并保存对方的投票。</p>
+</li>
+<li><p>统计选票<br>&emsp;    &emsp;服务器与服务器之间不断通信，更新自身选票，广播自身选票，直到自己的选票超过半数同意成为leader，整个选举过程停止。</p>
+</li>
+<li><p>更新状态<br>&emsp;    &emsp;如果自己被选举为leader，更新自身状态为LEADING,follower则更新自身状态为FOLLOWING.</p>
+</li>
+</ol>
+<h1 id="选举场景"><a href="#选举场景" class="headerlink" title="选举场景"></a>选举场景</h1><ul>
+<li>集群启动时选举leader</li>
+</ul>
+<p>&emsp;    &emsp;我们举一个例子来看下zk中选举的过程：<br>&emsp;    &emsp;有三个服务器Server1，Server2，Server3，他们的myid分别是1,2,3。<br>此时集群刚启动，大家的logicClock都为1，zxid都是0。</p>
+<ol>
+<li><p>首先开始自身投票：<br>&emsp;    &emsp;三个服务器都投票给自己，每个人的票箱中都以（myid，vote_id）的形式保存选票<br><img src="/2019/08/07/Zookeeper（一）zab协议/5.jpeg" alt="数据类型示意图"></p>
+</li>
+<li><p>接收外部选票<br>&emsp;    &emsp;每个服务器以(logicClock,myid,zxid)的形式广播自己的投票，并接收其他服务器的选票，所有的服务器都会收到其他服务器的选票，并且把自己的选票发送给其他服务器，在zk服务器中有两个线程池，一个负责接收，一个负责发送，通过他们实现上面的功能。<br><img src="/2019/08/07/Zookeeper（一）zab协议/6.jpeg" alt="数据类型示意图"></p>
+</li>
+<li><p>选票pk<br>&emsp;    &emsp;服务器与服务器之间两两进行选票pk，按照logicClock&gt;zxid&gt;myid的顺序进行判断：<br>&emsp;    &emsp;在我们这里，server1需要分别和server2，server3进行pk,首先server1和server2进行选票pk：<br><img src="/2019/08/07/Zookeeper（一）zab协议/7.jpeg" alt="数据类型示意图"></p>
+</li>
+</ol>
+<p>Server2的myid大于server1，所以server1更新自己的选票为(1,2)，同时保存server2的选票（2,2）,与此同时重新广播自己的新投票（1,2,0）<br>&emsp;    &emsp;这个时候server1和server3进行选票pk：<br>&emsp;    &emsp;Server1的新投票（1,2,0）和server3的投票（1,,3,0）相比，server3的myid还是大于server1，所以server1更新自己的选票为(1,3)，同时保存server3的选票（3,3）,与此同时重新广播自己的新投票（1,3,0）<br><img src="/2019/08/07/Zookeeper（一）zab协议/8.jpeg" alt="数据类型示意图"></p>
+<p>Server2和server3之间也需要选票pk，整个过程类似，就是不断的重复这个更新选票，广播选票的过程。<br><img src="/2019/08/07/Zookeeper（一）zab协议/9.jpeg" alt="数据类型示意图"></p>
+<p>多次pk以后，大家选票都确定了下来，一致选举server3为leader服务器。<br><img src="/2019/08/07/Zookeeper（一）zab协议/10.jpeg" alt="数据类型示意图"></p>
+<ol start="4">
+<li>更新状态<br>&emsp;    &emsp;最后各个服务器根据选举结果，更新自己服务器的状态<br><img src="/2019/08/07/Zookeeper（一）zab协议/11.jpeg" alt="数据类型示意图"></li>
+</ol>
+<ul>
+<li>新的服务器加入集群</li>
+</ul>
+<p>&emsp;    &emsp;还是上面的例子，这个时候如果有新的服务器server4加入集群，此时他的状态是LOOKING，也就是说他发起新一轮的选举（follower服务器重启也是同理）：<br><img src="/2019/08/07/Zookeeper（一）zab协议/12.jpeg" alt="数据类型示意图"></p>
+<p>发起选举以后，因为集群中的leader已经确认了下来，所以各个服务器根据角色给server4反馈，leader反馈自己自己是leader，server4从其他follower中确认leader信息，最终成为follower加入集群。<br><img src="/2019/08/07/Zookeeper（一）zab协议/13.jpeg" alt="数据类型示意图"></p>
+<ul>
+<li>Leader服务器崩溃重启</li>
+</ul>
+<p>&emsp;    &emsp;还是上面的例子，leader服务器server3突然宕机，follower服务器发现自己连接不上leader了，于是修改自己状态为LOOKING，<br><img src="/2019/08/07/Zookeeper（一）zab协议/14.jpeg" alt="数据类型示意图"></p>
+<p>重新发起新一轮选举：<br><img src="/2019/08/07/Zookeeper（一）zab协议/15.jpeg" alt="数据类型示意图"></p>
+<p>经过多轮选票pk后，最终确定投票结果<br><img src="/2019/08/07/Zookeeper（一）zab协议/16.jpeg" alt="数据类型示意图"></p>
+<p>这时，原来的leader服务器重启成功加入集群，它的状态此时为LOOKING，会重新发起新一轮投票：<br><img src="/2019/08/07/Zookeeper（一）zab协议/17.jpeg" alt="数据类型示意图"></p>
+<p>最终更换状态为FOLLOWING,<br><img src="/2019/08/07/Zookeeper（一）zab协议/18.jpeg" alt="数据类型示意图"></p>
+<p>*在这种情况中，原来服务器上的事务id最大的服务器成为leader的可能性也最大。</p>
+<h1 id="崩溃恢复"><a href="#崩溃恢复" class="headerlink" title="崩溃恢复"></a>崩溃恢复</h1><p>&emsp;    &emsp;消息广播无法解决leader服务器崩溃导致数据不一致的单点问题,通过崩溃恢复可以保证数据的一致性.</p>
+<h2 id="发现"><a href="#发现" class="headerlink" title="发现"></a>发现</h2><p>&emsp;    &emsp;发现的过程就是leader选举的过程，可以参考上面。</p>
+<h2 id="同步"><a href="#同步" class="headerlink" title="同步"></a>同步</h2><p>&emsp;    &emsp;也就是zookeeper中数据一致性的保证，zab协议可以保证在leader服务器上commit了的请求数据不会丢失，没有commit的数据则对客户端来说是不可见的。<br>&emsp;    &emsp;以上面的数据为例子，leaderserver4宕机，在server4上执行过的命令有p1,p2,c1,p3,c2,其中p3还没有来得及提交<br><img src="/2019/08/07/Zookeeper（一）zab协议/19.jpeg" alt="数据类型示意图"></p>
+<p>宕机以后，剩下的服务器开始选举，server1成为新leader，开始执行数据同步，也就是将所有在前leader服务器上提交了的命令都同步给服务器，每个服务器都有一个属于自己的命令队列，leader服务器将所有的操作请求放入队列中。<br><img src="/2019/08/07/Zookeeper（一）zab协议/20.jpeg" alt="数据类型示意图"></p>
+<p>等所有服务器执行完命令以后，也就是数据同步以后，leader服务器会进行确认，确认完这些服务器就将对外服务。<br><img src="/2019/08/07/Zookeeper（一）zab协议/21.jpeg" alt="数据类型示意图"></p>
+<h1 id="消息广播"><a href="#消息广播" class="headerlink" title="消息广播"></a>消息广播</h1><h2 id="广播"><a href="#广播" class="headerlink" title="广播"></a>广播</h2><p>&emsp;    &emsp;每个事务请求都会被leader服务器进行处理,转换成一个proposal,然后分发其他的follower服务器,等待其他服务器返回ack消息,得到半数的ack回复以后,就会再发出一条commit命令提交刚刚的proposal.</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;    &emsp;Zab协议的提交过程类似2Pc协议，不过通过崩溃恢复和主备架构来保证了数据的一致性。<br>&emsp;    &emsp;整个zab协议可以按照发现-同步-广播的过程来理解。</p>
+<p>参考：</p>
+<blockquote>
+<p>《从Paxos到ZooKeeper》<br><a href="http://www.jasongj.com/zookeeper/fastleaderelection/" target="_blank" rel="noopener">http://www.jasongj.com/zookeeper/fastleaderelection/</a></p>
+</blockquote>
+
       
     </div>
     
@@ -436,8 +585,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -488,6 +646,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Zab协议介绍"><span class="nav-number">1.</span> <span class="nav-text">Zab协议介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#角色"><span class="nav-number">2.</span> <span class="nav-text">角色</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#心跳检测"><span class="nav-number">3.</span> <span class="nav-text">心跳检测</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#读请求"><span class="nav-number">4.</span> <span class="nav-text">读请求</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#写请求"><span class="nav-number">5.</span> <span class="nav-text">写请求</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#服务器相关信息"><span class="nav-number">6.</span> <span class="nav-text">服务器相关信息</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#状态"><span class="nav-number">6.1.</span> <span class="nav-text">状态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#myid"><span class="nav-number">6.2.</span> <span class="nav-text">myid</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ZXID"><span class="nav-number">7.</span> <span class="nav-text">ZXID</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据信息"><span class="nav-number">8.</span> <span class="nav-text">数据信息</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#FastLeaderElection"><span class="nav-number">9.</span> <span class="nav-text">FastLeaderElection</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#选举场景"><span class="nav-number">10.</span> <span class="nav-text">选举场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#崩溃恢复"><span class="nav-number">11.</span> <span class="nav-text">崩溃恢复</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#发现"><span class="nav-number">11.1.</span> <span class="nav-text">发现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同步"><span class="nav-number">11.2.</span> <span class="nav-text">同步</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#消息广播"><span class="nav-number">12.</span> <span class="nav-text">消息广播</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#广播"><span class="nav-number">12.1.</span> <span class="nav-text">广播</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">13.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
