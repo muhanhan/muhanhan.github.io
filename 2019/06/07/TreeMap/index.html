@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;Map接口有一个重要的实现类TreeMap,TreeMap可以实现存储元素的自动排序。 数据的存储&amp;emsp;    &amp;emsp;我们知道HashMap内部是通过数据加链表来存储数据的。在TreeMap内部使用红黑树的结构来保存数据。我们看下它内部的数据结构： 12345678910111213141516171819202122232425262728293031">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TreeMap">
+<meta property="og:url" content="http://yoursite.com/2019/06/07/TreeMap/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;Map接口有一个重要的实现类TreeMap,TreeMap可以实现存储元素的自动排序。 数据的存储&amp;emsp;    &amp;emsp;我们知道HashMap内部是通过数据加链表来存储数据的。在TreeMap内部使用红黑树的结构来保存数据。我们看下它内部的数据结构： 12345678910111213141516171819202122232425262728293031">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-10-07T14:55:52.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TreeMap">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;Map接口有一个重要的实现类TreeMap,TreeMap可以实现存储元素的自动排序。 数据的存储&amp;emsp;    &amp;emsp;我们知道HashMap内部是通过数据加链表来存储数据的。在TreeMap内部使用红黑树的结构来保存数据。我们看下它内部的数据结构： 12345678910111213141516171819202122232425262728293031">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/06/07/TreeMap/">
+
+
+
+
+
+  <title>TreeMap | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/07/TreeMap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">TreeMap</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-07T22:36:32+08:00">
+                2019-06-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;Map接口有一个重要的实现类TreeMap,TreeMap可以实现存储元素的自动排序。</p>
+<h1 id="数据的存储"><a href="#数据的存储" class="headerlink" title="数据的存储"></a>数据的存储</h1><p>&emsp;    &emsp;我们知道HashMap内部是通过数据加链表来存储数据的。在TreeMap内部使用红黑树的结构来保存数据。我们看下它内部的数据结构：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">static final class Entry&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; &#123;</span><br><span class="line"></span><br><span class="line">    K key;</span><br><span class="line"></span><br><span class="line">    V value;</span><br><span class="line"></span><br><span class="line">    Entry&lt;K,V&gt; left = null;</span><br><span class="line"></span><br><span class="line">    Entry&lt;K,V&gt; right = null;</span><br><span class="line"></span><br><span class="line">    Entry&lt;K,V&gt; parent;</span><br><span class="line"></span><br><span class="line">    boolean color = BLACK;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line"></span><br><span class="line">     * Make a new cell with given key, value, and parent, and with</span><br><span class="line"></span><br><span class="line">     * &#123;@code null&#125; child links, and BLACK color.</span><br><span class="line"></span><br><span class="line">     */</span><br><span class="line"></span><br><span class="line">    Entry(K key, V value, Entry&lt;K,V&gt; parent) &#123;</span><br><span class="line"></span><br><span class="line">        this.key = key;</span><br><span class="line"></span><br><span class="line">        this.value = value;</span><br><span class="line"></span><br><span class="line">        this.parent = parent;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其实树只是一个逻辑上的结构,这里对概念就不加赘述了,在TreeMap内部就是通过Entry这个内部类来表示的。</p>
+<p>&emsp;    &emsp;因为TreeMap需要支持元素的排序,一般这种功能都会用树来实现，这里使用红黑树，也就是自平衡的二叉查找树，这样做的目的就是为了保证查询数据时的效率。</p>
+<h1 id="排序的实现"><a href="#排序的实现" class="headerlink" title="排序的实现"></a>排序的实现</h1><p>&emsp;    &emsp;TreeMap内部保证元素的有序性，要实现这个功能肯定就要通过比较器来实现了，我们知道java中提供了两个接口来实现对象之间的比较：<strong>Comparable</strong>和<strong>Comparator</strong>.</p>
+<h2 id="内部排序器"><a href="#内部排序器" class="headerlink" title="内部排序器"></a>内部排序器</h2><p>&emsp;    &emsp;一般来说Comparable用于在同类对象之间比较,也就是说只要一个对象实现了Comparable接口，那么这个对象之间就可以进行比较，所以有时候Comparable也被叫做内部比较器。<br>&emsp;    &emsp;实现Comparable接口需要重写compareTo()方法。</p>
+<blockquote>
+<p>public int compareTo(T o);</p>
+</blockquote>
+<h2 id="外部排序器"><a href="#外部排序器" class="headerlink" title="外部排序器"></a>外部排序器</h2><p>&emsp;    &emsp;如果一个对象没有实现Comparable接口又想进行比较，或者干脆就是不同的对象之间进行比较，那么就需要用到我们的Comparator接口了。<br>&emsp;    &emsp;实现了Comparator接口，需要重写compare()方法：</p>
+<blockquote>
+<p>int compare(T o1, T o2);</p>
+</blockquote>
+<p>在这个方法中通过对两个对象的比较规则定义来实现排序的功能。</p>
+<p>&emsp;    &emsp;Java中的Collections和Arrays中都包含排序的sort方法，该方法可以接收一个Comparator的实例（比较器）来进行排序。也就是实现了Comparator接口就可以使用Collections和Arrays的sort()方法。<br>&emsp;    &emsp;在TreeMap内部通过Comparator来进行排序，在我们执行put操作时，这个排序过程就开始了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line">public V put(K key, V value) &#123;</span><br><span class="line"></span><br><span class="line">    Entry&lt;K,V&gt; t = root;</span><br><span class="line"></span><br><span class="line">    if (t == null) &#123;</span><br><span class="line"></span><br><span class="line">        compare(key, key); // type (and possibly null) check</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        root = new Entry&lt;&gt;(key, value, null);</span><br><span class="line"></span><br><span class="line">        size = 1;</span><br><span class="line"></span><br><span class="line">        modCount++;</span><br><span class="line"></span><br><span class="line">        return null;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    int cmp;</span><br><span class="line"></span><br><span class="line">    Entry&lt;K,V&gt; parent;</span><br><span class="line"></span><br><span class="line">    // split comparator and comparable paths</span><br><span class="line"></span><br><span class="line">    Comparator&lt;? super K&gt; cpr = comparator;</span><br><span class="line"></span><br><span class="line">    if (cpr != null) &#123;</span><br><span class="line"></span><br><span class="line">        do &#123;</span><br><span class="line"></span><br><span class="line">            parent = t;</span><br><span class="line"></span><br><span class="line">            cmp = cpr.compare(key, t.key);</span><br><span class="line"></span><br><span class="line">            if (cmp &lt; 0)</span><br><span class="line"></span><br><span class="line">                t = t.left;</span><br><span class="line"></span><br><span class="line">            else if (cmp &gt; 0)</span><br><span class="line"></span><br><span class="line">                t = t.right;</span><br><span class="line"></span><br><span class="line">            else</span><br><span class="line"></span><br><span class="line">                return t.setValue(value);</span><br><span class="line"></span><br><span class="line">        &#125; while (t != null);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    else &#123;</span><br><span class="line"></span><br><span class="line">        if (key == null)</span><br><span class="line"></span><br><span class="line">            throw new NullPointerException();</span><br><span class="line"></span><br><span class="line">        Comparable&lt;? super K&gt; k = (Comparable&lt;? super K&gt;) key;</span><br><span class="line"></span><br><span class="line">        do &#123;</span><br><span class="line"></span><br><span class="line">            parent = t;</span><br><span class="line"></span><br><span class="line">            cmp = k.compareTo(t.key);</span><br><span class="line"></span><br><span class="line">            if (cmp &lt; 0)</span><br><span class="line"></span><br><span class="line">                t = t.left;</span><br><span class="line"></span><br><span class="line">            else if (cmp &gt; 0)</span><br><span class="line"></span><br><span class="line">                t = t.right;</span><br><span class="line"></span><br><span class="line">            else</span><br><span class="line"></span><br><span class="line">                return t.setValue(value);</span><br><span class="line"></span><br><span class="line">        &#125; while (t != null);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Entry&lt;K,V&gt; e = new Entry&lt;&gt;(key, value, parent);</span><br><span class="line"></span><br><span class="line">    if (cmp &lt; 0)</span><br><span class="line"></span><br><span class="line">        parent.left = e;</span><br><span class="line"></span><br><span class="line">    else</span><br><span class="line"></span><br><span class="line">        parent.right = e;</span><br><span class="line"></span><br><span class="line">    fixAfterInsertion(e);</span><br><span class="line"></span><br><span class="line">    size++;</span><br><span class="line"></span><br><span class="line">    modCount++;</span><br><span class="line"></span><br><span class="line">    return null;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在put时，通过排序器的结果首先确定数据所处的具体位置，但这个位置并不一定满足红黑树的要球，可能会破坏红黑树的规则，所以需要进行自平衡：</p>
+<blockquote>
+<p>fixAfterInsertion(e);</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">private void fixAfterInsertion(Entry&lt;K,V&gt; x) &#123;</span><br><span class="line"></span><br><span class="line">    x.color = RED;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    while (x != null &amp;&amp; x != root &amp;&amp; x.parent.color == RED) &#123;</span><br><span class="line"></span><br><span class="line">        if (parentOf(x) == leftOf(parentOf(parentOf(x)))) &#123;</span><br><span class="line"></span><br><span class="line">            Entry&lt;K,V&gt; y = rightOf(parentOf(parentOf(x)));</span><br><span class="line"></span><br><span class="line">            if (colorOf(y) == RED) &#123;</span><br><span class="line"></span><br><span class="line">                setColor(parentOf(x), BLACK);</span><br><span class="line"></span><br><span class="line">                setColor(y, BLACK);</span><br><span class="line"></span><br><span class="line">                setColor(parentOf(parentOf(x)), RED);</span><br><span class="line"></span><br><span class="line">                x = parentOf(parentOf(x));</span><br><span class="line"></span><br><span class="line">            &#125; else &#123;</span><br><span class="line"></span><br><span class="line">                if (x == rightOf(parentOf(x))) &#123;</span><br><span class="line"></span><br><span class="line">                    x = parentOf(x);</span><br><span class="line"></span><br><span class="line">                    rotateLeft(x);</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                setColor(parentOf(x), BLACK);</span><br><span class="line"></span><br><span class="line">                setColor(parentOf(parentOf(x)), RED);</span><br><span class="line"></span><br><span class="line">                rotateRight(parentOf(parentOf(x)));</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125; else &#123;</span><br><span class="line"></span><br><span class="line">            Entry&lt;K,V&gt; y = leftOf(parentOf(parentOf(x)));</span><br><span class="line"></span><br><span class="line">            if (colorOf(y) == RED) &#123;</span><br><span class="line"></span><br><span class="line">                setColor(parentOf(x), BLACK);</span><br><span class="line"></span><br><span class="line">                setColor(y, BLACK);</span><br><span class="line"></span><br><span class="line">                setColor(parentOf(parentOf(x)), RED);</span><br><span class="line"></span><br><span class="line">                x = parentOf(parentOf(x));</span><br><span class="line"></span><br><span class="line">            &#125; else &#123;</span><br><span class="line"></span><br><span class="line">                if (x == leftOf(parentOf(x))) &#123;</span><br><span class="line"></span><br><span class="line">                    x = parentOf(x);</span><br><span class="line"></span><br><span class="line">                    rotateRight(x);</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                setColor(parentOf(x), BLACK);</span><br><span class="line"></span><br><span class="line">                setColor(parentOf(parentOf(x)), RED);</span><br><span class="line"></span><br><span class="line">                rotateLeft(parentOf(parentOf(x)));</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    root.color = BLACK;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>里面的具体实现就是根据红黑树的五条原则，通过变色和旋转来最终平衡二叉树。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><pre><code>TreeMap内部通过红黑树来保存数据，通过Comparator比较器实现数据的排序功能。</code></pre><p>当我们需要Map内部数据处于有序状态时,可以选择TreeMap。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/05/jdk7和jdk8的HashMap对比/" rel="next" title="jdk7和jdk8的HashMap对比">
+                <i class="fa fa-chevron-left"></i> jdk7和jdk8的HashMap对比
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/04/线程池（一）参数了解/" rel="prev" title="线程池（一）参数了解">
+                线程池（一）参数了解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据的存储"><span class="nav-number">1.</span> <span class="nav-text">数据的存储</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#排序的实现"><span class="nav-number">2.</span> <span class="nav-text">排序的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#内部排序器"><span class="nav-number">2.1.</span> <span class="nav-text">内部排序器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#外部排序器"><span class="nav-number">2.2.</span> <span class="nav-text">外部排序器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
