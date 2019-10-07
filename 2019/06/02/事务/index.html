@@ -79,14 +79,26 @@
 
 
 
+<meta name="description" content="基本要素(ACID)&amp;emsp;    &amp;emsp;Atomic:原子性 事务中的操作不可分割，要么都成功，要么都失败。 &amp;emsp;    &amp;emsp;Consistency:一致性 事务操作成功以后，数据库的状态和业务规则一直，数据不会被破坏。 &amp;emsp;    &amp;emsp;Isolation:隔离性 在并发数据操作时，不同的事务拥有不同的空间，不会互相干扰，隔离有多个级别，隔离级别越高并发">
 <meta property="og:type" content="article">
 <meta property="og:title" content="事务">
 <meta property="og:url" content="http://yoursite.com/2019/06/02/事务/index.html">
 <meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="基本要素(ACID)&amp;emsp;    &amp;emsp;Atomic:原子性 事务中的操作不可分割，要么都成功，要么都失败。 &amp;emsp;    &amp;emsp;Consistency:一致性 事务操作成功以后，数据库的状态和业务规则一直，数据不会被破坏。 &amp;emsp;    &amp;emsp;Isolation:隔离性 在并发数据操作时，不同的事务拥有不同的空间，不会互相干扰，隔离有多个级别，隔离级别越高并发">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-02T16:21:13.000Z">
+<meta property="og:image" content="http://yoursite.com/2019/06/02/事务/1.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/02/事务/2.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/02/事务/3.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/02/事务/4.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/02/事务/5.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/02/事务/6.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/02/事务/7.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/06/02/事务/8.jpeg">
+<meta property="og:updated_time" content="2019-10-07T12:39:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="事务">
+<meta name="twitter:description" content="基本要素(ACID)&amp;emsp;    &amp;emsp;Atomic:原子性 事务中的操作不可分割，要么都成功，要么都失败。 &amp;emsp;    &amp;emsp;Consistency:一致性 事务操作成功以后，数据库的状态和业务规则一直，数据不会被破坏。 &amp;emsp;    &amp;emsp;Isolation:隔离性 在并发数据操作时，不同的事务拥有不同的空间，不会互相干扰，隔离有多个级别，隔离级别越高并发">
+<meta name="twitter:image" content="http://yoursite.com/2019/06/02/事务/1.jpeg">
 
 
 
@@ -348,7 +360,56 @@
       
 
       
-        
+        <h1 id="基本要素-ACID"><a href="#基本要素-ACID" class="headerlink" title="基本要素(ACID)"></a>基本要素(ACID)</h1><p>&emsp;    &emsp;Atomic:<strong>原子性</strong></p>
+<p>事务中的操作不可分割，要么都成功，要么都失败。</p>
+<p>&emsp;    &emsp;Consistency:<strong>一致性</strong></p>
+<p>事务操作成功以后，数据库的状态和业务规则一直，数据不会被破坏。</p>
+<p>&emsp;    &emsp;Isolation:<strong>隔离性</strong></p>
+<p>在并发数据操作时，不同的事务拥有不同的空间，不会互相干扰，隔离有多个级别，隔离级别越高并发性越弱。</p>
+<p>&emsp;    &emsp;Durability:<strong>持久性</strong></p>
+<p>事务提交成功以后，数据要持久化到数据库中，即便数据库崩溃，也需要有某种机制可以恢复。</p>
+<p>*对数据的处理最主要的就是要保证一致性，其他的三要素都是为了保证一致性。</p>
+<h1 id="并发数据的问题"><a href="#并发数据的问题" class="headerlink" title="并发数据的问题"></a>并发数据的问题</h1><p>并发操作数据时，数据很容易产生问题，可以归纳为以下五种问题：<br><strong>脏读</strong>，<strong>不可重复读</strong>，<strong>幻读</strong>，<strong>第一类丢失更新</strong>，<strong>第二类丢失更新</strong>。</p>
+<ul>
+<li><p>脏读<br>&emsp;    &emsp;所谓的脏读就是A事务读取B事务尚未提交的更改数据，并在这个数据的基础上 进行操作。如果B事务回滚，那么A事务读到的数据不被承认。<br><img src="/2019/06/02/事务/1.jpeg" alt="数据类型示意图"></p>
+</li>
+<li><p>不可重复读</p>
+</li>
+</ul>
+<p>&emsp;    &emsp;不可重复读就是A事务先读取了一个数据，然后B事务修改了数据并提交事务，A事务又读了一下这个数据，两次数据不一致。<br><img src="/2019/06/02/事务/2.jpeg" alt="数据类型示意图"><br><img src="/2019/06/02/事务/3.jpeg" alt="数据类型示意图"></p>
+<ul>
+<li>幻读</li>
+</ul>
+<p>&emsp;    &emsp;A事务先读取了一个数据，然后B事务提交新增了一个数据，A事务再次读取数据，两次数据不一致。幻读一般发生在统计数据的情况下。<br><img src="/2019/06/02/事务/4.jpeg" alt="数据类型示意图"></p>
+<ul>
+<li>第一类丢失更新</li>
+</ul>
+<p>&emsp;    &emsp;A事务操作时，把B事务已经提交的更新数据覆盖了。（回滚覆盖），基本上只要设置了隔离级别第一类丢失就不会出现。<br><img src="/2019/06/02/事务/5.jpeg" alt="数据类型示意图"><br><img src="/2019/06/02/事务/6.jpeg" alt="数据类型示意图"></p>
+<ul>
+<li>第二类丢失更新</li>
+</ul>
+<p>&emsp;    &emsp;A事务覆盖B事务已经提交的数据，造成B事务所做操作丢失。（更新覆盖）<br><img src="/2019/06/02/事务/7.jpeg" alt="数据类型示意图"></p>
+<p>*来自《精通Spring 4.+ 企业应用开发实战》</p>
+<h1 id="事务的隔离"><a href="#事务的隔离" class="headerlink" title="事务的隔离"></a>事务的隔离</h1><p>对于上面可能产生的问题，数据定义了几个隔离级别，不同级别的差异性如下：<br><img src="/2019/06/02/事务/8.jpeg" alt="数据类型示意图"></p>
+<p><em>在mysql中，通过*</em>select @@tx_isolation<strong>可以查询数据库默认的隔离级别，目前我们项目使用的隔离级别是</strong>READ_COMMITTED**.</p>
+<h1 id="spring中事务的处理"><a href="#spring中事务的处理" class="headerlink" title="spring中事务的处理"></a>spring中事务的处理</h1><p>&emsp;    &emsp;在上面简单的介绍了数据库中有关事务部分的内容，在我们平时的工作中，这些工作并不需要我们来关注，因为在使用的框架中已经帮我们考虑好了，我们更多只是直接使用，甚至因为spring中声明式事务的存在，配合AOP的使用，我们基本感受不到事务的存在。</p>
+<h2 id="Spring中事务的传播"><a href="#Spring中事务的传播" class="headerlink" title="Spring中事务的传播"></a>Spring中事务的传播</h2><p>&emsp;    &emsp;<strong>REQUIRED</strong>：支持当前事务，如果当前没有事务，就新建一个事务。这是最常见的选择。</p>
+<p>&emsp;    &emsp;<strong>SUPPORTS</strong>：支持当前事务，如果当前没有事务，就以非事务方式执行。</p>
+<p>&emsp;    &emsp;<strong>MANDATORY</strong>：支持当前事务，如果当前没有事务，就抛出异常。</p>
+<p>&emsp;    &emsp;<strong>REQUIRES_NEW</strong>：新建事务，如果当前存在事务，把当前事务挂起。</p>
+<p>&emsp;    &emsp;<strong>NOT_SUPPORTED</strong>：以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。</p>
+<p>&emsp;    &emsp;<strong>NEVER</strong>：以非事务方式执行，如果当前存在事务，则抛出异常。</p>
+<p>&emsp;    &emsp;<strong>NESTED</strong>：支持当前事务，如果当前事务存在，则执行一个嵌套事务，如果当前没有事务，就新建一个事务。</p>
+<h2 id="Spring中事务的隔离"><a href="#Spring中事务的隔离" class="headerlink" title="Spring中事务的隔离"></a>Spring中事务的隔离</h2><p>&emsp;    &emsp;<strong>DEFAULT</strong>：这是默认值，表示使用底层数据库的默认隔离级别。对大部分数据库而言，通常这值就是READ_COMMITTED。</p>
+<p>&emsp;    &emsp;<strong>READ_UNCOMMITTED</strong>：该隔离级别表示一个事务可以读取另一个事务修改但还没有提交的数据。该级别不能防止脏读和不可重复读，因此很少使用该隔离级别。</p>
+<p>&emsp;    &emsp;<strong>READ_COMMITTED</strong>：该隔离级别表示一个事务只能读取另一个事务已经提交的数据。该级别可以防止脏读，这也是大多数情况下的推荐值。</p>
+<p>&emsp;    &emsp;<strong>REPEATABLE_READ</strong>：该隔离级别表示一个事务在整个过程中可以多次重复执行某个查询，并且每次返回的记录都相同。即使在多次查询之间有新增的数据满足该查询，这些新增的记录也会被忽略。该级别可以防止脏读和不可重复读。</p>
+<p>&emsp;    &emsp;<strong>SERIALIZABLE</strong>：所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，该级别可以防止脏读、不可重复读以及幻读。但是这将严重影响程序的性能。通常情况下也不会用到该级别。</p>
+<p>在项目中实际配置为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&lt;tx:advice id=&quot;transactionInterceptor&quot; transaction-manager=&quot;transactionManager&quot;&gt;</span><br><span class="line">    &lt;tx:attributes&gt;</span><br><span class="line">        &lt;!-- 只读查询 --&gt;</span><br><span class="line">        &lt;tx:method name=&quot;find*&quot; propagation=&quot;REQUIRED&quot; read-only=&quot;true&quot; timeout=&quot;600&quot; /&gt;</span><br><span class="line">        &lt;tx:method name=&quot;get*&quot; propagation=&quot;REQUIRED&quot; read-only=&quot;true&quot; timeout=&quot;600&quot; /&gt;</span><br><span class="line">        &lt;!-- 默认事务 --&gt;</span><br><span class="line">        &lt;tx:method name=&quot;*&quot; propagation=&quot;REQUIRED&quot; isolation=&quot;READ_COMMITTED&quot; timeout=&quot;600&quot; rollback-for=&quot;Throwable&quot; /&gt;</span><br><span class="line">        &lt;!-- 批量耗时事务 --&gt;</span><br><span class="line">        &lt;tx:method name=&quot;batch*&quot; propagation=&quot;REQUIRED&quot; isolation=&quot;READ_COMMITTED&quot; timeout=&quot;800&quot; rollback-for=&quot;Throwable&quot; /&gt;</span><br><span class="line">        &lt;!-- 需要独立事务的方法以此命名 --&gt;</span><br><span class="line">        &lt;tx:method name=&quot;independent*&quot; propagation=&quot;REQUIRES_NEW&quot; isolation=&quot;READ_COMMITTED&quot; timeout=&quot;600&quot; rollback-for=&quot;Throwable&quot; /&gt;</span><br><span class="line">    &lt;/tx:attributes&gt;</span><br><span class="line">&lt;/tx:advice&gt;</span><br><span class="line">&lt;aop:config&gt;</span><br><span class="line">    &lt;aop:advisor advice-ref=&quot;transactionInterceptor&quot; pointcut=&quot;execution(* com.suning.framework.dal.client.support..*(..))&quot; /&gt;</span><br><span class="line">    &lt;aop:advisor advice-ref=&quot;transactionInterceptor&quot; pointcut=&quot;execution(* com.suning.sumis.service.impl..*.*(..))&quot; /&gt;</span><br><span class="line">    &lt;aop:advisor advice-ref=&quot;transactionInterceptor&quot; pointcut=&quot;execution(* com.suning.sumis.core.service.impl..*.*(..))&quot; /&gt;</span><br><span class="line">&lt;/aop:config&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这里的tracsactionManager 就是用的spring提供的DataSourceTransActionManager对象。</p>
+
       
     </div>
     
@@ -436,8 +497,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -488,6 +558,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基本要素-ACID"><span class="nav-number">1.</span> <span class="nav-text">基本要素(ACID)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#并发数据的问题"><span class="nav-number">2.</span> <span class="nav-text">并发数据的问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#事务的隔离"><span class="nav-number">3.</span> <span class="nav-text">事务的隔离</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#spring中事务的处理"><span class="nav-number">4.</span> <span class="nav-text">spring中事务的处理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring中事务的传播"><span class="nav-number">4.1.</span> <span class="nav-text">Spring中事务的传播</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring中事务的隔离"><span class="nav-number">4.2.</span> <span class="nav-text">Spring中事务的隔离</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
