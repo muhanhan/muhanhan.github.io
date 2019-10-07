@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;接上篇BeanDefinition的载入，本文介绍ioc容器初始化的最后一个内容：BeanDefinition的注册. 注册过程DefaultBeanDefinitionDocumentReader#processBeanDefinition(): 123456789101112131415161718192021/** * Process the given be">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码学习之ioc容器初始化三部曲（三）">
+<meta property="og:url" content="http://yoursite.com/2019/04/17/源码学习之ioc容器初始化三部曲（三）/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;接上篇BeanDefinition的载入，本文介绍ioc容器初始化的最后一个内容：BeanDefinition的注册. 注册过程DefaultBeanDefinitionDocumentReader#processBeanDefinition(): 123456789101112131415161718192021/** * Process the given be">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-10-07T02:21:03.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码学习之ioc容器初始化三部曲（三）">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;接上篇BeanDefinition的载入，本文介绍ioc容器初始化的最后一个内容：BeanDefinition的注册. 注册过程DefaultBeanDefinitionDocumentReader#processBeanDefinition(): 123456789101112131415161718192021/** * Process the given be">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/04/17/源码学习之ioc容器初始化三部曲（三）/">
+
+
+
+
+
+  <title>源码学习之ioc容器初始化三部曲（三） | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/17/源码学习之ioc容器初始化三部曲（三）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">源码学习之ioc容器初始化三部曲（三）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-17T08:57:35+08:00">
+                2019-04-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;接上篇BeanDefinition的载入，本文介绍ioc容器初始化的最后一个内容：BeanDefinition的注册.</p>
+<h1 id="注册过程"><a href="#注册过程" class="headerlink" title="注册过程"></a>注册过程</h1><p><strong>DefaultBeanDefinitionDocumentReader#processBeanDefinition():</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Process the given bean element, parsing the bean definition</span><br><span class="line"> * and registering it with the registry.</span><br><span class="line"> */</span><br><span class="line">protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) &#123;</span><br><span class="line">   BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);</span><br><span class="line">   if (bdHolder != null) &#123;</span><br><span class="line">      bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);</span><br><span class="line">      try &#123;</span><br><span class="line">         // Register the final decorated instance.</span><br><span class="line">         BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());</span><br><span class="line">      &#125;</span><br><span class="line">      catch (BeanDefinitionStoreException ex) &#123;</span><br><span class="line">         getReaderContext().error(&quot;Failed to register bean definition with name &apos;&quot; +</span><br><span class="line">               bdHolder.getBeanName() + &quot;&apos;&quot;, ele, ex);</span><br><span class="line">      &#125;</span><br><span class="line">      // Send registration event.</span><br><span class="line">      getReaderContext().fireComponentRegistered(new BeanComponentDefinition(bdHolder));</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时我们已经完成了解析部分的工作，拿到了BeanDefinitionHolder对象，这是一个持有BeanDefinition，beanName和alias的对象，通过BeanDefinitionRegistry完成注册：</p>
+<p><strong>BeanDefinitionReaderUtils#registerBeanDefinition()</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Register the given bean definition with the given bean factory.</span><br><span class="line"> * @param definitionHolder the bean definition including name and aliases</span><br><span class="line"> * @param registry the bean factory to register with</span><br><span class="line"> * @throws BeanDefinitionStoreException if registration failed</span><br><span class="line"> */</span><br><span class="line">public static void registerBeanDefinition(</span><br><span class="line">      BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)</span><br><span class="line">      throws BeanDefinitionStoreException &#123;</span><br><span class="line"> </span><br><span class="line">   // Register bean definition under primary name.</span><br><span class="line">   String beanName = definitionHolder.getBeanName();</span><br><span class="line">   registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());</span><br><span class="line"> </span><br><span class="line">   // Register aliases for bean name, if any.</span><br><span class="line">   String[] aliases = definitionHolder.getAliases();</span><br><span class="line">   if (aliases != null) &#123;</span><br><span class="line">      for (String alias : aliases) &#123;</span><br><span class="line">         registry.registerAlias(beanName, alias);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注册工作同样分为两部分：注册BeanDefinition 和 注册alias：</p>
+<h2 id="BeanDefinition注册"><a href="#BeanDefinition注册" class="headerlink" title="BeanDefinition注册"></a>BeanDefinition注册</h2><p>我们通过<strong>BeanDefinitionRegistry</strong>来完成BeanDefinition的注册，真正执行注册的方法则是在基础的ioc容器DefaultListableBeanFactory的执行：     </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/** Map of bean definition objects, keyed by bean name */</span><br><span class="line">private final Map&lt;String, BeanDefinition&gt; beanDefinitionMap = new ConcurrentHashMap&lt;String, BeanDefinition&gt;(256);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/** List of bean definition names, in registration order */</span><br><span class="line">private volatile List&lt;String&gt; beanDefinitionNames = new ArrayList&lt;String&gt;(256);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line">//---------------------------------------------------------------------</span><br><span class="line">// Implementation of BeanDefinitionRegistry interface</span><br><span class="line">//---------------------------------------------------------------------</span><br><span class="line"> </span><br><span class="line">@Override</span><br><span class="line">public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)</span><br><span class="line">      throws BeanDefinitionStoreException &#123;</span><br><span class="line"> </span><br><span class="line">   Assert.hasText(beanName, &quot;Bean name must not be empty&quot;);</span><br><span class="line">   Assert.notNull(beanDefinition, &quot;BeanDefinition must not be null&quot;);</span><br><span class="line"> </span><br><span class="line">   if (beanDefinition instanceof AbstractBeanDefinition) &#123;</span><br><span class="line">      try &#123;</span><br><span class="line">         ((AbstractBeanDefinition) beanDefinition).validate();</span><br><span class="line">      &#125;</span><br><span class="line">      catch (BeanDefinitionValidationException ex) &#123;</span><br><span class="line">         throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,</span><br><span class="line">               &quot;Validation of bean definition failed&quot;, ex);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   BeanDefinition oldBeanDefinition;</span><br><span class="line"> </span><br><span class="line">   oldBeanDefinition = this.beanDefinitionMap.get(beanName);</span><br><span class="line">   if (oldBeanDefinition != null) &#123;</span><br><span class="line">      if (!isAllowBeanDefinitionOverriding()) &#123;</span><br><span class="line">         throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,</span><br><span class="line">               &quot;Cannot register bean definition [&quot; + beanDefinition + &quot;] for bean &apos;&quot; + beanName +</span><br><span class="line">               &quot;&apos;: There is already [&quot; + oldBeanDefinition + &quot;] bound.&quot;);</span><br><span class="line">      &#125;</span><br><span class="line">      else if (oldBeanDefinition.getRole() &lt; beanDefinition.getRole()) &#123;</span><br><span class="line">         // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE</span><br><span class="line">         if (this.logger.isWarnEnabled()) &#123;</span><br><span class="line">            this.logger.warn(&quot;Overriding user-defined bean definition for bean &apos;&quot; + beanName +</span><br><span class="line">                  &quot;&apos; with a framework-generated bean definition: replacing [&quot; +</span><br><span class="line">                  oldBeanDefinition + &quot;] with [&quot; + beanDefinition + &quot;]&quot;);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      else if (!beanDefinition.equals(oldBeanDefinition)) &#123;</span><br><span class="line">         if (this.logger.isInfoEnabled()) &#123;</span><br><span class="line">            this.logger.info(&quot;Overriding bean definition for bean &apos;&quot; + beanName +</span><br><span class="line">                  &quot;&apos; with a different definition: replacing [&quot; + oldBeanDefinition +</span><br><span class="line">                  &quot;] with [&quot; + beanDefinition + &quot;]&quot;);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         if (this.logger.isDebugEnabled()) &#123;</span><br><span class="line">            this.logger.debug(&quot;Overriding bean definition for bean &apos;&quot; + beanName +</span><br><span class="line">                  &quot;&apos; with an equivalent definition: replacing [&quot; + oldBeanDefinition +</span><br><span class="line">                  &quot;] with [&quot; + beanDefinition + &quot;]&quot;);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      this.beanDefinitionMap.put(beanName, beanDefinition);</span><br><span class="line">   &#125;</span><br><span class="line">   else &#123;</span><br><span class="line">      if (hasBeanCreationStarted()) &#123;</span><br><span class="line">         // Cannot modify startup-time collection elements anymore (for stable iteration)</span><br><span class="line">         synchronized (this.beanDefinitionMap) &#123;</span><br><span class="line">            this.beanDefinitionMap.put(beanName, beanDefinition);</span><br><span class="line">            List&lt;String&gt; updatedDefinitions = new ArrayList&lt;String&gt;(this.beanDefinitionNames.size() + 1);</span><br><span class="line">            updatedDefinitions.addAll(this.beanDefinitionNames);</span><br><span class="line">            updatedDefinitions.add(beanName);</span><br><span class="line">            this.beanDefinitionNames = updatedDefinitions;</span><br><span class="line">            if (this.manualSingletonNames.contains(beanName)) &#123;</span><br><span class="line">               Set&lt;String&gt; updatedSingletons = new LinkedHashSet&lt;String&gt;(this.manualSingletonNames);</span><br><span class="line">               updatedSingletons.remove(beanName);</span><br><span class="line">               this.manualSingletonNames = updatedSingletons;</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         // Still in startup registration phase</span><br><span class="line">         this.beanDefinitionMap.put(beanName, beanDefinition);</span><br><span class="line">         this.beanDefinitionNames.add(beanName);</span><br><span class="line">         this.manualSingletonNames.remove(beanName);</span><br><span class="line">      &#125;</span><br><span class="line">      this.frozenBeanDefinitionNames = null;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   if (oldBeanDefinition != null || containsSingleton(beanName)) &#123;</span><br><span class="line">      resetBeanDefinition(beanName);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到所说的BeanDefinition注册其实就是在spring内部通过一个CurrentHashMap作为容器来保存解析好的BeanDefinition。使用时，通过BeanName获取对应的BeanDefinition。</p>
+<h2 id="alias注册"><a href="#alias注册" class="headerlink" title="alias注册"></a>alias注册</h2><p>我们通过AliasRegistry来注册alias：</p>
+<p><strong>SimpleAliasRegistry#registryAlias:</strong></p>
+<blockquote>
+<p>private final Map&lt;String, String&gt; aliasMap = new ConcurrentHashMap(16);</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void registerAlias(String name, String alias) &#123;</span><br><span class="line">   Assert.hasText(name, &quot;&apos;name&apos; must not be empty&quot;);</span><br><span class="line">   Assert.hasText(alias, &quot;&apos;alias&apos; must not be empty&quot;);</span><br><span class="line">   if (alias.equals(name)) &#123;</span><br><span class="line">      this.aliasMap.remove(alias);</span><br><span class="line">   &#125;</span><br><span class="line">   else &#123;</span><br><span class="line">      String registeredName = this.aliasMap.get(alias);</span><br><span class="line">      if (registeredName != null) &#123;</span><br><span class="line">         if (registeredName.equals(name)) &#123;</span><br><span class="line">            // An existing alias - no need to re-register</span><br><span class="line">            return;</span><br><span class="line">         &#125;</span><br><span class="line">         if (!allowAliasOverriding()) &#123;</span><br><span class="line">            throw new IllegalStateException(&quot;Cannot register alias &apos;&quot; + alias + &quot;&apos; for name &apos;&quot; +</span><br><span class="line">                  name + &quot;&apos;: It is already registered for name &apos;&quot; + registeredName + &quot;&apos;.&quot;);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      checkForAliasCircle(name, alias);</span><br><span class="line">      this.aliasMap.put(alias, name);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，别名的注册其实和BeanDefinition一样，在spring内部通过一个CurrentHashMap作为容器来保存alias。使用时，通过alias获取对应的BeanName。</p>
+<p>至此，BeanDefinition的注册工作就已经完成， ioc容器的初始化过程也基本结束。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;    &emsp;BeanDefinition的注册过程其实就是spring内部通过一个ConcurrentHashMap容器来保存BeanDefinition。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/16/源码学习之springioc容器体系/" rel="next" title="源码学习之springioc容器体系">
+                <i class="fa fa-chevron-left"></i> 源码学习之springioc容器体系
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/17/源码学习之DI基础篇/" rel="prev" title="源码学习之DI基础篇">
+                源码学习之DI基础篇 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#注册过程"><span class="nav-number">1.</span> <span class="nav-text">注册过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#BeanDefinition注册"><span class="nav-number">1.1.</span> <span class="nav-text">BeanDefinition注册</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#alias注册"><span class="nav-number">1.2.</span> <span class="nav-text">alias注册</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
