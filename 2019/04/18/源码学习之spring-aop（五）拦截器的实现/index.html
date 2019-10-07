@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;接上文介绍了Srping AOP中代理对象的生成，今天介绍下另一个重要部分：拦截器，正是通过拦截器，才能帮我们实现代理的功能。 JdkDynamicAopProxy&amp;emsp;    &amp;emsp;在代理模式中，我们实现代理工作是通过实现InvocationHandler接口，重写其中的invoke()方法，在method.invoke()前后加入我们需要代理的逻辑，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码学习之spring aop（五）拦截器的实现">
+<meta property="og:url" content="http://yoursite.com/2019/04/18/源码学习之spring-aop（五）拦截器的实现/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;接上文介绍了Srping AOP中代理对象的生成，今天介绍下另一个重要部分：拦截器，正是通过拦截器，才能帮我们实现代理的功能。 JdkDynamicAopProxy&amp;emsp;    &amp;emsp;在代理模式中，我们实现代理工作是通过实现InvocationHandler接口，重写其中的invoke()方法，在method.invoke()前后加入我们需要代理的逻辑，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/04/18/源码学习之spring-aop（五）拦截器的实现/1.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/18/源码学习之spring-aop（五）拦截器的实现/2.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/18/源码学习之spring-aop（五）拦截器的实现/3.png">
+<meta property="og:updated_time" content="2019-10-07T03:23:32.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码学习之spring aop（五）拦截器的实现">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;接上文介绍了Srping AOP中代理对象的生成，今天介绍下另一个重要部分：拦截器，正是通过拦截器，才能帮我们实现代理的功能。 JdkDynamicAopProxy&amp;emsp;    &amp;emsp;在代理模式中，我们实现代理工作是通过实现InvocationHandler接口，重写其中的invoke()方法，在method.invoke()前后加入我们需要代理的逻辑，">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/18/源码学习之spring-aop（五）拦截器的实现/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/04/18/源码学习之spring-aop（五）拦截器的实现/">
+
+
+
+
+
+  <title>源码学习之spring aop（五）拦截器的实现 | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/18/源码学习之spring-aop（五）拦截器的实现/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">源码学习之spring aop（五）拦截器的实现</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-18T09:00:43+08:00">
+                2019-04-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;接上文介绍了Srping AOP中代理对象的生成，今天介绍下另一个重要部分：拦截器，正是通过拦截器，才能帮我们实现代理的功能。</p>
+<h1 id="JdkDynamicAopProxy"><a href="#JdkDynamicAopProxy" class="headerlink" title="JdkDynamicAopProxy"></a>JdkDynamicAopProxy</h1><p>&emsp;    &emsp;在代理模式中，我们实现代理工作是通过实现InvocationHandler接口，重写其中的invoke()方法，在method.invoke()前后加入我们需要代理的逻辑，在JdkDynamicAopProxy中，spring也是采用了类似的手段：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Implementation of &#123;@code InvocationHandler.invoke&#125;.</span><br><span class="line"> * &lt;p&gt;Callers will see exactly the exception thrown by the target,</span><br><span class="line"> * unless a hook method throws an exception.</span><br><span class="line"> */</span><br><span class="line">@Override</span><br><span class="line">public Object invoke(Object proxy, Method method, Object[] args) throws Throwable &#123;</span><br><span class="line">   MethodInvocation invocation;</span><br><span class="line">   Object oldProxy = null;</span><br><span class="line">   boolean setProxyContext = false;</span><br><span class="line"> </span><br><span class="line">   TargetSource targetSource = this.advised.targetSource;</span><br><span class="line">   Class&lt;?&gt; targetClass = null;</span><br><span class="line">   Object target = null;</span><br><span class="line"> </span><br><span class="line">   try &#123;</span><br><span class="line">      if (!this.equalsDefined &amp;&amp; AopUtils.isEqualsMethod(method)) &#123;</span><br><span class="line">         // The target does not implement the equals(Object) method itself.</span><br><span class="line">         return equals(args[0]);</span><br><span class="line">      &#125;</span><br><span class="line">      if (!this.hashCodeDefined &amp;&amp; AopUtils.isHashCodeMethod(method)) &#123;</span><br><span class="line">         // The target does not implement the hashCode() method itself.</span><br><span class="line">         return hashCode();</span><br><span class="line">      &#125;</span><br><span class="line">      if (!this.advised.opaque &amp;&amp; method.getDeclaringClass().isInterface() &amp;&amp;</span><br><span class="line">            method.getDeclaringClass().isAssignableFrom(Advised.class)) &#123;</span><br><span class="line">         // Service invocations on ProxyConfig with the proxy config...</span><br><span class="line">         return AopUtils.invokeJoinpointUsingReflection(this.advised, method, args);</span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">      Object retVal;</span><br><span class="line"> </span><br><span class="line">      if (this.advised.exposeProxy) &#123;</span><br><span class="line">         // Make invocation available if necessary.</span><br><span class="line">         oldProxy = AopContext.setCurrentProxy(proxy);</span><br><span class="line">         setProxyContext = true;</span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">      // May be null. Get as late as possible to minimize the time we &quot;own&quot; the target,</span><br><span class="line">      // in case it comes from a pool.</span><br><span class="line">      target = targetSource.getTarget();</span><br><span class="line">      if (target != null) &#123;</span><br><span class="line">         targetClass = target.getClass();</span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">      // Get the interception chain for this method.</span><br><span class="line">      List&lt;Object&gt; chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);</span><br><span class="line"> </span><br><span class="line">      // Check whether we have any advice. If we don&apos;t, we can fallback on direct</span><br><span class="line">      // reflective invocation of the target, and avoid creating a MethodInvocation.</span><br><span class="line">      if (chain.isEmpty()) &#123;</span><br><span class="line">         // We can skip creating a MethodInvocation: just invoke the target directly</span><br><span class="line">         // Note that the final invoker must be an InvokerInterceptor so we know it does</span><br><span class="line">         // nothing but a reflective operation on the target, and no hot swapping or fancy proxying.</span><br><span class="line">         Object[] argsToUse = AopProxyUtils.adaptArgumentsIfNecessary(method, args);</span><br><span class="line">         retVal = AopUtils.invokeJoinpointUsingReflection(target, method, argsToUse);</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         // We need to create a method invocation...</span><br><span class="line">         invocation = new ReflectiveMethodInvocation(proxy, target, method, args, targetClass, chain);</span><br><span class="line">         // Proceed to the joinpoint through the interceptor chain.</span><br><span class="line">         retVal = invocation.proceed();</span><br><span class="line">      &#125;</span><br><span class="line"> </span><br><span class="line">      // Massage return value if necessary.</span><br><span class="line">      Class&lt;?&gt; returnType = method.getReturnType();</span><br><span class="line">      if (retVal != null &amp;&amp; retVal == target &amp;&amp; returnType.isInstance(proxy) &amp;&amp;</span><br><span class="line">            !RawTargetAccess.class.isAssignableFrom(method.getDeclaringClass())) &#123;</span><br><span class="line">         // Special case: it returned &quot;this&quot; and the return type of the method</span><br><span class="line">         // is type-compatible. Note that we can&apos;t help if the target sets</span><br><span class="line">         // a reference to itself in another returned object.</span><br><span class="line">         retVal = proxy;</span><br><span class="line">      &#125;</span><br><span class="line">      else if (retVal == null &amp;&amp; returnType != Void.TYPE &amp;&amp; returnType.isPrimitive()) &#123;</span><br><span class="line">         throw new AopInvocationException(</span><br><span class="line">               &quot;Null return value from advice does not match primitive return type for: &quot; + method);</span><br><span class="line">      &#125;</span><br><span class="line">      return retVal;</span><br><span class="line">   &#125;</span><br><span class="line">   finally &#123;</span><br><span class="line">      if (target != null &amp;&amp; !targetSource.isStatic()) &#123;</span><br><span class="line">         // Must have come from TargetSource.</span><br><span class="line">         targetSource.releaseTarget(target);</span><br><span class="line">      &#125;</span><br><span class="line">      if (setProxyContext) &#123;</span><br><span class="line">         // Restore old proxy.</span><br><span class="line">         AopContext.setCurrentProxy(oldProxy);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2019/04/18/源码学习之spring-aop（五）拦截器的实现/1.png" alt="数据类型示意图"></p>
+<p>上面就是JdkDynamicAopProxy中重写的invoke()方法，主要内容有两部分，我用两种颜色标出来：</p>
+<p>红色部分是代表设置了拦截器，里面主要有两个步骤：</p>
+<p>第一部分：获取增强链</p>
+<p>第二部分：创建ReflectiveMthodInvocation,处理增强</p>
+<p>绿色部分则是没有设置拦截起，直接通过反射调用目标对象的方法即可。</p>
+<h2 id="获取增强链"><a href="#获取增强链" class="headerlink" title="获取增强链"></a>获取增强链</h2><p>&emsp;    &emsp;所有定义好的增强用一个list维护，形成一个增强链，</p>
+<blockquote>
+<p>List<object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);</object></p>
+</blockquote>
+<p>&emsp;    &emsp;可以看到我们的增强链是通过advised对象获取的，这个advised是一个AdvisedSupport对,我们看下对象的类图：<br><img src="/2019/04/18/源码学习之spring-aop（五）拦截器的实现/2.png" alt="数据类型示意图"></p>
+<p>可以看到，它还是ProxyFactoryBean和ProxyFactory的基类，我们看下他获取增强链的具体实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public List&lt;Object&gt; getInterceptorsAndDynamicInterceptionAdvice(Method method, Class&lt;?&gt; targetClass) &#123;</span><br><span class="line">   MethodCacheKey cacheKey = new MethodCacheKey(method);</span><br><span class="line">   List&lt;Object&gt; cached = this.methodCache.get(cacheKey);</span><br><span class="line">   if (cached == null) &#123;</span><br><span class="line">      cached = this.advisorChainFactory.getInterceptorsAndDynamicInterceptionAdvice(</span><br><span class="line">            this, method, targetClass);</span><br><span class="line">      this.methodCache.put(cacheKey, cached);</span><br><span class="line">   &#125;</span><br><span class="line">   return cached;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>为了提高的获取增强链的效率，这里还使用了缓存，我们看下第一次是怎么获取的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cached = this.advisorChainFactory.getInterceptorsAndDynamicInterceptionAdvice(</span><br><span class="line">      this, method, targetClass);</span><br></pre></td></tr></table></figure>
+
+<p>这里通过advisorChainFactory这个对象来获取增强链，真正的实现则是通过DefaultAdvisorChainFactory：</p>
+<p><strong>DefaultAdvisorChainFactory</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">public List&lt;Object&gt; getInterceptorsAndDynamicInterceptionAdvice(</span><br><span class="line">      Advised config, Method method, Class&lt;?&gt; targetClass) &#123;</span><br><span class="line"> </span><br><span class="line">   // This is somewhat tricky... We have to process introductions first,</span><br><span class="line">   // but we need to preserve order in the ultimate list.</span><br><span class="line">   List&lt;Object&gt; interceptorList = new ArrayList&lt;Object&gt;(config.getAdvisors().length);</span><br><span class="line">   Class&lt;?&gt; actualClass = (targetClass != null ? targetClass : method.getDeclaringClass());</span><br><span class="line">   boolean hasIntroductions = hasMatchingIntroductions(config, actualClass);</span><br><span class="line">   AdvisorAdapterRegistry registry = GlobalAdvisorAdapterRegistry.getInstance();</span><br><span class="line"> </span><br><span class="line">   for (Advisor advisor : config.getAdvisors()) &#123;</span><br><span class="line">      if (advisor instanceof PointcutAdvisor) &#123;</span><br><span class="line">         // Add it conditionally.</span><br><span class="line">         PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;</span><br><span class="line">         if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) &#123;</span><br><span class="line">            MethodInterceptor[] interceptors = registry.getInterceptors(advisor);</span><br><span class="line">            MethodMatcher mm = pointcutAdvisor.getPointcut().getMethodMatcher();</span><br><span class="line">            if (MethodMatchers.matches(mm, method, actualClass, hasIntroductions)) &#123;</span><br><span class="line">               if (mm.isRuntime()) &#123;</span><br><span class="line">                  // Creating a new object instance in the getInterceptors() method</span><br><span class="line">                  // isn&apos;t a problem as we normally cache created chains.</span><br><span class="line">                  for (MethodInterceptor interceptor : interceptors) &#123;</span><br><span class="line">                     interceptorList.add(new InterceptorAndDynamicMethodMatcher(interceptor, mm));</span><br><span class="line">                  &#125;</span><br><span class="line">               &#125;</span><br><span class="line">               else &#123;</span><br><span class="line">                  interceptorList.addAll(Arrays.asList(interceptors));</span><br><span class="line">               &#125;</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      else if (advisor instanceof IntroductionAdvisor) &#123;</span><br><span class="line">         IntroductionAdvisor ia = (IntroductionAdvisor) advisor;</span><br><span class="line">         if (config.isPreFiltered() || ia.getClassFilter().matches(actualClass)) &#123;</span><br><span class="line">            Interceptor[] interceptors = registry.getInterceptors(advisor);</span><br><span class="line">            interceptorList.addAll(Arrays.asList(interceptors));</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         Interceptor[] interceptors = registry.getInterceptors(advisor);</span><br><span class="line">         interceptorList.addAll(Arrays.asList(interceptors));</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   return interceptorList;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;这里首先会根据增强的数量设定好list容器的容量，如果是用ProxyFactory以编程的方式来获取的代理，那么这里面的增强就是我们通过addAdvice()方法添加的增强，如果是用ProxyFactoryBean以配置文件形式添加的增强，那么这里的增强就是我们interceptornames属性指定的那些增强。<br>&emsp;    &emsp;接着通过AdvisorAdapterRegistry对象来完成拦截器的注册，注册好的拦截器会被加入上面维护的list中，在目标方法被调用时获取。<br>&emsp;    &emsp;我们看下拦截器注册的实现过程（适配器模式）：<br>&emsp;    &emsp;首先通过</p>
+<blockquote>
+<p>AdvisorAdapterRegistry registry = GlobalAdvisorAdapterRegistry.getInstance();</p>
+</blockquote>
+<p><strong>GlobalAdvisorAdapterRegistry</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">public abstract class GlobalAdvisorAdapterRegistry &#123;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Keep track of a single instance so we can return it to classes that request it.</span><br><span class="line">    */</span><br><span class="line">   private static AdvisorAdapterRegistry instance = new DefaultAdvisorAdapterRegistry();</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Return the singleton &#123;@link DefaultAdvisorAdapterRegistry&#125; instance.</span><br><span class="line">    */</span><br><span class="line">   public static AdvisorAdapterRegistry getInstance() &#123;</span><br><span class="line">      return instance;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Reset the singleton &#123;@link DefaultAdvisorAdapterRegistry&#125;, removing any</span><br><span class="line">    * &#123;@link AdvisorAdapterRegistry#registerAdvisorAdapter(AdvisorAdapter) registered&#125;</span><br><span class="line">    * adapters.</span><br><span class="line">    */</span><br><span class="line">   static void reset() &#123;</span><br><span class="line">      instance = new DefaultAdvisorAdapterRegistry();</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里通过一个单例模式返回一个DefaultAdvisorAdapterReistry,在DefaultAdvisorAdapterReistry中，提供了一系列的适配器，通过这些适配器获取advice。</p>
+<p><strong>DefaultAdvisorAdapterReistry：</strong></p>
+<p>首先看下构造函数：</p>
+<blockquote>
+<p>private final List<advisoradapter> adapters = new ArrayList<advisoradapter>(3);</advisoradapter></advisoradapter></p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public DefaultAdvisorAdapterRegistry() &#123;</span><br><span class="line">   registerAdvisorAdapter(new MethodBeforeAdviceAdapter());</span><br><span class="line">   registerAdvisorAdapter(new AfterReturningAdviceAdapter());</span><br><span class="line">   registerAdvisorAdapter(new ThrowsAdviceAdapter());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在<strong>DefaultAdvisorAdapterReistry</strong>内部通过list直接维护了三个适配器，这三个适配器对应的前置增强，后置增强和异常抛出增强。</p>
+<p>我们来看下这里的适配器提供了什么方法：<br><img src="/2019/04/18/源码学习之spring-aop（五）拦截器的实现/3.png" alt="数据类型示意图"></p>
+<p>可以看到这些适配器只有两个方法：</p>
+<blockquote>
+<p>boolean supportsAdvice(Advice advice);<br>和<br>MethodInterceptor getInterceptor(Advisor advisor);</p>
+</blockquote>
+<p>我们以<strong>MethodBeforeAdviceAdapter</strong>为例进行说明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">class MethodBeforeAdviceAdapter implements AdvisorAdapter, Serializable &#123;</span><br><span class="line"> </span><br><span class="line">   @Override</span><br><span class="line">   public boolean supportsAdvice(Advice advice) &#123;</span><br><span class="line">      return (advice instanceof MethodBeforeAdvice);</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   @Override</span><br><span class="line">   public MethodInterceptor getInterceptor(Advisor advisor) &#123;</span><br><span class="line">      MethodBeforeAdvice advice = (MethodBeforeAdvice) advisor.getAdvice();</span><br><span class="line">      return new MethodBeforeAdviceInterceptor(advice);</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>supportsAdvice方法用来判断增强的类型</strong></p>
+<p><strong>getInterceptor方法用来获取具体的增强示例</strong></p>
+<p>了解了上面的知识以后，我们再继续看下<strong>DefaultAdvisorChainFactory</strong>的<strong>getInterceptors()</strong>:方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException &#123;</span><br><span class="line">   List&lt;MethodInterceptor&gt; interceptors = new ArrayList&lt;MethodInterceptor&gt;(3);</span><br><span class="line">   Advice advice = advisor.getAdvice();</span><br><span class="line">   if (advice instanceof MethodInterceptor) &#123;</span><br><span class="line">      interceptors.add((MethodInterceptor) advice);</span><br><span class="line">   &#125;</span><br><span class="line">   for (AdvisorAdapter adapter : this.adapters) &#123;</span><br><span class="line">      if (adapter.supportsAdvice(advice)) &#123;</span><br><span class="line">         interceptors.add(adapter.getInterceptor(advisor));</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   if (interceptors.isEmpty()) &#123;</span><br><span class="line">      throw new UnknownAdviceTypeException(advisor.getAdvice());</span><br><span class="line">   &#125;</span><br><span class="line">   return interceptors.toArray(new MethodInterceptor[interceptors.size()]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，这里面核心的部分就是通过适配器来返回增强实例，返回的增强被放入准备好的容器，也就是我们invoke中的获取到的增强链。</p>
+<h2 id="处理增强"><a href="#处理增强" class="headerlink" title="处理增强"></a>处理增强</h2><p>&emsp;    &emsp;在获取到增强链以后，我们需要<strong>ReflectiveMethodInvocation</strong>来进行调用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// We need to create a method invocation...</span><br><span class="line">invocation = new ReflectiveMethodInvocation(proxy, target, method, args, targetClass, chain);</span><br><span class="line">// Proceed to the joinpoint through the interceptor chain.</span><br><span class="line">retVal = invocation.proceed();</span><br></pre></td></tr></table></figure>
+
+
+<p>我们看下<strong>ReflectiveMethodInvocation</strong>中<strong>proceed</strong>的逻辑：</p>
+<p><strong>ReflectiveMethodInvocation#proceed()</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">public Object proceed() throws Throwable &#123;</span><br><span class="line">   // We start with an index of -1 and increment early.</span><br><span class="line">   if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) &#123;</span><br><span class="line">      return invokeJoinpoint();</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   Object interceptorOrInterceptionAdvice =</span><br><span class="line">         this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex);</span><br><span class="line">   if (interceptorOrInterceptionAdvice instanceof InterceptorAndDynamicMethodMatcher) &#123;</span><br><span class="line">      // Evaluate dynamic method matcher here: static part will already have</span><br><span class="line">      // been evaluated and found to match.</span><br><span class="line">      InterceptorAndDynamicMethodMatcher dm =</span><br><span class="line">            (InterceptorAndDynamicMethodMatcher) interceptorOrInterceptionAdvice;</span><br><span class="line">      if (dm.methodMatcher.matches(this.method, this.targetClass, this.arguments)) &#123;</span><br><span class="line">         return dm.interceptor.invoke(this);</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         // Dynamic matching failed.</span><br><span class="line">         // Skip this interceptor and invoke the next in the chain.</span><br><span class="line">         return proceed();</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   else &#123;</span><br><span class="line">      // It&apos;s an interceptor, so we just invoke it: The pointcut will have</span><br><span class="line">      // been evaluated statically before this object was constructed.</span><br><span class="line">      return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里就是对增强链进行处理的地方，在proceed中，会逐个运行拦截器中的调用方法，在调用之前，对代理方法有一个匹配的判断，这里匹配的就是对pointcut进行匹配的过程，这里可以看到红色部分，会迭代处理所有的增强，直到处理完毕。</p>
+<h1 id="CglibAopProxy"><a href="#CglibAopProxy" class="headerlink" title="CglibAopProxy"></a>CglibAopProxy</h1><p>&emsp;    &emsp;在上面我们介绍了JdkDynamicAopProxy中的拦截器的实现，下面我们看下CglibAopProxy中的拦截器：<br>&emsp;    &emsp;在我们的代理模式中，我们通过实现MethodInterceptor,重写其中的intercept()方法来完成代理工作，spring中是怎么处理的呢？<br>&emsp;    &emsp;在CglibAopProxyz中，spring通过DynamicAdvisedInterceptor对象来完成拦截器的回调，这是一个内部类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line">private static class DynamicAdvisedInterceptor implements MethodInterceptor, Serializable &#123;</span><br><span class="line"> </span><br><span class="line">   private final AdvisedSupport advised;</span><br><span class="line"> </span><br><span class="line">   public DynamicAdvisedInterceptor(AdvisedSupport advised) &#123;</span><br><span class="line">      this.advised = advised;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   @Override</span><br><span class="line">   public Object intercept(Object proxy, Method method, Object[] args, MethodProxy methodProxy) throws Throwable &#123;</span><br><span class="line">      Object oldProxy = null;</span><br><span class="line">      boolean setProxyContext = false;</span><br><span class="line">      Class&lt;?&gt; targetClass = null;</span><br><span class="line">      Object target = null;</span><br><span class="line">      try &#123;</span><br><span class="line">         if (this.advised.exposeProxy) &#123;</span><br><span class="line">            // Make invocation available if necessary.</span><br><span class="line">            oldProxy = AopContext.setCurrentProxy(proxy);</span><br><span class="line">            setProxyContext = true;</span><br><span class="line">         &#125;</span><br><span class="line">         // May be null. Get as late as possible to minimize the time we</span><br><span class="line">         // &quot;own&quot; the target, in case it comes from a pool...</span><br><span class="line">         target = getTarget();</span><br><span class="line">         if (target != null) &#123;</span><br><span class="line">            targetClass = target.getClass();</span><br><span class="line">         &#125;</span><br><span class="line">         List&lt;Object&gt; chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);</span><br><span class="line">         Object retVal;</span><br><span class="line">         // Check whether we only have one InvokerInterceptor: that is,</span><br><span class="line">         // no real advice, but just reflective invocation of the target.</span><br><span class="line">         if (chain.isEmpty() &amp;&amp; Modifier.isPublic(method.getModifiers())) &#123;</span><br><span class="line">            // We can skip creating a MethodInvocation: just invoke the target directly.</span><br><span class="line">            // Note that the final invoker must be an InvokerInterceptor, so we know</span><br><span class="line">            // it does nothing but a reflective operation on the target, and no hot</span><br><span class="line">            // swapping or fancy proxying.</span><br><span class="line">            Object[] argsToUse = AopProxyUtils.adaptArgumentsIfNecessary(method, args);</span><br><span class="line">            retVal = methodProxy.invoke(target, argsToUse);</span><br><span class="line">         &#125;</span><br><span class="line">         else &#123;</span><br><span class="line">            // We need to create a method invocation...</span><br><span class="line">            retVal = new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy).proceed();</span><br><span class="line">         &#125;</span><br><span class="line">         retVal = processReturnType(proxy, target, method, retVal);</span><br><span class="line">         return retVal;</span><br><span class="line">      &#125;</span><br><span class="line">      finally &#123;</span><br><span class="line">         if (target != null) &#123;</span><br><span class="line">            releaseTarget(target);</span><br><span class="line">         &#125;</span><br><span class="line">         if (setProxyContext) &#123;</span><br><span class="line">            // Restore old proxy.</span><br><span class="line">            AopContext.setCurrentProxy(oldProxy);</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   @Override</span><br><span class="line">   public boolean equals(Object other) &#123;</span><br><span class="line">      return (this == other ||</span><br><span class="line">            (other instanceof DynamicAdvisedInterceptor &amp;&amp;</span><br><span class="line">                  this.advised.equals(((DynamicAdvisedInterceptor) other).advised)));</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * CGLIB uses this to drive proxy creation.</span><br><span class="line">    */</span><br><span class="line">   @Override</span><br><span class="line">   public int hashCode() &#123;</span><br><span class="line">      return this.advised.hashCode();</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   protected Object getTarget() throws Exception &#123;</span><br><span class="line">      return this.advised.getTargetSource().getTarget();</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   protected void releaseTarget(Object target) throws Exception &#123;</span><br><span class="line">      this.advised.getTargetSource().releaseTarget(target);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，这里面处理的逻辑和JdkdynamicAopProxy非常相似，都是先获取增强链，然后再进行处理。这里获取增强链的逻辑都是一样的，与JdkDynamicAopProxy不同的是，这里使用的对象是CglibMethodInvocation:</p>
+<blockquote>
+<p>retVal = new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy).proceed();</p>
+</blockquote>
+<p>我们看下这个构造函数的内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">private static class CglibMethodInvocation extends ReflectiveMethodInvocation &#123;</span><br><span class="line"> </span><br><span class="line">   private final MethodProxy methodProxy;</span><br><span class="line"> </span><br><span class="line">   private final boolean publicMethod;</span><br><span class="line"> </span><br><span class="line">   public CglibMethodInvocation(Object proxy, Object target, Method method, Object[] arguments,</span><br><span class="line">         Class&lt;?&gt; targetClass, List&lt;Object&gt; interceptorsAndDynamicMethodMatchers, MethodProxy methodProxy) &#123;</span><br><span class="line"> </span><br><span class="line">      super(proxy, target, method, arguments, targetClass, interceptorsAndDynamicMethodMatchers);</span><br><span class="line">      this.methodProxy = methodProxy;</span><br><span class="line">      this.publicMethod = Modifier.isPublic(method.getModifiers());</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Gives a marginal performance improvement versus using reflection to</span><br><span class="line">    * invoke the target when invoking public methods.</span><br><span class="line">    */</span><br><span class="line">   @Override</span><br><span class="line">   protected Object invokeJoinpoint() throws Throwable &#123;</span><br><span class="line">      if (this.publicMethod) &#123;</span><br><span class="line">         return this.methodProxy.invoke(this.target, this.arguments);</span><br><span class="line">      &#125;</span><br><span class="line">      else &#123;</span><br><span class="line">         return super.invokeJoinpoint();</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这里继承了ReflectiveMethodInvocation,里面还是调用的父类的处理，也就是说CglibAopProxy和JdkdynamicAopProxy都是通过ReflectiveMethodInvocation来处理增强的。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;    &emsp;<strong>JdkDynamicAopProxy</strong>通过实现<strong>InvocationHandler</strong>接口，通过重写的<strong>invoke()</strong>对目标方法进行拦截，内部通过<strong>ReflectiveMethodInvocation</strong>完成对增强的处理；<br>&emsp;    &emsp;<strong>CglibAopProxy</strong>内部通过<strong>DynamicAdvisedInterceptor</strong>完成对目标方法的拦截，这个对象实现了<strong>MethodInterceptor</strong>接口，通过重写<strong>intercept()</strong>方法进行拦截，内部使用了<strong>CglibMethodInvocation</strong>来对增强进行处理，这个类是<strong>ReflectiveMethodInvocation</strong>的子类，所以这两种方式其实都是通过<strong>ReflectiveMethodInvocation</strong>来处理增强的／</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/17/源码学习之spring-aop（四）代理对象的生成/" rel="next" title="源码学习之spring aop（四）代理对象的生成">
+                <i class="fa fa-chevron-left"></i> 源码学习之spring aop（四）代理对象的生成
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/05/17/锁的优化/" rel="prev" title="锁的优化">
+                锁的优化 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JdkDynamicAopProxy"><span class="nav-number">1.</span> <span class="nav-text">JdkDynamicAopProxy</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#获取增强链"><span class="nav-number">1.1.</span> <span class="nav-text">获取增强链</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#处理增强"><span class="nav-number">1.2.</span> <span class="nav-text">处理增强</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CglibAopProxy"><span class="nav-number">2.</span> <span class="nav-text">CglibAopProxy</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

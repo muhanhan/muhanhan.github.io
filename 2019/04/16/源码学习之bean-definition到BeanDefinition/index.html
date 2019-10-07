@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;接上文ioc容器初始化部分，在之前的介绍中，我们介绍了整个ioc容器初始化的过程，但是对于其中的BeanDefinition的解析部分一笔带过，这里就对BeanDefinition做个介绍。 Bean Definition&amp;emsp;    &amp;emsp;在IOC容器中，管理的对象是Bean，对于配置文件来说，他们就是标签配置的对象，这就是我们对Bean的定义，也就是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="源码学习之bean definition到BeanDefinition">
+<meta property="og:url" content="http://yoursite.com/2019/04/16/源码学习之bean-definition到BeanDefinition/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;接上文ioc容器初始化部分，在之前的介绍中，我们介绍了整个ioc容器初始化的过程，但是对于其中的BeanDefinition的解析部分一笔带过，这里就对BeanDefinition做个介绍。 Bean Definition&amp;emsp;    &amp;emsp;在IOC容器中，管理的对象是Bean，对于配置文件来说，他们就是标签配置的对象，这就是我们对Bean的定义，也就是">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之bean-definition到BeanDefinition/1.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之bean-definition到BeanDefinition/2.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之bean-definition到BeanDefinition/3.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之bean-definition到BeanDefinition/4.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之bean-definition到BeanDefinition/5.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之bean-definition到BeanDefinition/6.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之bean-definition到BeanDefinition/7.png">
+<meta property="og:image" content="http://yoursite.com/2019/04/16/源码学习之bean-definition到BeanDefinition/8.png">
+<meta property="og:updated_time" content="2019-10-07T03:11:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="源码学习之bean definition到BeanDefinition">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;接上文ioc容器初始化部分，在之前的介绍中，我们介绍了整个ioc容器初始化的过程，但是对于其中的BeanDefinition的解析部分一笔带过，这里就对BeanDefinition做个介绍。 Bean Definition&amp;emsp;    &amp;emsp;在IOC容器中，管理的对象是Bean，对于配置文件来说，他们就是标签配置的对象，这就是我们对Bean的定义，也就是">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/16/源码学习之bean-definition到BeanDefinition/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/04/16/源码学习之bean-definition到BeanDefinition/">
+
+
+
+
+
+  <title>源码学习之bean definition到BeanDefinition | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/16/源码学习之bean-definition到BeanDefinition/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">源码学习之bean definition到BeanDefinition</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-16T21:09:56+08:00">
+                2019-04-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;接上文ioc容器初始化部分，在之前的介绍中，我们介绍了整个ioc容器初始化的过程，但是对于其中的BeanDefinition的解析部分一笔带过，这里就对BeanDefinition做个介绍。</p>
+<h1 id="Bean-Definition"><a href="#Bean-Definition" class="headerlink" title="Bean Definition"></a>Bean Definition</h1><p>&emsp;    &emsp;在IOC容器中，管理的对象是Bean，对于配置文件来说，他们就是<bean>标签配置的对象，这就是我们对Bean的定义，也就是Bean Definition，在容器内部，这些Bean Definition表现为BeanDefinition。</bean></p>
+<p>&emsp;    &emsp;这里我们可以参考spring官方文档：</p>
+<p><strong>The bean definition：</strong></p>
+<blockquote>
+<p>class<br>name<br>scope<br>constructor arguments<br>properties<br>autowiring mode<br>lazy-initialization mode<br>initialization method<br>destruction method</p>
+</blockquote>
+<p>上面列举的内容就是一个Bean定义的主要配置项，也就是说通过上面这些属性的配置，spring就可以帮我们完成一个Bean的创建并管理。</p>
+<h2 id="Class"><a href="#Class" class="headerlink" title="Class"></a>Class</h2><p>&emsp;    &emsp;Bean定义中的class属性在实例化时bean用到,spring中实例化bean主要通过下面三种方式：</p>
+<h3 id="Instantiation-with-a-constructor"><a href="#Instantiation-with-a-constructor" class="headerlink" title="Instantiation with a constructor"></a>Instantiation with a constructor</h3><p>&emsp;    &emsp;通过构造函数进行实例化：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;exampleBean&quot; class=&quot;examples.ExampleBean&quot;/&gt;</span><br><span class="line"> </span><br><span class="line">&lt;bean name=&quot;anotherExample&quot; class=&quot;examples.ExampleBeanTwo&quot;/&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Instantiation-with-a-static-factory-method"><a href="#Instantiation-with-a-static-factory-method" class="headerlink" title="Instantiation with a static factory method"></a>Instantiation with a static factory method</h3><p>&emsp;    &emsp;通过静态工厂方法来代替构造函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;clientService&quot;</span><br><span class="line">    class=&quot;examples.ClientService&quot;</span><br><span class="line">    factory-method=&quot;createInstance&quot;/&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public class ClientService &#123;</span><br><span class="line">    private static ClientService clientService = new ClientService();</span><br><span class="line">    private ClientService() &#123;&#125;</span><br><span class="line"> </span><br><span class="line">    public static ClientService createInstance() &#123;</span><br><span class="line">        return clientService;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Instantiation-using-an-instance-factory-method"><a href="#Instantiation-using-an-instance-factory-method" class="headerlink" title="Instantiation using an instance factory method"></a>Instantiation using an instance factory method</h3><p>&emsp;    &emsp;通过工厂方法返回对象的实例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- the factory bean, which contains a method called createInstance() --&gt;</span><br><span class="line">&lt;bean id=&quot;serviceLocator&quot; class=&quot;examples.DefaultServiceLocator&quot;&gt;</span><br><span class="line">    &lt;!-- inject any dependencies required by this locator bean --&gt;</span><br><span class="line">&lt;/bean&gt;</span><br><span class="line"> </span><br><span class="line">&lt;!-- the bean to be created via the factory bean --&gt;</span><br><span class="line">&lt;bean id=&quot;clientService&quot;</span><br><span class="line">    factory-bean=&quot;serviceLocator&quot;</span><br><span class="line">    factory-method=&quot;createClientServiceInstance&quot;/&gt;</span><br><span class="line">public class DefaultServiceLocator &#123;</span><br><span class="line"> </span><br><span class="line">    private static ClientService clientService = new ClientServiceImpl();</span><br><span class="line"> </span><br><span class="line">    public ClientService createClientServiceInstance() &#123;</span><br><span class="line">        return clientService;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上三种就是class属性在spring中的几种实例化场景的配置形式。</p>
+<h2 id="name"><a href="#name" class="headerlink" title="name"></a>name</h2><p>在bean中，我们用id来保证一个bean的唯一性，name属性则是作为别名来使用，他有两种配置方法：</p>
+<h3 id="使用name标签"><a href="#使用name标签" class="headerlink" title="使用name标签"></a>使用name标签</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;clientService&quot;</span><br><span class="line">   name =&quot;A,B,C&quot;</span><br><span class="line">class=&quot;examples.ClientService&quot;</span><br><span class="line">/&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用alias标签"><a href="#使用alias标签" class="headerlink" title="使用alias标签"></a>使用alias标签</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;clientService&quot;</span><br><span class="line">class=&quot;examples.ClientService&quot;</span><br><span class="line">/&gt;</span><br><span class="line"> </span><br><span class="line">&lt;alias name=&quot;clientService&quot; alias=&quot;A&quot;/&gt;</span><br><span class="line">&lt;alias name=&quot;clientService&quot; alias=&quot;B&quot;/&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>*Bean的别名在spring内部也会使用一个ConcurrentHashMap容器来进行保存。</strong></p>
+<h2 id="scope"><a href="#scope" class="headerlink" title="scope"></a>scope</h2><p><img src="/2019/04/16/源码学习之bean-definition到BeanDefinition/1.png" alt="数据类型示意图"></p>
+<p>Spring通过scope属性来控制bean的作用域，其中request、session、globalSession、application和websocket是针对web应用使用。我们这里说下singleton和prototype：</p>
+<h3 id="The-singleton-scope"><a href="#The-singleton-scope" class="headerlink" title="The singleton scope"></a>The singleton scope</h3><p>singleton是spring默认的作用域，使用singleton时，bean只会被创建一次，每次请求获取的bean对象都会是同一个对象：<br><img src="/2019/04/16/源码学习之bean-definition到BeanDefinition/2.png" alt="数据类型示意图"></p>
+<h3 id="The-prototype-scope"><a href="#The-prototype-scope" class="headerlink" title="The prototype scope"></a>The prototype scope</h3><p>使用prototype作为作用域时，每次请求都会创建一个对应的bean实例。<br><img src="/2019/04/16/源码学习之bean-definition到BeanDefinition/3.png" alt="数据类型示意图"></p>
+<ul>
+<li>Spring容器不管理protptyle类型的bean的完整的生命周期，IOC容器实例化，配置并且组装bean，但是后续的销毁工作不负责，需要由调用的client来负责销毁，释放资源。</li>
+</ul>
+<p><strong>prototype和 singleton的选择</strong></p>
+<p>&emsp;    &emsp;无状态或者状态不可变的类适合使用singleton；</p>
+<p>&emsp;    &emsp;有状态的对象适合使用prototype；</p>
+<p>*在传统开发中，dao类一般持有connection这个非线程安全的变量，因此不利于使用单例模式，但是spring默认的作用域就是singleton，这是怎么做到的呢？spring利用aop和threadlocal，对非线程安全的变量进行特殊处理，使之变成线程安全的类，所以spring中大部分都支持singleton。</p>
+<h2 id="constructor-arguments"><a href="#constructor-arguments" class="headerlink" title="constructor arguments"></a>constructor arguments</h2><p>&emsp;    &emsp;当依赖注入的方式是Constructor-based dependency injection时,bean定义中通过<construcor-arg>标签来指定构造函数的参数。</construcor-arg></p>
+<h3 id="参数是对象"><a href="#参数是对象" class="headerlink" title="参数是对象"></a>参数是对象</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">package x.y;</span><br><span class="line"> </span><br><span class="line">public class Foo &#123;</span><br><span class="line"> </span><br><span class="line">    public Foo(Bar bar, Baz baz) &#123;</span><br><span class="line">        // ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;beans&gt;</span><br><span class="line">    &lt;bean id=&quot;foo&quot; class=&quot;x.y.Foo&quot;&gt;</span><br><span class="line">        &lt;constructor-arg ref=&quot;bar&quot;/&gt;</span><br><span class="line">        &lt;constructor-arg ref=&quot;baz&quot;/&gt;</span><br><span class="line">    &lt;/bean&gt;</span><br><span class="line"> </span><br><span class="line">    &lt;bean id=&quot;bar&quot; class=&quot;x.y.Bar&quot;/&gt;</span><br><span class="line"> </span><br><span class="line">    &lt;bean id=&quot;baz&quot; class=&quot;x.y.Baz&quot;/&gt;</span><br><span class="line">&lt;/beans&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="参数是简单数据类型（基本数据类型-String）"><a href="#参数是简单数据类型（基本数据类型-String）" class="headerlink" title="参数是简单数据类型（基本数据类型+String）"></a>参数是简单数据类型（基本数据类型+String）</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">package examples;</span><br><span class="line"> </span><br><span class="line">public class ExampleBean &#123;</span><br><span class="line"> </span><br><span class="line">    // Number of years to calculate the Ultimate Answer</span><br><span class="line">    private int years;</span><br><span class="line"> </span><br><span class="line">    // The Answer to Life, the Universe, and Everything</span><br><span class="line">    private String ultimateAnswer;</span><br><span class="line"> </span><br><span class="line">    public ExampleBean(int years, String ultimateAnswer) &#123;</span><br><span class="line">        this.years = years;</span><br><span class="line">        this.ultimateAnswer = ultimateAnswer;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据类型来进行配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;exampleBean&quot; class=&quot;examples.ExampleBean&quot;&gt;</span><br><span class="line">    &lt;constructor-arg type=&quot;int&quot; value=&quot;7500000&quot;/&gt;</span><br><span class="line">    &lt;constructor-arg type=&quot;java.lang.String&quot; value=&quot;42&quot;/&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如果两个类型相同，可能会引起歧义的情况，则可以使用下标来指定构造函数参数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;exampleBean&quot; class=&quot;examples.ExampleBean&quot;&gt;</span><br><span class="line">    &lt;constructor-arg index=&quot;0&quot; value=&quot;7500000&quot;/&gt;</span><br><span class="line">    &lt;constructor-arg index=&quot;1&quot; value=&quot;42&quot;/&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="properties"><a href="#properties" class="headerlink" title="properties"></a>properties</h2><p>&emsp;    &emsp;当依赖注入的方式是Setter-based dependency injection时，通过<property>标签来指定参数。</property></p>
+<p>&emsp;    &emsp;没有有参的构造函数时，通过成员变量的setter方法实现注入:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class ExampleBean &#123;</span><br><span class="line"> </span><br><span class="line">    private AnotherBean beanOne;</span><br><span class="line"> </span><br><span class="line">    private YetAnotherBean beanTwo;</span><br><span class="line"> </span><br><span class="line">    private int i;</span><br><span class="line"> </span><br><span class="line">    public void setBeanOne(AnotherBean beanOne) &#123;</span><br><span class="line">        this.beanOne = beanOne;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setBeanTwo(YetAnotherBean beanTwo) &#123;</span><br><span class="line">        this.beanTwo = beanTwo;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setIntegerProperty(int i) &#123;</span><br><span class="line">        this.i = i;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;exampleBean&quot; class=&quot;examples.ExampleBean&quot;&gt;</span><br><span class="line">    &lt;!-- setter injection using the nested ref element --&gt;</span><br><span class="line">    &lt;property name=&quot;beanOne&quot;&gt;</span><br><span class="line">        &lt;ref bean=&quot;anotherExampleBean&quot;/&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line"> </span><br><span class="line">    &lt;!-- setter injection using the neater ref attribute --&gt;</span><br><span class="line">    &lt;property name=&quot;beanTwo&quot; ref=&quot;yetAnotherBean&quot;/&gt;</span><br><span class="line">    &lt;property name=&quot;integerProperty&quot; value=&quot;1&quot;/&gt;</span><br><span class="line">&lt;/bean&gt;</span><br><span class="line"> </span><br><span class="line">&lt;bean id=&quot;anotherExampleBean&quot; class=&quot;examples.AnotherBean&quot;/&gt;</span><br><span class="line">&lt;bean id=&quot;yetAnotherBean&quot; class=&quot;examples.YetAnotherBean&quot;/&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Straight values (primitives, Strings, and so on)</strong></p>
+<p> Property中对于简单数据的配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;myDataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;</span><br><span class="line">    &lt;!-- results in a setDriverClassName(String) call --&gt;</span><br><span class="line">    &lt;property name=&quot;driverClassName&quot; value=&quot;com.mysql.jdbc.Driver&quot;/&gt;</span><br><span class="line">    &lt;property name=&quot;url&quot; value=&quot;jdbc:mysql://localhost:3306/mydb&quot;/&gt;</span><br><span class="line">    &lt;property name=&quot;username&quot; value=&quot;root&quot;/&gt;</span><br><span class="line">    &lt;property name=&quot;password&quot; value=&quot;masterkaoli&quot;/&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+
+<p>上面这种配置，还可以使用p-namespace来表示，这两个是等价的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;myDataSource&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot;</span><br><span class="line">     destroy-method=&quot;close&quot;</span><br><span class="line">     p:driverClassName=&quot;com.mysql.jdbc.Driver&quot;</span><br><span class="line">     p:url=&quot;jdbc:mysql://localhost:3306/mydb&quot;</span><br><span class="line">     p:username=&quot;root&quot;</span><br><span class="line">     p:password=&quot;masterkaoli&quot;/&gt;</span><br></pre></td></tr></table></figure>
+
+<p>spring中还支持对properties形式的解析：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;mappings&quot;</span><br><span class="line">    class=&quot;org.springframework.beans.factory.config.PropertyPlaceholderConfigurer&quot;&gt;</span><br><span class="line"> </span><br><span class="line">    &lt;!-- typed as a java.util.Properties --&gt;</span><br><span class="line">    &lt;property name=&quot;properties&quot;&gt;</span><br><span class="line">        &lt;value&gt;</span><br><span class="line">            jdbc.driver.className=com.mysql.jdbc.Driver</span><br><span class="line">            jdbc.url=jdbc:mysql://localhost:3306/mydb</span><br><span class="line">        &lt;/value&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Collections</strong></p>
+<p> 除了简单的数据类型外，property还支持集合的处理：<list>, <set>, <map>,  <props></props></map></set></list></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;moreComplexObject&quot; class=&quot;example.ComplexObject&quot;&gt;</span><br><span class="line">    &lt;!-- results in a setAdminEmails(java.util.Properties) call --&gt;</span><br><span class="line">    &lt;property name=&quot;adminEmails&quot;&gt;</span><br><span class="line">        &lt;props&gt;</span><br><span class="line">            &lt;prop key=&quot;administrator&quot;&gt;administrator@example.org&lt;/prop&gt;</span><br><span class="line">            &lt;prop key=&quot;support&quot;&gt;support@example.org&lt;/prop&gt;</span><br><span class="line">            &lt;prop key=&quot;development&quot;&gt;development@example.org&lt;/prop&gt;</span><br><span class="line">        &lt;/props&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;!-- results in a setSomeList(java.util.List) call --&gt;</span><br><span class="line">    &lt;property name=&quot;someList&quot;&gt;</span><br><span class="line">        &lt;list&gt;</span><br><span class="line">            &lt;value&gt;a list element followed by a reference&lt;/value&gt;</span><br><span class="line">            &lt;ref bean=&quot;myDataSource&quot; /&gt;</span><br><span class="line">        &lt;/list&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;!-- results in a setSomeMap(java.util.Map) call --&gt;</span><br><span class="line">    &lt;property name=&quot;someMap&quot;&gt;</span><br><span class="line">        &lt;map&gt;</span><br><span class="line">            &lt;entry key=&quot;an entry&quot; value=&quot;just some string&quot;/&gt;</span><br><span class="line">            &lt;entry key =&quot;a ref&quot; value-ref=&quot;myDataSource&quot;/&gt;</span><br><span class="line">        &lt;/map&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">    &lt;!-- results in a setSomeSet(java.util.Set) call --&gt;</span><br><span class="line">    &lt;property name=&quot;someSet&quot;&gt;</span><br><span class="line">        &lt;set&gt;</span><br><span class="line">            &lt;value&gt;just some string&lt;/value&gt;</span><br><span class="line">            &lt;ref bean=&quot;myDataSource&quot; /&gt;</span><br><span class="line">        &lt;/set&gt;</span><br><span class="line">    &lt;/property&gt;</span><br><span class="line">&lt;/bean&gt;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="autowiring-mode"><a href="#autowiring-mode" class="headerlink" title="autowiring mode"></a>autowiring mode</h2><p>spring中的自动装配机制，可以让我们不用指定bean之间的关系而通过配置直接使用。这个功能通过<autowire>标签实现，他有以下几种方式：<br><img src="/2019/04/16/源码学习之bean-definition到BeanDefinition/4.png" alt="数据类型示意图"></autowire></p>
+<p>简单说明下上面这四种不同的装配方式：</p>
+<ul>
+<li><p>no:不开启自动装配的功能</p>
+</li>
+<li><p>byName:通过名称来自动装配bean</p>
+</li>
+<li><p>byType:通过类型来自动装配bean</p>
+</li>
+<li><p>constructor:通过构造函数自动装配</p>
+</li>
+</ul>
+<p>我们举个小例子来方便大家理解：</p>
+<p>我们在厨房中烹饪牛肉和猪肉：</p>
+<p>Kitchen：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">public class Kitchen &#123;</span><br><span class="line">    private Beef beef;</span><br><span class="line">    private Pork pork;</span><br><span class="line"> </span><br><span class="line">    static &#123;</span><br><span class="line">        System.out.println(&quot;Kitchen run&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public Beef getBeef() &#123;</span><br><span class="line">        return beef;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setBeef(Beef beef) &#123;</span><br><span class="line">        this.beef = beef;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public Pork getPork() &#123;</span><br><span class="line">        return pork;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void setPork(Pork pork) &#123;</span><br><span class="line">        this.pork = pork;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public void run()&#123;</span><br><span class="line">        beef.cook();</span><br><span class="line">        pork.cook();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Beef：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">    public void cook()&#123;</span><br><span class="line">        System.out.println(&quot;cook beef&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Pork：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">    public void cook()&#123;</span><br><span class="line">        System.out.println(&quot;cook pork&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="buName"><a href="#buName" class="headerlink" title="buName"></a>buName</h3><p>通过byName配置的Xml：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;kitchen&quot; class=&quot;com.ljw.testSpringMode.Kitchen&quot;</span><br><span class="line">autowire=&quot;byName&quot;/&gt;</span><br><span class="line"> </span><br><span class="line">&lt;bean id=&quot;beef&quot; class=&quot;com.ljw.testSpringMode.Beef&quot;/&gt;</span><br><span class="line">&lt;bean id=&quot;pork&quot; class=&quot;com.ljw.testSpringMode.Pork&quot;/&gt;</span><br></pre></td></tr></table></figure>
+
+<p>Test：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext(&quot;E:/code/SpringMVC/src/resources/Beans.xml&quot;);</span><br><span class="line">        Kitchen kitchen = context.getBean(&quot;kitchen&quot;, Kitchen.class);</span><br><span class="line">        kitchen.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>result:<br><img src="/2019/04/16/源码学习之bean-definition到BeanDefinition/5.png" alt="数据类型示意图"></p>
+<h3 id="byType"><a href="#byType" class="headerlink" title="byType"></a>byType</h3><p>通过byType配置的Xml：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;kitchen&quot; class=&quot;com.ljw.testSpringMode.Kitchen&quot;</span><br><span class="line">autowire=&quot;byType&quot;/&gt;</span><br><span class="line"> </span><br><span class="line">&lt;bean id=&quot;beef&quot; class=&quot;com.ljw.testSpringMode.Beef&quot;/&gt;</span><br><span class="line">&lt;bean id=&quot;pork&quot; class=&quot;com.ljw.testSpringMode.Pork&quot;/&gt;</span><br></pre></td></tr></table></figure>
+
+
+<p>Test：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public class TestAutowiring &#123;</span><br><span class="line"> </span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext(&quot;E:/code/SpringMVC/src/resources/Beans.xml&quot;);</span><br><span class="line">        Kitchen kitchen = context.getBean(&quot;kitchen&quot;, Kitchen.class);</span><br><span class="line">        kitchen.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>result:<br><img src="/2019/04/16/源码学习之bean-definition到BeanDefinition/6.png" alt="数据类型示意图"></p>
+<h3 id="constructor-NaN"><a href="#constructor-NaN" class="headerlink" title="constructor"></a>constructor</h3><p>Kitchen增加构造函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public Kitchen(Beef beef, Pork pork) &#123;</span><br><span class="line">    this.beef = beef;</span><br><span class="line">    this.pork = pork;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过constructor配置的Xml：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;bean id=&quot;kitchen&quot; class=&quot;com.ljw.testSpringMode.Kitchen&quot;</span><br><span class="line">autowire=&quot;constructor&quot;/&gt;</span><br><span class="line"> </span><br><span class="line">&lt;bean id=&quot;beef&quot; class=&quot;com.ljw.testSpringMode.Beef&quot;/&gt;</span><br><span class="line">&lt;bean id=&quot;pork&quot; class=&quot;com.ljw.testSpringMode.Pork&quot;/&gt;</span><br></pre></td></tr></table></figure>
+
+<p>Test：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public class TestAutowiring &#123;</span><br><span class="line"> </span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        FileSystemXmlApplicationContext context = new FileSystemXmlApplicationContext(&quot;E:/code/SpringMVC/src/resources/Beans.xml&quot;);</span><br><span class="line">        Kitchen kitchen = context.getBean(&quot;kitchen&quot;, Kitchen.class);</span><br><span class="line">        kitchen.run();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>result:<br><img src="/2019/04/16/源码学习之bean-definition到BeanDefinition/7.png" alt="数据类型示意图"></p>
+<p>可以看到上面几张配置都实现了我们的功能，我们没有通过ref来指定bean之间的关系，只是通过spring自身的装配机制完成。</p>
+<p><strong>Excluding a bean from autowiring</strong></p>
+<p>如果不想这个bean通过自动装配的形式注入，通过<autowire-candidate>标签可以实现：</autowire-candidate></p>
+<blockquote>
+<bean id="beef" class="com.ljw.testSpringMode.Beef" autowire-candidate="false">
+</bean></blockquote>
+<h2 id="lazy-initialization-mode"><a href="#lazy-initialization-mode" class="headerlink" title="lazy-initialization mode"></a>lazy-initialization mode</h2><p>&emsp;    &emsp;在ioc容器初始化时,会创建在配置文件中的bean定义，如果它有相关联的bean的话，也会在初始化时一起被创建，这就导致初始化的过程可能会很长，spring通过<lazy-init>标签来实现懒加载，当<lazt-init>的属性为true时，只有在首次获取bean的地方才会被创建。</lazt-init></lazy-init></p>
+<h2 id="initialization-method"><a href="#initialization-method" class="headerlink" title="initialization method"></a>initialization method</h2><p>&emsp;    &emsp;通过<init-method>标签在bean定义的配置项都设置完毕以后可以调用配置的初始化方式。</init-method></p>
+<h2 id="destruction-method"><a href="#destruction-method" class="headerlink" title="destruction method"></a>destruction method</h2><p>&emsp;    &emsp;通过<destory-method>标签在容器关闭时调用，用来销毁bean。</destory-method></p>
+<p>*上面bean中的配置项在beans中也有对应的配置，beans中的属于容器级别，对下面所有的bean都有效，但发生冲突时，以bean中的配置为主<br><img src="/2019/04/16/源码学习之bean-definition到BeanDefinition/8.png" alt="数据类型示意图"></p>
+<h1 id="BeanDefinition"><a href="#BeanDefinition" class="headerlink" title="BeanDefinition"></a>BeanDefinition</h1><p>&emsp;    &emsp;BeanDefinition就是Bean Definition在ioc容器内部的表现形式，我们结合源码对照bean definition看一下它的结构：</p>
+<p><strong>AbstratctBeanDefinition：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br></pre></td><td class="code"><pre><span class="line">public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor</span><br><span class="line">      implements BeanDefinition, Cloneable &#123;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Constant for the default scope name: &#123;@code &quot;&quot;&#125;, equivalent to singleton</span><br><span class="line">    * status unless overridden from a parent bean definition (if applicable).</span><br><span class="line">    */</span><br><span class="line">   public static final String SCOPE_DEFAULT = &quot;&quot;;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Constant that indicates no autowiring at all.</span><br><span class="line">    * @see #setAutowireMode</span><br><span class="line">    */</span><br><span class="line">   public static final int AUTOWIRE_NO = AutowireCapableBeanFactory.AUTOWIRE_NO;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Constant that indicates autowiring bean properties by name.</span><br><span class="line">    * @see #setAutowireMode</span><br><span class="line">    */</span><br><span class="line">   public static final int AUTOWIRE_BY_NAME = AutowireCapableBeanFactory.AUTOWIRE_BY_NAME;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Constant that indicates autowiring bean properties by type.</span><br><span class="line">    * @see #setAutowireMode</span><br><span class="line">    */</span><br><span class="line">   public static final int AUTOWIRE_BY_TYPE = AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Constant that indicates autowiring a constructor.</span><br><span class="line">    * @see #setAutowireMode</span><br><span class="line">    */</span><br><span class="line">   public static final int AUTOWIRE_CONSTRUCTOR = AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Constant that indicates determining an appropriate autowire strategy</span><br><span class="line">    * through introspection of the bean class.</span><br><span class="line">    * @see #setAutowireMode</span><br><span class="line">    * @deprecated as of Spring 3.0: If you are using mixed autowiring strategies,</span><br><span class="line">    * use annotation-based autowiring for clearer demarcation of autowiring needs.</span><br><span class="line">    */</span><br><span class="line">   @Deprecated</span><br><span class="line">   public static final int AUTOWIRE_AUTODETECT = AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Constant that indicates no dependency check at all.</span><br><span class="line">    * @see #setDependencyCheck</span><br><span class="line">    */</span><br><span class="line">   public static final int DEPENDENCY_CHECK_NONE = 0;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Constant that indicates dependency checking for object references.</span><br><span class="line">    * @see #setDependencyCheck</span><br><span class="line">    */</span><br><span class="line">   public static final int DEPENDENCY_CHECK_OBJECTS = 1;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Constant that indicates dependency checking for &quot;simple&quot; properties.</span><br><span class="line">    * @see #setDependencyCheck</span><br><span class="line">    * @see org.springframework.beans.BeanUtils#isSimpleProperty</span><br><span class="line">    */</span><br><span class="line">   public static final int DEPENDENCY_CHECK_SIMPLE = 2;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Constant that indicates dependency checking for all properties</span><br><span class="line">    * (object references as well as &quot;simple&quot; properties).</span><br><span class="line">    * @see #setDependencyCheck</span><br><span class="line">    */</span><br><span class="line">   public static final int DEPENDENCY_CHECK_ALL = 3;</span><br><span class="line"> </span><br><span class="line">   /**</span><br><span class="line">    * Constant that indicates the container should attempt to infer the</span><br><span class="line">    * &#123;@link #setDestroyMethodName destroy method name&#125; for a bean as opposed to</span><br><span class="line">    * explicit specification of a method name. The value &#123;@value&#125; is specifically</span><br><span class="line">    * designed to include characters otherwise illegal in a method name, ensuring</span><br><span class="line">    * no possibility of collisions with legitimately named methods having the same</span><br><span class="line">    * name.</span><br><span class="line">    * &lt;p&gt;Currently, the method names detected during destroy method inference</span><br><span class="line">    * are &quot;close&quot; and &quot;shutdown&quot;, if present on the specific bean class.</span><br><span class="line">    */</span><br><span class="line">   public static final String INFER_METHOD = &quot;(inferred)&quot;;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">   private volatile Object beanClass;</span><br><span class="line"> </span><br><span class="line">   private String scope = SCOPE_DEFAULT;</span><br><span class="line"> </span><br><span class="line">   private boolean abstractFlag = false;</span><br><span class="line"> </span><br><span class="line">   private boolean lazyInit = false;</span><br><span class="line"> </span><br><span class="line">   private int autowireMode = AUTOWIRE_NO;</span><br><span class="line"> </span><br><span class="line">   private int dependencyCheck = DEPENDENCY_CHECK_NONE;</span><br><span class="line"> </span><br><span class="line">   private String[] dependsOn;</span><br><span class="line"> </span><br><span class="line">   private boolean autowireCandidate = true;</span><br><span class="line"> </span><br><span class="line">   private boolean primary = false;</span><br><span class="line"> </span><br><span class="line">   private final Map&lt;String, AutowireCandidateQualifier&gt; qualifiers =</span><br><span class="line">         new LinkedHashMap&lt;String, AutowireCandidateQualifier&gt;(0);</span><br><span class="line"> </span><br><span class="line">   private boolean nonPublicAccessAllowed = true;</span><br><span class="line"> </span><br><span class="line">   private boolean lenientConstructorResolution = true;</span><br><span class="line"> </span><br><span class="line">   private ConstructorArgumentValues constructorArgumentValues;</span><br><span class="line"> </span><br><span class="line">   private MutablePropertyValues propertyValues;</span><br><span class="line"> </span><br><span class="line">   private MethodOverrides methodOverrides = new MethodOverrides();</span><br><span class="line"> </span><br><span class="line">   private String factoryBeanName;</span><br><span class="line"> </span><br><span class="line">   private String factoryMethodName;</span><br><span class="line"> </span><br><span class="line">   private String initMethodName;</span><br><span class="line"> </span><br><span class="line">   private String destroyMethodName;</span><br><span class="line"> </span><br><span class="line">   private boolean enforceInitMethod = true;</span><br><span class="line"> </span><br><span class="line">   private boolean enforceDestroyMethod = true;</span><br><span class="line"> </span><br><span class="line">   private boolean synthetic = false;</span><br><span class="line"> </span><br><span class="line">   private int role = BeanDefinition.ROLE_APPLICATION;</span><br><span class="line"> </span><br><span class="line">   private String description;</span><br><span class="line"> </span><br><span class="line">   private Resource resource;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>可以看到AbstractBeanDefinition中的成员变量和我们在bean定义中的配置项是关联起来的：</p>
+<p><strong>beanClass===class</strong></p>
+<p><strong>scope===scope</strong></p>
+<p><strong>lazyInit===lazy-init</strong></p>
+<p>。。。</p>
+<p>对于Bean定义中的父子关系，则可以通过RootBeanDefinition和ChildBeanDefinition来表示。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;    &emsp;Bean Definition是配置文件中对bean的描述,BeanDefinition则是ioc容器内部bean的表现形式,Bean Definition转换为BeanDefinition的过程是在ioc容器初始化的过程中完成的。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/16/源码学习之springioc容器体系/" rel="next" title="源码学习之springioc容器体系">
+                <i class="fa fa-chevron-left"></i> 源码学习之springioc容器体系
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/16/源码学习之ioc容器初始化三部曲（一）/" rel="prev" title="源码学习之ioc容器初始化三部曲（一）">
+                源码学习之ioc容器初始化三部曲（一） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Bean-Definition"><span class="nav-number">1.</span> <span class="nav-text">Bean Definition</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Class"><span class="nav-number">1.1.</span> <span class="nav-text">Class</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Instantiation-with-a-constructor"><span class="nav-number">1.1.1.</span> <span class="nav-text">Instantiation with a constructor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Instantiation-with-a-static-factory-method"><span class="nav-number">1.1.2.</span> <span class="nav-text">Instantiation with a static factory method</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Instantiation-using-an-instance-factory-method"><span class="nav-number">1.1.3.</span> <span class="nav-text">Instantiation using an instance factory method</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#name"><span class="nav-number">1.2.</span> <span class="nav-text">name</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用name标签"><span class="nav-number">1.2.1.</span> <span class="nav-text">使用name标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用alias标签"><span class="nav-number">1.2.2.</span> <span class="nav-text">使用alias标签</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#scope"><span class="nav-number">1.3.</span> <span class="nav-text">scope</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#The-singleton-scope"><span class="nav-number">1.3.1.</span> <span class="nav-text">The singleton scope</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-prototype-scope"><span class="nav-number">1.3.2.</span> <span class="nav-text">The prototype scope</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#constructor-arguments"><span class="nav-number">1.4.</span> <span class="nav-text">constructor arguments</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#参数是对象"><span class="nav-number">1.4.1.</span> <span class="nav-text">参数是对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参数是简单数据类型（基本数据类型-String）"><span class="nav-number">1.4.2.</span> <span class="nav-text">参数是简单数据类型（基本数据类型+String）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#properties"><span class="nav-number">1.5.</span> <span class="nav-text">properties</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#autowiring-mode"><span class="nav-number">1.6.</span> <span class="nav-text">autowiring mode</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#buName"><span class="nav-number">1.6.1.</span> <span class="nav-text">buName</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#byType"><span class="nav-number">1.6.2.</span> <span class="nav-text">byType</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#constructor-NaN"><span class="nav-number">1.6.3.</span> <span class="nav-text">constructor</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lazy-initialization-mode"><span class="nav-number">1.7.</span> <span class="nav-text">lazy-initialization mode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#initialization-method"><span class="nav-number">1.8.</span> <span class="nav-text">initialization method</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#destruction-method"><span class="nav-number">1.9.</span> <span class="nav-text">destruction method</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BeanDefinition"><span class="nav-number">2.</span> <span class="nav-text">BeanDefinition</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
