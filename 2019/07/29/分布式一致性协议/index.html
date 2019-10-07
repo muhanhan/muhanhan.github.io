@@ -79,14 +79,30 @@
 
 
 
+<meta name="description" content="&amp;emsp;    &amp;emsp;鉴于最近在看分布式相关的内容，涉及到很多新概念，所以按照惯例全都整理加深记忆。本文主要介绍其中有关分布式一致性的相关协议，通过这些协议来保证分布式环境下的一致性问题。 ACID&amp;emsp;    &amp;emsp;在之前的理解中，事务更多的时候指的就是数据库中的事务，一个操作要么成功要么失败，也就是要满足事务的四大特性ACID： Atomicity（原子性）&amp;emsp;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="分布式一致性协议">
 <meta property="og:url" content="http://yoursite.com/2019/07/29/分布式一致性协议/index.html">
 <meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;鉴于最近在看分布式相关的内容，涉及到很多新概念，所以按照惯例全都整理加深记忆。本文主要介绍其中有关分布式一致性的相关协议，通过这些协议来保证分布式环境下的一致性问题。 ACID&amp;emsp;    &amp;emsp;在之前的理解中，事务更多的时候指的就是数据库中的事务，一个操作要么成功要么失败，也就是要满足事务的四大特性ACID： Atomicity（原子性）&amp;emsp;">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-02T16:17:32.000Z">
+<meta property="og:image" content="http://yoursite.com/2019/07/29/分布式一致性协议/1.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/07/29/分布式一致性协议/2.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/07/29/分布式一致性协议/3.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/07/29/分布式一致性协议/4.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/07/29/分布式一致性协议/5.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/07/29/分布式一致性协议/6.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/07/29/分布式一致性协议/7.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/07/29/分布式一致性协议/8.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/07/29/分布式一致性协议/9.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/07/29/分布式一致性协议/10.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/07/29/分布式一致性协议/11.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/07/29/分布式一致性协议/12.jpeg">
+<meta property="og:updated_time" content="2019-10-07T13:23:01.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式一致性协议">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;鉴于最近在看分布式相关的内容，涉及到很多新概念，所以按照惯例全都整理加深记忆。本文主要介绍其中有关分布式一致性的相关协议，通过这些协议来保证分布式环境下的一致性问题。 ACID&amp;emsp;    &amp;emsp;在之前的理解中，事务更多的时候指的就是数据库中的事务，一个操作要么成功要么失败，也就是要满足事务的四大特性ACID： Atomicity（原子性）&amp;emsp;">
+<meta name="twitter:image" content="http://yoursite.com/2019/07/29/分布式一致性协议/1.jpeg">
 
 
 
@@ -348,7 +364,77 @@
       
 
       
-        
+        <p>&emsp;    &emsp;鉴于最近在看分布式相关的内容，涉及到很多新概念，所以按照惯例全都整理加深记忆。本文主要介绍其中有关分布式一致性的相关协议，通过这些协议来保证分布式环境下的一致性问题。</p>
+<h1 id="ACID"><a href="#ACID" class="headerlink" title="ACID"></a>ACID</h1><p>&emsp;    &emsp;在之前的理解中，事务更多的时候指的就是数据库中的事务，一个操作要么成功要么失败，也就是要满足事务的四大特性ACID：</p>
+<p>Atomicity（原子性）<br>&emsp;    &emsp;事务是一个不可再拆分的最小单位，要么整个执行，要么整个回滚。</p>
+<p>Consistency（一致性）<br>&emsp;    &emsp;事务要保证数据库整体数据的完整性和业务的数据的一致性，事务成功提交整体数据修改，事务错误则回滚到数据回到原来的状态。</p>
+<p>Isolation（隔离性）<br>&emsp;    &emsp;隔离性是说两个事务的执行都是独立隔离开来的，事务之前不会相互影响，多个事务操作一个对象时会以串行等待的方式保证事务相互之间是隔离的：</p>
+<p>Durability（持久性）<br>&emsp;    &emsp;持久性是指执行的操作又要持久化的手段，可以用来进行数据恢复，保证数据库中的数据内容。</p>
+<p>&emsp;    &emsp;在《高性能Mysql》中说过，可用性，隔离性和持久性都可以看做是为了一致性服务，最终目的都是为了保证数据一致性。</p>
+<p>&emsp;    &emsp;在分布式的环境中，一致性比单机复杂一些，因为操作可能发生在不同的机器上，所以为了保证分布式中的ACID，需要换种思路，引入了一个协调者的概念，分布式中发生操作的机器则被称为参与者，由协调者统一调度整个工作。</p>
+<p>&emsp;    &emsp;根据设计的思路不同，也就有几种不同的理论和协议。</p>
+<h1 id="理论"><a href="#理论" class="headerlink" title="理论"></a>理论</h1><h2 id="CAP"><a href="#CAP" class="headerlink" title="CAP"></a>CAP</h2><p>&emsp;    &emsp;CAP是分布式环境下提出的一种理论，是分布式系统的基本定理，它表示一致性，可用性和分区容错性。</p>
+<p><strong>Consistency（一致性）</strong><br>&emsp;    &emsp;一致性指的是对于部署在不同网络分区的服务器访问的请求得到的响应结果应该是一致的。<br>&emsp;    &emsp;但受到分区通信的影响，一致性具体又分为：</p>
+<ul>
+<li>强一致性</li>
+</ul>
+<p>&emsp;    &emsp;系统中的某个数据被成功更新后，后续任何对该数据的读取操作都将得到更新后的值；（这个操作会牺牲一部分可用性）</p>
+<ul>
+<li>弱一致性</li>
+</ul>
+<p>&emsp;    &emsp;系统中的某个数据被更新后，后续对该数据的读取操作可能得到更新后的值，也可能是更改前的值。但经过“不一致时间窗口”这段时间后，后续对该数据的读取都是更新后的值；</p>
+<ul>
+<li>最终一致性</li>
+</ul>
+<p>&emsp;    &emsp;是弱一致性的特殊形式，存储系统保证在没有新的更新的条件下，最终所有的访问都是最后更新的值。</p>
+<p><strong>Availability（可用性）</strong><br>&emsp;    &emsp;可用性指的是对于不同服务器的请求都应该得到及时的响应结果。</p>
+<p><strong>Partitiontolerance（分区容错性）</strong><br>&emsp;    &emsp;分区容错性指的是部署在不同网络分区的服务器之间受网络影响，互相之间不能进行通信，对于这种必然存在的情况系统要做对应的处理。</p>
+<p>&emsp;    &emsp;在CAP理论中，三者不可能全部成立，而在分布式的环境下，分区容错性肯定是要保证的，所以也就是说一般是在AP和CP之间根据需求选择一个合适的架构。<br><img src="/2019/07/29/分布式一致性协议/1.jpeg" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;这里简单说下为什么CAP无法全部实现，分布式的环境下，服务器之间的通信依靠网络，网络问题无法保证完全不出问题，所以分布式系统都需要考虑分区容错性，在网络通信出现问题的情况，服务器与服务器之间无法准确的完成数据同步，这就和可用性产生了冲突，如果要保证数据强一致性，那么就需要等待网络恢复，直到数据完成同步，这样子高可用也就不存在了，谁也无法保证这个恢复同步的时间。<br>&emsp;    &emsp;所以一般都是根据自己业务的实际情况选择AP或者CP。</p>
+<h2 id="BASE"><a href="#BASE" class="headerlink" title="BASE"></a>BASE</h2><p>&emsp;    &emsp;BASE理论则是在CAP理论上记过权衡得到的一个理论，在保证分区容错性的情况下，保证系统基本可用，数据不要求强一致性，只保证最终一致性。</p>
+<p>&emsp;    &emsp;全称：<strong>Basically Available(基本可用)，Soft state（软状态）,和 Eventually consistent（最终一致性）</strong>三个短语的缩写。</p>
+<ul>
+<li>Basically Available（基本可用）<br>什么是基本可用呢？假设系统，出现了不可预知的故障，但还是能用，相比较正常的系统而言：</li>
+</ul>
+<ol>
+<li>响应时间上的损失：正常情况下的搜索引擎 0.5 秒即返回给用户结果，而基本可用的搜索引擎可以在 1 秒作用返回结果。</li>
+<li>功能上的损失：在一个电商网站上，正常情况下，用户可以顺利完成每一笔订单，但是到了大促期间，为了保护购物系统的稳定性，部分消费者可能会被引导到一个降级页面。</li>
+</ol>
+<ul>
+<li><p>Soft state（软状态）<br>&emsp;    &emsp;软状态指的是：允许系统中的数据存在中间状态，并认为该状态不影响系统的整体可用性，即允许系统在多个不同节点的数据副本存在数据延时。</p>
+</li>
+<li><p>Eventuallyconsistent（最终一致性）<br>&emsp;    &emsp;上面说软状态，然后不可能一直是软状态，必须有个时间期限。在期限过后，应当保证所有副本保持数据一致性。从而达到数据的最终一致性。这个时间期限取决于网络延时，系统负载，数据复制方案设计等等因素。</p>
+</li>
+</ul>
+<p>*BASE部分理论的概念摘自：                                        </p>
+<blockquote>
+<p><a href="https://www.cnblogs.com/stateis0/p/9062123.html" target="_blank" rel="noopener">https://www.cnblogs.com/stateis0/p/9062123.html</a></p>
+</blockquote>
+<h1 id="协议"><a href="#协议" class="headerlink" title="协议"></a>协议</h1><h2 id="2PC"><a href="#2PC" class="headerlink" title="2PC"></a>2PC</h2><p>Two-PhaseCommit,也就是我们所说的二阶段提交协议，顾名思义，2PC协议主要过程分为两个阶段：</p>
+<h3 id="第一阶段：提交事务请求（投票阶段）"><a href="#第一阶段：提交事务请求（投票阶段）" class="headerlink" title="第一阶段：提交事务请求（投票阶段）"></a>第一阶段：提交事务请求（投票阶段）</h3><p>&emsp;    &emsp;正常情况：协调者发出prepare请求，参与者全部反馈yes：<br><img src="/2019/07/29/分布式一致性协议/2.jpeg" alt="数据类型示意图"></p>
+<p>异常情况：协调者发出prepare请求，参与者反馈no或无响应<br><img src="/2019/07/29/分布式一致性协议/3.jpeg" alt="数据类型示意图"></p>
+<h2 id="第二阶段：执行事务请求（执行阶段）"><a href="#第二阶段：执行事务请求（执行阶段）" class="headerlink" title="第二阶段：执行事务请求（执行阶段）"></a>第二阶段：执行事务请求（执行阶段）</h2><p>&emsp;    &emsp;第一阶段正常情况：协调者发出commit请求：<br><img src="/2019/07/29/分布式一致性协议/4.jpeg" alt="数据类型示意图"></p>
+<p>第一阶段异常情况：协调者发出rollback请求，<br><img src="/2019/07/29/分布式一致性协议/5.jpeg" alt="数据类型示意图"></p>
+<p>优点：原理简单，实现方便</p>
+<p>缺点：同步阻塞，单点问题，数据不一致，没有容错机制</p>
+<h2 id="3PC"><a href="#3PC" class="headerlink" title="3PC"></a>3PC</h2><p>Three-PhaseCommit,也就是我们所说的三阶段提交协议，它在2pc的基础上，增加了canCommit阶段，同时引入了参与者的超时机制。</p>
+<h3 id="第一阶段：canCommit"><a href="#第一阶段：canCommit" class="headerlink" title="第一阶段：canCommit"></a>第一阶段：canCommit</h3><p>正常情况：协调者发出canCommit请求，参与者反馈yes<br><img src="/2019/07/29/分布式一致性协议/6.jpeg" alt="数据类型示意图"></p>
+<p>异常情况：协调者发出canCommit请求，参与者超时反馈或返回no<br><img src="/2019/07/29/分布式一致性协议/7.jpeg" alt="数据类型示意图"></p>
+<h3 id="第二阶段：preCommit"><a href="#第二阶段：preCommit" class="headerlink" title="第二阶段：preCommit"></a>第二阶段：preCommit</h3><h4 id="emsp-emsp-第一阶段全部反馈yes："><a href="#emsp-emsp-第一阶段全部反馈yes：" class="headerlink" title="&emsp;    &emsp;第一阶段全部反馈yes："></a>&emsp;    &emsp;<strong>第一阶段全部反馈yes：</strong></h4><p>正常情况：协调者发出preCommit请求，参与者反馈yes：<br><img src="/2019/07/29/分布式一致性协议/8.jpeg" alt="数据类型示意图"></p>
+<p>异常情况：协调者发出preCommit请求，参与者超时反馈或返回no<br><img src="/2019/07/29/分布式一致性协议/9.jpeg" alt="数据类型示意图"></p>
+<h4 id="第一阶段没有全部返回yes："><a href="#第一阶段没有全部返回yes：" class="headerlink" title="第一阶段没有全部返回yes："></a><strong>第一阶段没有全部返回yes：</strong></h4><p>协调者对参与者发出abort指令<br><img src="/2019/07/29/分布式一致性协议/10.jpeg" alt="数据类型示意图"></p>
+<h3 id="第三阶段：doCommit"><a href="#第三阶段：doCommit" class="headerlink" title="第三阶段：doCommit"></a>第三阶段：doCommit</h3><p><strong>第二阶段全部反馈yes，</strong></p>
+<p>正常情况：协调者发出doCommit请求，参与者反馈yes：<br><img src="/2019/07/29/分布式一致性协议/11.jpeg" alt="数据类型示意图"></p>
+<p>异常情况：协调者发出abort请求:<br><img src="/2019/07/29/分布式一致性协议/12.jpeg" alt="数据类型示意图"></p>
+<p>优点：降低了参与者的阻塞范围，引入了参与者的超时机制</p>
+<p>缺点：还有会存在数据不一致的情况</p>
+<h1 id="ZAB"><a href="#ZAB" class="headerlink" title="ZAB"></a>ZAB</h1><p>&emsp;    &emsp;<strong>ZooKeeper Atomic Broadcast</strong>(ZooKeeper 原子广播协议)，是zookeeper中使用的协议，它使用这个协议作为其数据一致性的核心算法。<br>&emsp;    &emsp;zab协议定义了会改变zookeeper服务器数据状态的事务处理方式，也是它的核心思想：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">所有事物请求必须由一个全剧唯一的服务器来协调处理，这样的服务器被称为leader服务器，而余下的其他服务器则成为follower服务器，leader服务器负责将一个客户端事务请求转换成一个事务proposal（提议），并将该proposal分发给集群中所有的follower服务器。之后leader服务器需要等到所有follower服务器的反馈，一旦超过半数的follower服务器进行了正确的反馈后，那么leader服务器就会再次向所有的follower服务器分发commit消息，要求将前一个proposal进行提交。</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;有关zab协议的具体内容会在后面介绍zookeeper时再了解。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;    &emsp;这篇是zookeeper的第一篇，介绍些基本理论，后面主要还是介绍zookeeper的使用。</p>
+<p><strong>参考：《从Paxos到ZooKeeper》</strong></p>
+
       
     </div>
     
@@ -436,8 +522,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -488,6 +583,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#ACID"><span class="nav-number">1.</span> <span class="nav-text">ACID</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#理论"><span class="nav-number">2.</span> <span class="nav-text">理论</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CAP"><span class="nav-number">2.1.</span> <span class="nav-text">CAP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BASE"><span class="nav-number">2.2.</span> <span class="nav-text">BASE</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#协议"><span class="nav-number">3.</span> <span class="nav-text">协议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2PC"><span class="nav-number">3.1.</span> <span class="nav-text">2PC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一阶段：提交事务请求（投票阶段）"><span class="nav-number">3.1.1.</span> <span class="nav-text">第一阶段：提交事务请求（投票阶段）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第二阶段：执行事务请求（执行阶段）"><span class="nav-number">3.2.</span> <span class="nav-text">第二阶段：执行事务请求（执行阶段）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3PC"><span class="nav-number">3.3.</span> <span class="nav-text">3PC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#第一阶段：canCommit"><span class="nav-number">3.3.1.</span> <span class="nav-text">第一阶段：canCommit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第二阶段：preCommit"><span class="nav-number">3.3.2.</span> <span class="nav-text">第二阶段：preCommit</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#emsp-emsp-第一阶段全部反馈yes："><span class="nav-number">3.3.2.1.</span> <span class="nav-text">      第一阶段全部反馈yes：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#第一阶段没有全部返回yes："><span class="nav-number">3.3.2.2.</span> <span class="nav-text">第一阶段没有全部返回yes：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#第三阶段：doCommit"><span class="nav-number">3.3.3.</span> <span class="nav-text">第三阶段：doCommit</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ZAB"><span class="nav-number">4.</span> <span class="nav-text">ZAB</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
