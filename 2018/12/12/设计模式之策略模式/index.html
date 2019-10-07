@@ -79,14 +79,21 @@
 
 
 
+<meta name="description" content="&amp;emsp;    &amp;emsp;策略模式，我形容它是一个见人说人话，见鬼说鬼话的设计模式。为什么我会这样说呢，这和它的使用场景以及实现方式有关。 策略模式定义&amp;emsp;    &amp;emsp;先看下策略模式的UML示意图： Head First设计模式中对策略模式的定义：  策略模式定义了算法族，分别封装起来，让它们之间可以互相替换，此模式让算法的变化独立于使用算法的客户。  &amp;emsp;    &amp;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="设计模式之策略模式">
 <meta property="og:url" content="http://yoursite.com/2018/12/12/设计模式之策略模式/index.html">
 <meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;策略模式，我形容它是一个见人说人话，见鬼说鬼话的设计模式。为什么我会这样说呢，这和它的使用场景以及实现方式有关。 策略模式定义&amp;emsp;    &amp;emsp;先看下策略模式的UML示意图： Head First设计模式中对策略模式的定义：  策略模式定义了算法族，分别封装起来，让它们之间可以互相替换，此模式让算法的变化独立于使用算法的客户。  &amp;emsp;    &amp;">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-02T16:18:23.000Z">
+<meta property="og:image" content="http://yoursite.com/2018/12/12/设计模式之策略模式/1.jpeg">
+<meta property="og:image" content="http://yoursite.com/2018/12/12/设计模式之策略模式/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/12/12/设计模式之策略模式/640.png">
+<meta property="og:updated_time" content="2019-10-07T14:33:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="设计模式之策略模式">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;策略模式，我形容它是一个见人说人话，见鬼说鬼话的设计模式。为什么我会这样说呢，这和它的使用场景以及实现方式有关。 策略模式定义&amp;emsp;    &amp;emsp;先看下策略模式的UML示意图： Head First设计模式中对策略模式的定义：  策略模式定义了算法族，分别封装起来，让它们之间可以互相替换，此模式让算法的变化独立于使用算法的客户。  &amp;emsp;    &amp;">
+<meta name="twitter:image" content="http://yoursite.com/2018/12/12/设计模式之策略模式/1.jpeg">
 
 
 
@@ -348,7 +355,69 @@
       
 
       
-        
+        <p>&emsp;    &emsp;策略模式，我形容它是一个见人说人话，见鬼说鬼话的设计模式。为什么我会这样说呢，这和它的使用场景以及实现方式有关。</p>
+<h1 id="策略模式定义"><a href="#策略模式定义" class="headerlink" title="策略模式定义"></a>策略模式定义</h1><p>&emsp;    &emsp;先看下策略模式的UML示意图：<br><img src="/2018/12/12/设计模式之策略模式/1.jpeg" alt="数据类型示意图"></p>
+<p>Head First设计模式中对策略模式的定义：</p>
+<blockquote>
+<p>策略模式定义了算法族，分别封装起来，让它们之间可以互相替换，此模式让算法的变化独立于使用算法的客户。</p>
+</blockquote>
+<p>&emsp;    &emsp;也就是说，当某个对象有一系列相同的行为，只是行为的具体表现不同时，可以使用策略模式，也就是代码中的if/else或者switch/case的分支使用接口的形式来代替。</p>
+<h1 id="策略模式实例"><a href="#策略模式实例" class="headerlink" title="策略模式实例"></a>策略模式实例</h1><p>&emsp;    &emsp;我们举个例子来演示下策略模式，既然形容它是见人说人话，见鬼说鬼话，我们就用这个例子来实现：</p>
+<p><strong>TalkStrategy:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.strategy;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author liuseagull</span><br><span class="line"> * @create 2018-12-11 17:16</span><br><span class="line"> **/</span><br><span class="line">public interface TalkStrategy&#123;</span><br><span class="line"></span><br><span class="line">    voidtalk();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Person:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.strategy;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author liuseagull</span><br><span class="line"> * @create 2018-12-11 17:17</span><br><span class="line"> **/</span><br><span class="line">public class Person implements TalkStrategy &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void talk() &#123;</span><br><span class="line">        System.out.println(&quot;见人说人话&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Ghost:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.strategy;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author liuseagull</span><br><span class="line"> * @create 2018-12-11 17:18</span><br><span class="line"> **/</span><br><span class="line">public class Ghost implements TalkStrategy &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void talk() &#123;</span><br><span class="line">        System.out.println(&quot;见鬼说鬼话&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>LiuC:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.strategy;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author liuseagull</span><br><span class="line"> * @create 2018-12-11 17:18</span><br><span class="line"> **/</span><br><span class="line">public class LiuC &#123;</span><br><span class="line">    TalkStrategy talkStrategy;</span><br><span class="line"></span><br><span class="line">    public void setTalkStrategy(TalkStrategy talkStrategy) &#123;</span><br><span class="line">        this.talkStrategy = talkStrategy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void talk() &#123;</span><br><span class="line">        this.talkStrategy.talk();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>test:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.strategy;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author liuseagull</span><br><span class="line"> * @create 2018-12-11 17:19</span><br><span class="line"> **/</span><br><span class="line">public class TestStrategy &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        LiuC liuC = new LiuC();</span><br><span class="line">        liuC.setTalkStrategy(new Person());</span><br><span class="line">        liuC.talk();</span><br><span class="line">        liuC.setTalkStrategy(new Ghost());</span><br><span class="line">        liuC.talk();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>run result:</strong><br><img src="/2018/12/12/设计模式之策略模式/2.png" alt="数据类型示意图"></p>
+<p><strong>uml:</strong><br><img src="/2018/12/12/设计模式之策略模式/640.png" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;在上面的例子中，我们的具体实施对象liuC有talk这个动作，需要根据对方是person还是ghost来决定具体的动作，如果不使用策略模式的话，势必要通过if或者switch分支来进行判断，这种方法明显是不够灵活的，这种场景也正式策略模式应用的典型场景，当然，使用策略模式也会带来一个问题，那就是策略实现类的增多，如果这种具体的行为特别多的话，单纯的策略模式就不能解决问题了，需要使用组合模式来解决，这种场景我们以后会介绍到。</p>
+<h1 id="策略模式在springmvc中的应用"><a href="#策略模式在springmvc中的应用" class="headerlink" title="策略模式在springmvc中的应用"></a>策略模式在springmvc中的应用</h1><p>&emsp;    &emsp;在springmvc中使用了非常多的设计模式，策略模式也是其中一种，比较典型的一个场景就是在解析配置文件中的<context>,<aop>,<jee>等标签时，对于不同的namespace会选择对应的namespaceHandler对象的来进行解析，我们来看下spring中的实现方式：</jee></aop></context></p>
+<p>&emsp;    &emsp;<strong>NamespaceHandler：接口，定义了parse这个基本行为</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public interface NamespaceHandler &#123;</span><br><span class="line">    void init();</span><br><span class="line"></span><br><span class="line">    BeanDefinition parse(Element var1, ParserContext var2);</span><br><span class="line"></span><br><span class="line">    BeanDefinitionHolder decorate(Node var1, BeanDefinitionHolder var2, ParserContext var3);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>NamespaceHandlerSupport():实现了NamespaceHandler接口的抽象类，实现了parse行为</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public abstract class NamespaceHandlerSupportimplements NamespaceHandler &#123;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Parses the supplied &#123;@link Element&#125; by delegating to the &#123;@link BeanDefinitionParser&#125; that is</span><br><span class="line"> * registered for that &#123;@link Element&#125;.</span><br><span class="line"> */</span><br><span class="line">public BeanDefinition parse(Element element, ParserContext parserContext) &#123;</span><br><span class="line">   return findParserForElement(element, parserContext).parse(element, parserContext);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Locates the &#123;@link BeanDefinitionParser&#125; from the register implementationsusing</span><br><span class="line"> * the local name of the supplied &#123;@linkElement&#125;.</span><br><span class="line"> */</span><br><span class="line">private BeanDefinitionParser findParserForElement(Element element, ParserContext parserContext) &#123;</span><br><span class="line">   String localName = parserContext.getDelegate().getLocalName(element);</span><br><span class="line">   BeanDefinitionParser parser = this.parsers.get(localName);</span><br><span class="line">   if (parser == null) &#123;</span><br><span class="line">     parserContext.getReaderContext().fatal(</span><br><span class="line">            &quot;Cannot locate BeanDefinitionParserfor element [&quot; + localName+ &quot;]&quot;, element);</span><br><span class="line">   &#125;</span><br><span class="line">   return parser;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意这行代码：</p>
+<blockquote>
+<p>return findParserForElement(element, parserContext).parse(element, parserContext);</p>
+</blockquote>
+<p>可以看到真正执行parse动作的对象是：</p>
+<blockquote>
+<p>findParserForElement(element, parserContext)</p>
+</blockquote>
+<p>这是调用的另一个私有方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Locates the &#123;@link BeanDefinitionParser&#125; from the register implementationsusing</span><br><span class="line"> * the local name of the supplied &#123;@linkElement&#125;.</span><br><span class="line"> */</span><br><span class="line">private BeanDefinitionParser findParserForElement(Element element, ParserContext parserContext) &#123;</span><br><span class="line">   String localName = parserContext.getDelegate().getLocalName(element);</span><br><span class="line">   BeanDefinitionParser parser = this.parsers.get(localName);</span><br><span class="line">   if (parser == null) &#123;</span><br><span class="line">     parserContext.getReaderContext().fatal(</span><br><span class="line">            &quot;Cannot locate BeanDefinitionParserfor element [&quot; + localName+ &quot;]&quot;, element);</span><br><span class="line">   &#125;</span><br><span class="line">   return parser;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>它会从parsers中取出对应的解析对象来执行相应的动作，看下parsers的定义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Stores the &#123;@link BeanDefinitionParser&#125; implementations keyed by the</span><br><span class="line"> * local name of the &#123;@link Element Elements&#125; they handle.</span><br><span class="line"> */</span><br><span class="line">private final Map&lt;String, BeanDefinitionParser&gt; parsers =</span><br><span class="line">      new HashMap&lt;String, BeanDefinitionParser&gt;();</span><br></pre></td></tr></table></figure>
+
+<p>再来看一个具体的handler对象的内容</p>
+<p><strong>ContextNamespaceHandler:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class ContextNamespaceHandler extends NamespaceHandlerSupport &#123;</span><br><span class="line">    public ContextNamespaceHandler() &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public void init() &#123;</span><br><span class="line">        this.registerBeanDefinitionParser(&quot;property-placeholder&quot;, new PropertyPlaceholderBeanDefinitionParser());</span><br><span class="line">        this.registerBeanDefinitionParser(&quot;property-override&quot;, new PropertyOverrideBeanDefinitionParser());</span><br><span class="line">        this.registerBeanDefinitionParser(&quot;annotation-config&quot;, new AnnotationConfigBeanDefinitionParser());</span><br><span class="line">        this.registerBeanDefinitionParser(&quot;component-scan&quot;, new ComponentScanBeanDefinitionParser());</span><br><span class="line">        this.registerBeanDefinitionParser(&quot;load-time-weaver&quot;, new LoadTimeWeaverBeanDefinitionParser());</span><br><span class="line">        this.registerBeanDefinitionParser(&quot;spring-configured&quot;, new SpringConfiguredBeanDefinitionParser());</span><br><span class="line">        this.registerBeanDefinitionParser(&quot;mbean-export&quot;, new MBeanExportBeanDefinitionParser());</span><br><span class="line">        this.registerBeanDefinitionParser(&quot;mbean-server&quot;, new MBeanServerBeanDefinitionParser());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这边的初始化过程中就会将标签和对应的解析对象放入上面我们说的parsers对象中保存。</p>
+<p>再看下具体调用的地方：</p>
+<p><strong>BeanDefinitionParserDelegate</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public BeanDefinition parseCustomElement(Elementele, BeanDefinition containingBd) &#123;</span><br><span class="line">   String namespaceUri = getNamespaceURI(ele);</span><br><span class="line">   NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);</span><br><span class="line">   if (handler == null) &#123;</span><br><span class="line">      error(&quot;Unable to locate SpringNamespaceHandler for XML schema namespace [&quot; + namespaceUri + &quot;]&quot;, ele);</span><br><span class="line">      return null;</span><br><span class="line">   &#125;</span><br><span class="line">   return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过这行获取真正执行动作的对象：</p>
+<blockquote>
+<p>NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);</p>
+</blockquote>
+<p>这里具体的实现与本文内容无关，就不深入了。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;    &emsp;策略模式的使用场景还是比较多的，但在使用时不能太拘泥于形式，可以多多结合其他相关模式一起使用，想要真正掌握设计模式，还需要大家在项目中多多实践，找机会练手。</p>
+
       
     </div>
     
@@ -436,8 +505,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -488,6 +566,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#策略模式定义"><span class="nav-number">1.</span> <span class="nav-text">策略模式定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#策略模式实例"><span class="nav-number">2.</span> <span class="nav-text">策略模式实例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#策略模式在springmvc中的应用"><span class="nav-number">3.</span> <span class="nav-text">策略模式在springmvc中的应用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
