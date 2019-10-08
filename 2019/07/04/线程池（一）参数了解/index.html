@@ -79,14 +79,19 @@
 
 
 
+<meta name="description" content="&amp;emsp;    &amp;emsp;在平时的开发工作中，有些场景需要我们进行一些重复的操作，比如我之前做的给会员发短信和公众号推送的工作，这些会员数量基本都是几十万左右，如果一个线程来循环处理的话明显是不合适的，每个用户起一个线程也是不合适的，做了估计服务器立马就咬告警，类似这种场景使用线程池来处理就比较合适。&amp;emsp;    &amp;emsp;线程池每次提供几个线程用来处理任务，其他任务则用一个阻塞队列">
 <meta property="og:type" content="article">
 <meta property="og:title" content="线程池（一）参数了解">
 <meta property="og:url" content="http://yoursite.com/2019/07/04/线程池（一）参数了解/index.html">
 <meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;在平时的开发工作中，有些场景需要我们进行一些重复的操作，比如我之前做的给会员发短信和公众号推送的工作，这些会员数量基本都是几十万左右，如果一个线程来循环处理的话明显是不合适的，每个用户起一个线程也是不合适的，做了估计服务器立马就咬告警，类似这种场景使用线程池来处理就比较合适。&amp;emsp;    &amp;emsp;线程池每次提供几个线程用来处理任务，其他任务则用一个阻塞队列">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-02T16:22:58.000Z">
+<meta property="og:image" content="http://yoursite.com/2019/07/04/线程池（一）参数了解/1.jpeg">
+<meta property="og:updated_time" content="2019-10-08T16:00:46.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="线程池（一）参数了解">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;在平时的开发工作中，有些场景需要我们进行一些重复的操作，比如我之前做的给会员发短信和公众号推送的工作，这些会员数量基本都是几十万左右，如果一个线程来循环处理的话明显是不合适的，每个用户起一个线程也是不合适的，做了估计服务器立马就咬告警，类似这种场景使用线程池来处理就比较合适。&amp;emsp;    &amp;emsp;线程池每次提供几个线程用来处理任务，其他任务则用一个阻塞队列">
+<meta name="twitter:image" content="http://yoursite.com/2019/07/04/线程池（一）参数了解/1.jpeg">
 
 
 
@@ -348,7 +353,33 @@
       
 
       
-        
+        <p>&emsp;    &emsp;在平时的开发工作中，有些场景需要我们进行一些重复的操作，比如我之前做的给会员发短信和公众号推送的工作，这些会员数量基本都是几十万左右，如果一个线程来循环处理的话明显是不合适的，每个用户起一个线程也是不合适的，做了估计服务器立马就咬告警，类似这种场景使用线程池来处理就比较合适。<br>&emsp;    &emsp;线程池每次提供几个线程用来处理任务，其他任务则用一个阻塞队列存放，等线程池中有线程空闲出来了就分配给他执行任务。这样既提供了效率又保证了不会因为创建过多线程而影响性能。</p>
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><p>&emsp;    &emsp;废话不多说，先来看个例子，看下线程池的效果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public class TestThreadPoolExecutor&#123;</span><br><span class="line">    static ExecutorServiceservice = new ThreadPoolExecutor(3, 5, 1, TimeUnit.MINUTES, new LinkedBlockingQueue&lt;Runnable&gt;(10));</span><br><span class="line"></span><br><span class="line">    publicstatic void main(String[] args) &#123;</span><br><span class="line">        for (int i = 0; i &lt; 10; i++) &#123;</span><br><span class="line">            service.submit(new Runnable() &#123;</span><br><span class="line">                @Override</span><br><span class="line">                publicvoid run() &#123;</span><br><span class="line">                    System.out.println(Thread.currentThread().getName());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输出结果:<br><img src="/2019/07/04/线程池（一）参数了解/1.jpeg" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;我们在for循环提交了十次任务，因为我们在初始化线程池的时候指定了核心线程池的大小为3个，所以在阻塞队列足够存储任务的情况下，线程池只会使用核心线程池中的这三个线程池来完成任务，所以有了上面的输出结果。<br>&emsp;    &emsp;这只是线程池最简单的使用，只是让大家对它有个概念。</p>
+<h1 id="参数介绍"><a href="#参数介绍" class="headerlink" title="参数介绍"></a>参数介绍</h1><p>&emsp;    &emsp;现在我们来详细的解释下一个线程池的各个参数<br>构造函数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Creates a new &#123;@code ThreadPoolExecutor&#125; with the given initial</span><br><span class="line"> * parameters.</span><br><span class="line"> *</span><br><span class="line"> * @param corePoolSize the number of threads to keep in the pool, even</span><br><span class="line"> *        if they are idle, unless &#123;@code allowCoreThreadTimeOut&#125; is set</span><br><span class="line"> * @param maximumPoolSize the maximum number of threads to allow in the</span><br><span class="line"> *        pool</span><br><span class="line"> * @param keepAliveTime when the number of threads is greater than</span><br><span class="line"> *        the core, this is the maximum time that excess idle threads</span><br><span class="line"> *        will wait for new tasks before terminating.</span><br><span class="line"> * @param unit the time unit for the &#123;@code keepAliveTime&#125; argument</span><br><span class="line"> * @param workQueue the queue to use for holding tasks before they are</span><br><span class="line"> *        executed.  This queue will hold only the &#123;@code Runnable&#125;</span><br><span class="line"> *        tasks submitted by the &#123;@code execute&#125; method.</span><br><span class="line"> * @param threadFactory the factory to use when the executor</span><br><span class="line"> *        creates a new thread</span><br><span class="line"> * @param handler the handler to use when execution is blocked</span><br><span class="line"> *        because the thread bounds and queue capacities are reached</span><br><span class="line"> * @throws IllegalArgumentException if one of the following holds:&lt;br&gt;</span><br><span class="line"> *         &#123;@code corePoolSize &lt; 0&#125;&lt;br&gt;</span><br><span class="line"> *         &#123;@code keepAliveTime &lt; 0&#125;&lt;br&gt;</span><br><span class="line"> *         &#123;@code maximumPoolSize &lt;= 0&#125;&lt;br&gt;</span><br><span class="line"> *         &#123;@code maximumPoolSize &lt; corePoolSize&#125;</span><br><span class="line"> * @throws NullPointerException if &#123;@code workQueue&#125;</span><br><span class="line"> *         or &#123;@code threadFactory&#125; or &#123;@code handler&#125; is null</span><br><span class="line"> */</span><br><span class="line">public ThreadPoolExecutor(int corePoolSize,</span><br><span class="line">                          int maximumPoolSize,</span><br><span class="line">                          long keepAliveTime,</span><br><span class="line">                          TimeUnit unit,</span><br><span class="line">                          BlockingQueue&lt;Runnable&gt; workQueue,</span><br><span class="line">                          ThreadFactory threadFactory,</span><br><span class="line">                          RejectedExecutionHandler handler) &#123;</span><br><span class="line">    if (corePoolSize &lt; 0 ||</span><br><span class="line">        maximumPoolSize &lt;= 0 ||</span><br><span class="line">        maximumPoolSize &lt; corePoolSize ||</span><br><span class="line">        keepAliveTime &lt; 0)</span><br><span class="line">        throw new IllegalArgumentException();</span><br><span class="line">    if (workQueue == null || threadFactory == null || handler == null)</span><br><span class="line">        throw new NullPointerException();</span><br><span class="line">    this.corePoolSize = corePoolSize;</span><br><span class="line">    this.maximumPoolSize = maximumPoolSize;</span><br><span class="line">    this.workQueue = workQueue;</span><br><span class="line">    this.keepAliveTime = unit.toNanos(keepAliveTime);</span><br><span class="line">    this.threadFactory = threadFactory;</span><br><span class="line">    this.handler = handler;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>corePoolSize<br>&emsp;    &emsp;线程池的核心池,在没有设置allowCoreThreadTimeOut= true的情况下，核心线程池中线程在线程池的生命周期中会一直存活。</p>
+</li>
+<li><p>maximumPoolSize<br>&emsp;    &emsp;线程池最大容量，当核心池中线程，也就是核心线程都处于工作中，这时候提交的任务就会放入阻塞队列中保存，如果队列也满了，那么就会新建一个线程来执行任务，这些线程就是非核心线程。<br>&emsp;    &emsp;非核心线程+核心线程&lt;=线程池最大容量</p>
+</li>
+<li><p>BlockingQueue<br>&emsp;    &emsp;在核心池已满的情况又有新任务提交，这些任务会被放到阻塞队列暂时存储，等待线程空闲分配给他来执行任务。</p>
+</li>
+<li><p>ThreadFactory<br>&emsp;    &emsp;线程工程用于提供线程，一般都是实现ThreadFactory接口重写其中的newThread()方法，主要目的就是为了给线程起名，这样在定位问题时可以根据线程名快速定位。</p>
+</li>
+<li><p>RejectedExecutionHandler<br>&emsp;    &emsp;线程池的饱和拒绝策略。当线程数已经达到最大容量且队列已满时，这个时候提交的任务都会通过设置的饱和策略进行处理。</p>
+</li>
+<li><p>keepAliveTime<br>&emsp;    &emsp;keepAliveTime和unit结合用来表示非核心线程保持空闲的时间，超过设置的时间以后，非核心线程会进行回收。</p>
+</li>
+<li><p>unit<br>&emsp;    &emsp;存活时间的单位</p>
+</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;    &emsp;上面就是自定义一个线程池的所需参数介绍，jdk中提供了一个工具类Executors,里面内置了五种线程池，但是使用这种方式创建的线程池会有OOM的风险，这个在后面几篇详细介绍参数的时候会进行说明。</p>
+
       
     </div>
     
@@ -436,8 +467,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -488,6 +528,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#使用"><span class="nav-number">1.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参数介绍"><span class="nav-number">2.</span> <span class="nav-text">参数介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       

@@ -79,14 +79,17 @@
 
 
 
+<meta name="description" content="&amp;emsp;    &amp;emsp;在介绍java中的cas之前，先来了解一下乐观锁和悲观锁。 乐观锁/悲观锁&amp;emsp;    &amp;emsp;首先要明确悲观锁和乐观锁都只是一个概念，一种思想，代表着对于数据竞争的不同处理策略。 悲观锁&amp;emsp;    &amp;emsp;悲观锁，顾名思义是悲观的，认为并发无处不在，所以对每个数据的操作都会加上锁，防止被其他对象修改。&amp;emsp;    &amp;emsp;它适用于写">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CAS">
 <meta property="og:url" content="http://yoursite.com/2019/05/20/CAS/index.html">
 <meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;在介绍java中的cas之前，先来了解一下乐观锁和悲观锁。 乐观锁/悲观锁&amp;emsp;    &amp;emsp;首先要明确悲观锁和乐观锁都只是一个概念，一种思想，代表着对于数据竞争的不同处理策略。 悲观锁&amp;emsp;    &amp;emsp;悲观锁，顾名思义是悲观的，认为并发无处不在，所以对每个数据的操作都会加上锁，防止被其他对象修改。&amp;emsp;    &amp;emsp;它适用于写">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-07T16:16:42.000Z">
+<meta property="og:updated_time" content="2019-10-08T15:56:30.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CAS">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;在介绍java中的cas之前，先来了解一下乐观锁和悲观锁。 乐观锁/悲观锁&amp;emsp;    &amp;emsp;首先要明确悲观锁和乐观锁都只是一个概念，一种思想，代表着对于数据竞争的不同处理策略。 悲观锁&amp;emsp;    &amp;emsp;悲观锁，顾名思义是悲观的，认为并发无处不在，所以对每个数据的操作都会加上锁，防止被其他对象修改。&amp;emsp;    &amp;emsp;它适用于写">
 
 
 
@@ -299,6 +302,28 @@
           </span>
 
           
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -326,7 +351,60 @@
       
 
       
-        
+        <p>&emsp;    &emsp;在介绍java中的cas之前，先来了解一下乐观锁和悲观锁。</p>
+<h1 id="乐观锁-悲观锁"><a href="#乐观锁-悲观锁" class="headerlink" title="乐观锁/悲观锁"></a>乐观锁/悲观锁</h1><p>&emsp;    &emsp;首先要明确悲观锁和乐观锁都只是一个概念，一种思想，代表着对于数据竞争的不同处理策略。</p>
+<h2 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h2><p>&emsp;    &emsp;悲观锁，顾名思义是悲观的，认为并发无处不在，所以对每个数据的操作都会加上锁，防止被其他对象修改。<br>&emsp;    &emsp;它适用于写多读少的场景。java中的synchronized就是典型的悲观锁。</p>
+<h2 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h2><p>&emsp;    &emsp;乐观锁恰好相反，认为并发竞争很少发生，所以只会在更新数据时才去检查数据是否被其他对象修改过了，没有被修改才执行操作。<br>&emsp;    &emsp;它适用于读多写少的场景。</p>
+<h1 id="CAS"><a href="#CAS" class="headerlink" title="CAS"></a>CAS</h1><p>&emsp;    &emsp;这里要介绍的cas就是乐观锁的实现基础。<br>&emsp;    &emsp;<strong>CAS，也就是Compare And Swap</strong>的缩写，从名称当中就可以看到cas中包含了两个操作：比较和交换。<br>&emsp;    &emsp;CAS操作包括了3个操作数：</p>
+<ul>
+<li>需要读写的内存位置(V)</li>
+<li>进行比较的预期值(A)</li>
+<li>拟写入的新值(B) </li>
+</ul>
+<p>&emsp;    &emsp;CAS操作逻辑如下：如果内存位置V的值等于预期的A值，则将该位置更新为新值B，否则不进行任何操作。如果失败，那么就重复操作，直至成功为止，这种行为叫做自旋。<br>&emsp;    &emsp;这里虽然有两个操作，但是可以保证结果是原子性的，这是因为cas利用的是cpu提供的原子操作,底层通过<strong>cmpxchg</strong>指令来完成。<br>&emsp;    &emsp;在java中，正常情况我们是无法直接操作底层的，但是juc下提供了一系列的原子操作类，它的内部就是通过cas来实现的。<br>&emsp;    &emsp;我们通过一个例子来认识下原子类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public class AtomicInt &#123;</span><br><span class="line">    static AtomicInteger i = new AtomicInteger(0);</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">        for (int j = 0; j &lt; 2; j++) &#123;</span><br><span class="line">            new Thread(new Runnable() &#123;</span><br><span class="line">                @Override</span><br><span class="line">                public void run() &#123;</span><br><span class="line">                    try &#123;</span><br><span class="line">                        Thread.sleep(100);</span><br><span class="line">                        for (int k = 0; k &lt; 100; k++) &#123;</span><br><span class="line">                            i.incrementAndGet();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Thread.sleep(1000);</span><br><span class="line"></span><br><span class="line">        System.out.println(i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;上面这段代码中，2个线程共同操作i，期望的结果是200，但是我们都知道，这个结果是不可预期的，因为这是一段非线程安全的代码，<br>&emsp;    &emsp;在之前我们介绍过解决线程同步可以适用synchronized关键字，但是在这里我们要介绍一个其他的解决方案：<strong>AtomicInteger</strong>。<br>&emsp;    &emsp;使用原子类来操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public class AtomicInt&#123;</span><br><span class="line">    staticAtomicInteger i = new AtomicInteger(0);</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) throwsInterruptedException &#123;</span><br><span class="line"></span><br><span class="line">        for(int j = 0; j &lt; 2; j++) &#123;</span><br><span class="line">            newThread(new Runnable() &#123;</span><br><span class="line">                @Override</span><br><span class="line">                publicvoid run()&#123;</span><br><span class="line">                    try &#123;</span><br><span class="line">                        Thread.sleep(100);</span><br><span class="line">                        for (int k= 0; k &lt; 100; k++) &#123;</span><br><span class="line">                            i.incrementAndGet();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                       e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;).start();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Thread.sleep(1000);</span><br><span class="line"></span><br><span class="line">        System.out.println(i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;使用<strong>AtomicIntenger</strong>来操作以后，不管有多少线程都不会影响最终的结果，这就是靠的java中的cas机制。<br>&emsp;    &emsp;我们一起看下incrementAndGet()方法究竟做了什么</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public final int incrementAndGet() &#123;</span><br><span class="line">    for (;;) &#123;</span><br><span class="line">        int current = get();</span><br><span class="line">        int next = current + 1;</span><br><span class="line">        if (compareAndSet(current, next))</span><br><span class="line">            return next;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public final int get() &#123;</span><br><span class="line">    return value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>private volatile int value;</p>
+</blockquote>
+<p>&emsp;    &emsp;首先通过get()获取目前value对象的值，然后通过compareAndSet(current，next)完成数据的更新。<br>&emsp;    &emsp;原子类可以保证并发操作下的数据准确性，一个原因是更新数据时通过cas来操作，还有一个重点就是通过volitale关键字来保证变量的准确性。有关volatile的内存语义在之前已经介绍过，这里不加赘述。<br>&emsp;    &emsp;我们再看下<strong>compareAndSet</strong>的实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public final boolean compareAndSet(int expect, int update) &#123;</span><br><span class="line">    return unsafe.compareAndSwapInt(this, valueOffset, expect, update);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public final native boolean compareAndSwapInt(Object var1, long var2, int var4, int var5);</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;这里可以看到，<strong>AtomicIntenger</strong>内部通过调用<strong>unsafe</strong>的<strong>compareAndSwapInt()</strong>方法完成数据的更新，这一步操作在一个死循环中，也就是说会一直自旋直到成功。<br>&emsp;    &emsp;这个方法中的三个参数<strong>valueOffset</strong>，<strong>expect</strong>和<strong>update</strong>正是对应我们cas操作中的V，A 和B.这里的<strong>valueOffset</strong>可以简单理解为数据在内存中的地址。<br>&emsp;    &emsp;unsafe就像是jvm为我们提供的一个后门，让我们可以直接访问底层操作系统，这个类中提供的都是硬件级别的原子操作。其他的几个原子类也都是通过<strong>unsafe</strong>来完成cas操作的。</p>
+<h2 id="CAS的三大问题"><a href="#CAS的三大问题" class="headerlink" title="CAS的三大问题"></a>CAS的三大问题</h2><p>&emsp;    &emsp;cas虽然可以解决原子性问题，但是它也有自己的缺点，主要有三个问题。</p>
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><ul>
+<li><p>循环时间长开销大<br>&emsp;    &emsp;在上面说过，cas一般会通过自旋直到成功为止，如果自旋的时间过程，cpu就会一直被占用，这样就会造成系统开销过大。</p>
+</li>
+<li><p>只能保证单个变量的原子性问题<br>&emsp;    &emsp;cas不像synchronized一样，可以保证代码块中的变量都是原子性操作，它一次只能保证一个变量的原子性。</p>
+</li>
+<li><p>ABA问题<br>&emsp;    &emsp;所谓的ABA问题就是说一个值原来是A,变成了B，最后又变成了A，那么cas检查的时候就会认为这个值根本没有发生过变化，在有些场景这个问题是致命的。</p>
+</li>
+</ul>
+<h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><ul>
+<li>循环时间长开销大解决：</li>
+</ul>
+<ol>
+<li>pause指令；</li>
+<li>做适应性自旋</li>
+</ol>
+<ul>
+<li><p>单个变量的问题：<br>java中提供了AtomicReference对象,它可以将多个变量放到一个对象中进行操作。</p>
+</li>
+<li><p>ABA问题：<br>&emsp;    &emsp;通过给变量加上版本号，在判断变量时，除了判断值，还要加上对每次操作时的版本号的比较，这个就可以有效避免ABA问题.<br>&emsp;    &emsp;此外java中提供了AtomicStampedReference对象，这个对象内部实现了版本号机制，这样就可以避免ABA问题。</p>
+</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;    &emsp;java中的原子性操作可以使用锁进行解决，也可以使用cas进行解决，两者适用场景不同，选择也不同。</p>
+
       
     </div>
     
@@ -414,8 +492,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -466,6 +553,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#乐观锁-悲观锁"><span class="nav-number">1.</span> <span class="nav-text">乐观锁/悲观锁</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#悲观锁"><span class="nav-number">1.1.</span> <span class="nav-text">悲观锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#乐观锁"><span class="nav-number">1.2.</span> <span class="nav-text">乐观锁</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CAS"><span class="nav-number">2.</span> <span class="nav-text">CAS</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CAS的三大问题"><span class="nav-number">2.1.</span> <span class="nav-text">CAS的三大问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#问题"><span class="nav-number">2.1.1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决"><span class="nav-number">2.1.2.</span> <span class="nav-text">解决</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
