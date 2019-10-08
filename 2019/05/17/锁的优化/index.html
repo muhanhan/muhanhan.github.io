@@ -79,14 +79,29 @@
 
 
 
+<meta name="description" content="&amp;emsp;    &amp;emsp;jdk6以后，为了减少获取锁和释放锁带来的性能消耗，引入了偏向锁和轻量级锁，锁有了四个不同的状态变化。此外还有锁消除，锁粗化和自适应自旋锁（基于自旋锁）等优化。 对象的内存布局&amp;emsp;    &amp;emsp;在介绍偏向锁和轻量级锁之前，我们必须要介绍下java中对象的内存布局，主要是对象头的部分，这是偏向锁和轻量级锁实现的基础。&amp;emsp;    &amp;emsp;我们先">
 <meta property="og:type" content="article">
 <meta property="og:title" content="锁的优化">
 <meta property="og:url" content="http://yoursite.com/2019/05/17/锁的优化/index.html">
 <meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;jdk6以后，为了减少获取锁和释放锁带来的性能消耗，引入了偏向锁和轻量级锁，锁有了四个不同的状态变化。此外还有锁消除，锁粗化和自适应自旋锁（基于自旋锁）等优化。 对象的内存布局&amp;emsp;    &amp;emsp;在介绍偏向锁和轻量级锁之前，我们必须要介绍下java中对象的内存布局，主要是对象头的部分，这是偏向锁和轻量级锁实现的基础。&amp;emsp;    &amp;emsp;我们先">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-02T16:22:12.000Z">
+<meta property="og:image" content="http://yoursite.com/2019/05/17/锁的优化/1.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/05/17/锁的优化/2.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/05/17/锁的优化/3.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/05/17/锁的优化/4.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/05/17/锁的优化/5.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/05/17/锁的优化/6.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/05/17/锁的优化/7.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/05/17/锁的优化/8.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/05/17/锁的优化/9.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/05/17/锁的优化/10.jpeg">
+<meta property="og:image" content="http://yoursite.com/2019/05/17/锁的优化/11.jpeg">
+<meta property="og:updated_time" content="2019-10-08T15:49:03.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="锁的优化">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;jdk6以后，为了减少获取锁和释放锁带来的性能消耗，引入了偏向锁和轻量级锁，锁有了四个不同的状态变化。此外还有锁消除，锁粗化和自适应自旋锁（基于自旋锁）等优化。 对象的内存布局&amp;emsp;    &amp;emsp;在介绍偏向锁和轻量级锁之前，我们必须要介绍下java中对象的内存布局，主要是对象头的部分，这是偏向锁和轻量级锁实现的基础。&amp;emsp;    &amp;emsp;我们先">
+<meta name="twitter:image" content="http://yoursite.com/2019/05/17/锁的优化/1.jpeg">
 
 
 
@@ -348,7 +363,47 @@
       
 
       
-        
+        <p>&emsp;    &emsp;jdk6以后，为了减少获取锁和释放锁带来的性能消耗，引入了偏向锁和轻量级锁，锁有了四个不同的状态变化。此外还有锁消除，锁粗化和自适应自旋锁（基于自旋锁）等优化。</p>
+<h1 id="对象的内存布局"><a href="#对象的内存布局" class="headerlink" title="对象的内存布局"></a>对象的内存布局</h1><p>&emsp;    &emsp;在介绍偏向锁和轻量级锁之前，我们必须要介绍下java中对象的内存布局，主要是对象头的部分，这是偏向锁和轻量级锁实现的基础。<br>&emsp;    &emsp;我们先看对象在内存中的布局示意图：<br><img src="/2019/05/17/锁的优化/1.jpeg" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;对上面各部分的内容做个简单介绍：</p>
+<ul>
+<li><p>实例数据(Header)<br>&emsp;    &emsp;实例数据中主要保存着对象所需要的字段，包括继承自父类中的定义和子类中定义的内容。</p>
+</li>
+<li><p>对齐填充(Instance Data)<br>&emsp;    &emsp;因为虚拟机要求对象的大小必须是8字节的整数倍，对齐填充就是保证对象的大小满足要求。</p>
+</li>
+<li><p>对象头(Padding)<br>&emsp;    &emsp;对象头主要由mark word 和 类型指针组成，如果对象是数组的话，那么还会有一部分用来表示数组的大小。</p>
+</li>
+</ul>
+<ol>
+<li>Mark Word</li>
+</ol>
+<p>&emsp;    &emsp;Mark Word中主要保存着对象运行时的自身数据，如hashcode，gc分代年龄，锁状态标志，偏向线程id等。<br>&emsp;    &emsp;Mark Word中的数据会随着对象的状态改变而发生变化，这也是我们偏向锁和轻量级锁的基础。<br>&emsp;    &emsp;首先看下普通对象的mark word保存的内容：<br><img src="/2019/05/17/锁的优化/2.jpeg" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;再看下在32位和64位虚拟机中，Mark Word的状态变化：<br><img src="/2019/05/17/锁的优化/3.jpeg" alt="数据类型示意图"></p>
+<p>下面是64位：<br><img src="/2019/05/17/锁的优化/4.jpeg" alt="数据类型示意图"></p>
+<ol start="2">
+<li>类型指针</li>
+</ol>
+<p>&emsp;    &emsp;对象指向它的类元数据的指针。虚拟机通过这个指针确定这个对象是哪个类的实例。</p>
+<h1 id="锁空间"><a href="#锁空间" class="headerlink" title="锁空间"></a>锁空间</h1><p>&emsp;    &emsp;在代码进入同步块时，jvm会在线程的栈帧中建立一个名为锁记录的空间（<strong>Lock Record</strong>）,用于存储锁对象目前的MarkWord的拷贝(<strong>Displaced Lock Record</strong>),线程成功获取到对象锁以后，<strong>Displaced Lock Record</strong>中的内容替换为<strong>Mark Word</strong>中的内容，同时将<strong>Mark Word</strong>更新为指向<strong>Lock Record</strong>的指针。<br>&emsp;    &emsp;下面用《深入理解java虚拟机》中的配图演示下上述过程：</p>
+<p>操作前：<br><img src="/2019/05/17/锁的优化/5.jpeg" alt="数据类型示意图"></p>
+<p>操作后：<br><img src="/2019/05/17/锁的优化/6.jpeg" alt="数据类型示意图"></p>
+<h1 id="锁的状态变化"><a href="#锁的状态变化" class="headerlink" title="锁的状态变化"></a>锁的状态变化</h1><p>&emsp;    &emsp;在jdk6以后，jvm对锁的处理会有一个竞争升级的过程，锁共有四种状态，它们按照级别从低到高的顺序是：<br><strong>无锁状态-&gt;偏向锁-&gt;轻量级锁-&gt;重量级锁。</strong><br>&emsp;    &emsp;需要注意的是，锁的升级过程是不可逆的，只能升级不能降级。这种设计是为了减少获取锁和释放锁带来的性能消耗。<br>&emsp;    &emsp;下面结合对象头的变化说明一下四种锁的状态。</p>
+<h2 id="无锁状态"><a href="#无锁状态" class="headerlink" title="无锁状态"></a>无锁状态</h2><p>&emsp;    &emsp;当对象还没有作为锁使用时，此时它的对象头中的存储内容如下：<br><img src="/2019/05/17/锁的优化/7.jpeg" alt="数据类型示意图"></p>
+<h2 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h2><p>&emsp;    &emsp;偏向锁主要适用于只有一个线程访问同步块的情况。<br>&emsp;    &emsp;当线程A访问同步块获取到锁时，会在对象头和栈帧中存储锁偏向的线程ID,此时它的对象头中的存储内容如下：<br>&emsp;    &emsp;当线程A再次进入同步块时，首先检查对象头中的线程ID是不是当前线程的ID,是的话，不需要重新获取锁，直接进入同步块。<br>&emsp;    &emsp;如果是另一个线程B想要获取对象锁，发现对象头中的线程ID不是当前线程的ID,那么它会通过CAS尝试更新对象头的线程ID,更改成功说明成功获取锁，更改失败，说明这个锁被其他线程持有，也就是说现在存在多个线程竞争，那么偏向锁会在撤销后升级为轻量级锁。</p>
+<h3 id="偏向锁的撤销"><a href="#偏向锁的撤销" class="headerlink" title="偏向锁的撤销"></a>偏向锁的撤销</h3><p>&emsp;    &emsp;偏向锁不会主动释放锁，只有遇到其他线程竞争偏向锁时，持有锁的线程才会释放锁。偏向锁的撤销会在一个全局安全点(在这个时间点上没有执行的字节码)暂停拥有偏向锁的线程，然后检查线程是否存活，如果不处于活动状态，则将对象头置为无锁状态，如果线程活着，拥有偏向锁的栈会被执行，遍历偏向对象的锁记录，栈中的锁记录和对象头的Mark Word要么偏向于其他线程，要么恢复到无锁状态或者标记对象不适合作为偏向锁，最后唤醒暂停的线程。过程如下所示：<br><img src="/2019/05/17/锁的优化/8.jpeg" alt="数据类型示意图"></p>
+<h2 id="轻量级锁"><a href="#轻量级锁" class="headerlink" title="轻量级锁"></a>轻量级锁</h2><p>&emsp;    &emsp;<strong>轻量级锁主要适用于多个线程交替持有锁的情况。</strong></p>
+<h3 id="轻量级锁加锁"><a href="#轻量级锁加锁" class="headerlink" title="轻量级锁加锁"></a>轻量级锁加锁</h3><p>&emsp;    &emsp;线程在执行同步块之前，jvm会先在当前线程的栈帧中创建用于存储锁记录的空间，并将对象头中的Mark Word复制到锁记录中，然后线程尝试适用CAS将对象头中的MarkWord替换为指向锁记录的指针。如果成功，当前线程获得锁，此时对象头中的存储内容如下：<br><img src="/2019/05/17/锁的优化/9.jpeg" alt="数据类型示意图"></p>
+<p>如果失败，表示其他线程竞争锁，当前线程尝试使用自旋来获取锁。</p>
+<h3 id="轻量级锁解锁"><a href="#轻量级锁解锁" class="headerlink" title="轻量级锁解锁"></a>轻量级锁解锁</h3><p>&emsp;    &emsp;轻量级锁解锁时，使用CAS操作将DisplacedMark Word替换回对象头，如果成功，表示没有竞争发生，如果失败，表示当前锁存在竞争，锁就会膨胀成重量级锁。如下图所示：<br><img src="/2019/05/17/锁的优化/10.jpeg" alt="数据类型示意图"></p>
+<h3 id="重量级锁"><a href="#重量级锁" class="headerlink" title="重量级锁"></a>重量级锁</h3><p>&emsp;    &emsp;当锁升级为重量级锁以后，也就是我们上文所说的通过Monitor监视器来控制线程的同步，此时对象头中的存储内容如下：<br><img src="/2019/05/17/锁的优化/11.jpeg" alt="数据类型示意图"></p>
+<h3 id="不同锁的适用场景"><a href="#不同锁的适用场景" class="headerlink" title="不同锁的适用场景"></a>不同锁的适用场景</h3><p>&emsp;    &emsp;偏向锁、轻量级锁、重量级锁三种形式，分别对应了锁只被一个线程持有、不同线程交替持有锁、多线程竞争锁三种情况。<br>&emsp;    &emsp;不同的情况会伴随者锁的竞争升级，锁可以升级，但是不能降级。</p>
+<h1 id="其他优化"><a href="#其他优化" class="headerlink" title="其他优化"></a>其他优化</h1><h2 id="锁消除"><a href="#锁消除" class="headerlink" title="锁消除"></a>锁消除</h2><p>&emsp;    &emsp;锁消除指的是虚拟机在运行时，对一些代码上要求同步，但是被检测到不可能存在共享数据竞争的锁进行消除。</p>
+<h2 id="锁粗化"><a href="#锁粗化" class="headerlink" title="锁粗化"></a>锁粗化</h2><p>&emsp;    &emsp;如果虚拟机检测到一组零碎的操作都对同一个对象加锁，那么它会将锁同步的范围扩大(粗化)到整个操作范围。</p>
+<p>参考资料：</p>
+<blockquote>
+<p><a href="https://www.jianshu.com/p/e2054351bd95" target="_blank" rel="noopener">https://www.jianshu.com/p/e2054351bd95</a><br>《深入理解java虚拟机》<br>《java并发编程之美》</p>
+</blockquote>
+
       
     </div>
     
@@ -436,8 +491,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -488,6 +552,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#对象的内存布局"><span class="nav-number">1.</span> <span class="nav-text">对象的内存布局</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#锁空间"><span class="nav-number">2.</span> <span class="nav-text">锁空间</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#锁的状态变化"><span class="nav-number">3.</span> <span class="nav-text">锁的状态变化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#无锁状态"><span class="nav-number">3.1.</span> <span class="nav-text">无锁状态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#偏向锁"><span class="nav-number">3.2.</span> <span class="nav-text">偏向锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#偏向锁的撤销"><span class="nav-number">3.2.1.</span> <span class="nav-text">偏向锁的撤销</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#轻量级锁"><span class="nav-number">3.3.</span> <span class="nav-text">轻量级锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#轻量级锁加锁"><span class="nav-number">3.3.1.</span> <span class="nav-text">轻量级锁加锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#轻量级锁解锁"><span class="nav-number">3.3.2.</span> <span class="nav-text">轻量级锁解锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重量级锁"><span class="nav-number">3.3.3.</span> <span class="nav-text">重量级锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#不同锁的适用场景"><span class="nav-number">3.3.4.</span> <span class="nav-text">不同锁的适用场景</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#其他优化"><span class="nav-number">4.</span> <span class="nav-text">其他优化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#锁消除"><span class="nav-number">4.1.</span> <span class="nav-text">锁消除</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#锁粗化"><span class="nav-number">4.2.</span> <span class="nav-text">锁粗化</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
