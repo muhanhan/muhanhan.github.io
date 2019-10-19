@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;在前面有关线程池的两篇文章中，分别介绍了线程池的核心参数和工作流程，这一篇从源码的角度来分析下线程池究竟是怎么做到线程复用的。*基于jdk7 线程的复用&amp;emsp;    &amp;emsp;我们已经知道通过execute()往线程池中提交任务的时候，会将提交的任务包装成ThreadPoolExecute中的一个内部对象Worker，Worker实现了Runnable接口，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ReentrantLock">
+<meta property="og:url" content="http://yoursite.com/2019/10/19/线程池（三）源码解析/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;在前面有关线程池的两篇文章中，分别介绍了线程池的核心参数和工作流程，这一篇从源码的角度来分析下线程池究竟是怎么做到线程复用的。*基于jdk7 线程的复用&amp;emsp;    &amp;emsp;我们已经知道通过execute()往线程池中提交任务的时候，会将提交的任务包装成ThreadPoolExecute中的一个内部对象Worker，Worker实现了Runnable接口，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-10-19T13:11:31.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ReentrantLock">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;在前面有关线程池的两篇文章中，分别介绍了线程池的核心参数和工作流程，这一篇从源码的角度来分析下线程池究竟是怎么做到线程复用的。*基于jdk7 线程的复用&amp;emsp;    &amp;emsp;我们已经知道通过execute()往线程池中提交任务的时候，会将提交的任务包装成ThreadPoolExecute中的一个内部对象Worker，Worker实现了Runnable接口，">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/10/19/线程池（三）源码解析/">
+
+
+
+
+
+  <title>ReentrantLock | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/19/线程池（三）源码解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ReentrantLock</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-19T21:10:57+08:00">
+                2019-10-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/并发编程/" itemprop="url" rel="index">
+                    <span itemprop="name">并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;在前面有关线程池的两篇文章中，分别介绍了线程池的核心参数和工作流程，这一篇从源码的角度来分析下线程池究竟是怎么做到线程复用的。<br><strong>*基于jdk7</strong></p>
+<h1 id="线程的复用"><a href="#线程的复用" class="headerlink" title="线程的复用"></a>线程的复用</h1><p>&emsp;    &emsp;我们已经知道通过execute()往线程池中提交任务的时候，会将提交的任务包装成ThreadPoolExecute中的一个内部对象Worker，Worker实现了Runnable接口，同时也是一个线程对象，提交的任务根据线程的工作流程可能会新建一个线程来执行，也可能由已有的空闲线程进行处理，还可能放入阻塞队列或者被拒绝策略进行处理。我们这里只关注提交的任务如何被已有的空闲的线程进行处理。<br>&emsp;    &emsp;我们都知道一个线程有六种状态，正常的一个线程执行完任务以后就会进入终止状态，为什么这里的Worker可以在执行完任务以后不销毁而且能够继续处理其他任务呢？<br>&emsp;    &emsp;这个问题我们需要来看下Worker中执行的逻辑：</p>
+<p><strong>run方法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public void run() &#123;</span><br><span class="line">		runWorker(this);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>                    
+
+<p><strong>runWorker方法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">final void runWorker(Worker w) &#123;</span><br><span class="line">		Thread wt = Thread.currentThread();</span><br><span class="line">		Runnable task = w.firstTask;</span><br><span class="line">		w.firstTask = null;</span><br><span class="line">		w.unlock(); // allow interrupts</span><br><span class="line">		boolean completedAbruptly = true;</span><br><span class="line">		try &#123;</span><br><span class="line">				while (task != null || (task = getTask()) != null) &#123;</span><br><span class="line">						w.lock();</span><br><span class="line">						// If pool is stopping, ensure thread is interrupted;</span><br><span class="line">						// if not, ensure thread is not interrupted.  This</span><br><span class="line">						// requires a recheck in second case to deal with</span><br><span class="line">						// shutdownNow race while clearing interrupt</span><br><span class="line">						if ((runStateAtLeast(ctl.get(), STOP) ||</span><br><span class="line">								 (Thread.interrupted() &amp;&amp;</span><br><span class="line">									runStateAtLeast(ctl.get(), STOP))) &amp;&amp;</span><br><span class="line">								!wt.isInterrupted())</span><br><span class="line">								wt.interrupt();</span><br><span class="line">						try &#123;</span><br><span class="line">								beforeExecute(wt, task);</span><br><span class="line">								Throwable thrown = null;</span><br><span class="line">								try &#123;</span><br><span class="line">										task.run();</span><br><span class="line">								&#125; catch (RuntimeException x) &#123;</span><br><span class="line">										thrown = x; throw x;</span><br><span class="line">								&#125; catch (Error x) &#123;</span><br><span class="line">										thrown = x; throw x;</span><br><span class="line">								&#125; catch (Throwable x) &#123;</span><br><span class="line">										thrown = x; throw new Error(x);</span><br><span class="line">								&#125; finally &#123;</span><br><span class="line">										afterExecute(task, thrown);</span><br><span class="line">								&#125;</span><br><span class="line">						&#125; finally &#123;</span><br><span class="line">								task = null;</span><br><span class="line">								w.completedTasks++;</span><br><span class="line">								w.unlock();</span><br><span class="line">						&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				completedAbruptly = false;</span><br><span class="line">		&#125; finally &#123;</span><br><span class="line">				processWorkerExit(w, completedAbruptly);</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>        
+
+<p>&emsp;    &emsp;在这里要介绍下Worker的两个主要属性：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Worker(Runnable firstTask) &#123;</span><br><span class="line">		setState(-1); // inhibit interrupts until runWorker</span><br><span class="line">		this.firstTask = firstTask;</span><br><span class="line">		this.thread = getThreadFactory().newThread(this);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;firstTask表示当前的任务，thread表示当前的工作线程id。<br>&emsp;    &emsp;在runWorker中我们可以看到这样一个判断：</p>
+<blockquote>
+<p>while (task != null || (task = getTask()) != null)</p>
+</blockquote>
+<p>&emsp;    &emsp;也就是Worker完成执行逻辑进入终止状态需要的条件是</p>
+<blockquote>
+<p>task == null &amp;&amp; (task = getTask()) == null</p>
+</blockquote>
+<p>&emsp;    &emsp;task == null 这个条件很容易，只需要Worker线程执行完逻辑以后，在finally代码块中就会这个Worker对象的task置为null:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">finally &#123;</span><br><span class="line">                   task = null;</span><br><span class="line">                   w.completedTasks++;</span><br><span class="line">                   w.unlock();</span><br><span class="line">               &#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;也就是说，我们主要是依赖(task = getTask()) != null这个条件来保证创建出来的线程可以重复执行任务的。<br>&emsp;    &emsp;这里可以先提前说下getTask()方法的作用，它的作用就是去我们存放任务的阻塞队列中获取一个可用的任务交由线程来执行，知道了这个以后，我们就可以理解线程为什么重复执行任务了。</p>
+<h1 id="核心线程和非核心线程"><a href="#核心线程和非核心线程" class="headerlink" title="核心线程和非核心线程"></a>核心线程和非核心线程</h1><p>&emsp;    &emsp;这里还有一个问题，同样是创建出来的线程，核心线程和非核心线程是如何来进行区分的，怎么保证核心线程一直存活而非核心线程在空闲了设置时间以后就进行销毁。我们来看下getTask()的内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">private Runnable getTask() &#123;</span><br><span class="line">		boolean timedOut = false; // Did the last poll() time out?</span><br><span class="line"></span><br><span class="line">		for (;;) &#123;</span><br><span class="line">				int c = ctl.get();</span><br><span class="line">				int rs = runStateOf(c);</span><br><span class="line"></span><br><span class="line">				// Check if queue empty only if necessary.</span><br><span class="line">				if (rs &gt;= SHUTDOWN &amp;&amp; (rs &gt;= STOP || workQueue.isEmpty())) &#123;</span><br><span class="line">						decrementWorkerCount();</span><br><span class="line">						return null;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				int wc = workerCountOf(c);</span><br><span class="line"></span><br><span class="line">				// Are workers subject to culling?</span><br><span class="line">				boolean timed = allowCoreThreadTimeOut || wc &gt; corePoolSize;</span><br><span class="line"></span><br><span class="line">				if ((wc &gt; maximumPoolSize || (timed &amp;&amp; timedOut))</span><br><span class="line">						&amp;&amp; (wc &gt; 1 || workQueue.isEmpty())) &#123;</span><br><span class="line">						if (compareAndDecrementWorkerCount(c))</span><br><span class="line">								return null;</span><br><span class="line">						continue;</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">				try &#123;</span><br><span class="line">						Runnable r = timed ?</span><br><span class="line">								workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) :</span><br><span class="line">								workQueue.take();</span><br><span class="line">						if (r != null)</span><br><span class="line">								return r;</span><br><span class="line">						timedOut = true;</span><br><span class="line">				&#125; catch (InterruptedException retry) &#123;</span><br><span class="line">						timedOut = false;</span><br><span class="line">				&#125;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;我们重点关注这个代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Runnable r = timed ?</span><br><span class="line">		workQueue.poll(keepAliveTime, TimeUnit.NANOSECONDS) :</span><br><span class="line">		workQueue.take();</span><br></pre></td></tr></table></figure>
+
+<p>&emsp;    &emsp;利用阻塞队列提供的方法poll() 和take()方法来完成任务的获取工作，也就是说如果是核心线程就调用会一直等待的take()方法来进行获取，这样子核心线程就一直处于一个阻塞的状态，通过这种方式保证核心线程一直存活。<br>&emsp;    &emsp;非核心线程则利用超时返回指定对象的poll(time)方法，在一定时间获取不到任务以后返回null，也就是非核心线程空闲了指定时间，这个当前这个Worker对象就退出了while循环，那么它最后会执行<strong>processWorkerExit</strong>方法，在这个方面里面他会从工作队列中移除一个线程，表示销毁了一个非核心线程。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">private void processWorkerExit(Worker w, boolean completedAbruptly) &#123;</span><br><span class="line">		if (completedAbruptly) // If abrupt, then workerCount wasn&apos;t adjusted</span><br><span class="line">				decrementWorkerCount();</span><br><span class="line"></span><br><span class="line">		final ReentrantLock mainLock = this.mainLock;</span><br><span class="line">		mainLock.lock();</span><br><span class="line">		try &#123;</span><br><span class="line">				completedTaskCount += w.completedTasks;</span><br><span class="line">				workers.remove(w);</span><br><span class="line">		&#125; finally &#123;</span><br><span class="line">				mainLock.unlock();</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		tryTerminate();</span><br><span class="line"></span><br><span class="line">		int c = ctl.get();</span><br><span class="line">		if (runStateLessThan(c, STOP)) &#123;</span><br><span class="line">				if (!completedAbruptly) &#123;</span><br><span class="line">						int min = allowCoreThreadTimeOut ? 0 : corePoolSize;</span><br><span class="line">						if (min == 0 &amp;&amp; ! workQueue.isEmpty())</span><br><span class="line">								min = 1;</span><br><span class="line">						if (workerCountOf(c) &gt;= min)</span><br><span class="line">								return; // replacement not needed</span><br><span class="line">				&#125;</span><br><span class="line">				addWorker(null, false);</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<pre><code>workers.remove(w);</code></pre></blockquote>
+<p>&emsp;    &emsp;到这里，基本上也解释清楚了核心线程是如何保证存活，非核心线程是如何销毁的了。<br>&emsp;    &emsp;需要注意的是，虽然创建线程的有核心线程和非核心线程的区分，但不意味着Worker对象有一个属性表示了是否核心线程，只是通过核心线程数来保证最后存活的线程数量而已。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
+<li>线程池如果重复利用创建的线程执行任务</li>
+<li>核心线程和非核心线程的区别<br>&emsp;    &emsp;本片结合部分源码主要对以上两个场景进行了分析。</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/07/Zookeeper（一）zab协议/" rel="next" title="Zookeeper（一）zab协议">
+                <i class="fa fa-chevron-left"></i> Zookeeper（一）zab协议
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">69</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#线程的复用"><span class="nav-number">1.</span> <span class="nav-text">线程的复用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#核心线程和非核心线程"><span class="nav-number">2.</span> <span class="nav-text">核心线程和非核心线程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
