@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dragon-32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/fdragon-16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&amp;emsp;    &amp;emsp;目前项目数据库中单表数据量较多，后续可能会做分库分表，考虑到那个时候单表的自增id不再适用，所以需要一个分布式id生成器用来生成一个全局唯一的id。本文主要调研了目前主流的几种分布式id的方案，用做参考和借鉴。 &amp;emsp;    &amp;emsp;目前常见的几种分布式id生成方案主要有：UUID，数据库自增id，redis实现分布式id和雪花算法几种。 UUID&amp;ems">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式id方案">
+<meta property="og:url" content="http://yoursite.com/2019/10/30/分布式id方案/index.html">
+<meta property="og:site_name" content="刘老c&#39;s blog">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;目前项目数据库中单表数据量较多，后续可能会做分库分表，考虑到那个时候单表的自增id不再适用，所以需要一个分布式id生成器用来生成一个全局唯一的id。本文主要调研了目前主流的几种分布式id的方案，用做参考和借鉴。 &amp;emsp;    &amp;emsp;目前常见的几种分布式id生成方案主要有：UUID，数据库自增id，redis实现分布式id和雪花算法几种。 UUID&amp;ems">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/10/30/分布式id方案/1.jpg">
+<meta property="og:updated_time" content="2019-10-30T12:04:28.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式id方案">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;目前项目数据库中单表数据量较多，后续可能会做分库分表，考虑到那个时候单表的自增id不再适用，所以需要一个分布式id生成器用来生成一个全局唯一的id。本文主要调研了目前主流的几种分布式id的方案，用做参考和借鉴。 &amp;emsp;    &amp;emsp;目前常见的几种分布式id生成方案主要有：UUID，数据库自增id，redis实现分布式id和雪花算法几种。 UUID&amp;ems">
+<meta name="twitter:image" content="http://yoursite.com/2019/10/30/分布式id方案/1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/10/30/分布式id方案/">
+
+
+
+
+
+  <title>分布式id方案 | 刘老c's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">刘老c's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-booklist">
+          <a href="/booklist" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            书单
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/30/分布式id方案/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JiaWei Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="刘老c's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">分布式id方案</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-30T19:58:11+08:00">
+                2019-10-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/分布式/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>&emsp;    &emsp;目前项目数据库中单表数据量较多，后续可能会做分库分表，考虑到那个时候单表的自增id不再适用，所以需要一个分布式id生成器用来生成一个全局唯一的id。本文主要调研了目前主流的几种分布式id的方案，用做参考和借鉴。<br> &emsp;    &emsp;目前常见的几种分布式id生成方案主要有：UUID，数据库自增id，redis实现分布式id和雪花算法几种。</p>
+<h1 id="UUID"><a href="#UUID" class="headerlink" title="UUID"></a>UUID</h1><p>&emsp;    &emsp;UUID是指在一台机器上生成的数字，它保证对在同一时空中的所有机器都是唯一的。通常平台会提供生成的API。用到了以太网卡地址、纳秒级时间、芯片ID码和随机数。<br>&emsp;    &emsp;UUID由以下几部分的组合：</p>
+<ol>
+<li>当前日期和时间，UUID的第一个部分与时间有关，如果你在生成一个UUID之后，过几秒又生成一个UUID，则第一个部分不同，其余相同。</li>
+<li>时钟序列。</li>
+<li>全局唯一的IEEE机器识别号，如果有网卡，从网卡MAC地址获得，没有网卡以其他方式获得。<br>&emsp;    &emsp;在java中使用UUID还是比较方便的，在java中有现成的工具类可以直接生成UUID：</li>
+</ol>
+<blockquote>
+<p>UUID uuid = UUID.randomUUID();</p>
+</blockquote>
+<p>&emsp;    &emsp;它会返回一个36位长度的字符，其中32位由字母数字组合而成，剩下的4位则是由连接符组成：</p>
+<blockquote>
+<p>401a8ae8-848e-4021-aff6-26a2405379c4</p>
+</blockquote>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ol>
+<li>使用简单方便</li>
+</ol>
+<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><ol>
+<li>无序无意义</li>
+<li>非递增,不适合作为mysql的主键</li>
+<li>长度太大，所需空间相应也更多</li>
+</ol>
+<h1 id="数据库自增id-设置步长"><a href="#数据库自增id-设置步长" class="headerlink" title="数据库自增id+设置步长"></a>数据库自增id+设置步长</h1><p>&emsp;    &emsp;数据库在设置主键自增的同时还可以设置步长：</p>
+<ul>
+<li>auto-increment-increment 用来设置起始值</li>
+<li>auto-increment-offset    用来指定步长</li>
+</ul>
+<p>&emsp;    &emsp;他作为分布式id的原理就是，根据不同表来设置相应的起始值和步长，保证每个表的id都是唯一不冲突的：<br>&emsp;    &emsp;举个例子：<br>&emsp;    &emsp;订单表拆分为三张表：<br><strong>order1：</strong><br>&emsp;    &emsp;auto-increment-increment ： 1<br>&emsp;    &emsp;auto-increment-offset  ： 3</p>
+<p><strong>order2：</strong><br>&emsp;    &emsp;auto-increment-increment ： 2<br>&emsp;    &emsp;auto-increment-offset  ： 3</p>
+<p><strong>order3：</strong><br>&emsp;    &emsp;auto-increment-increment ： 3<br>&emsp;    &emsp;auto-increment-offset  ： 3</p>
+<p>&emsp;    &emsp;通过这种方式，三张表上的id会是这个样子：<br>&emsp;    &emsp;order1： 1,4,7,10…<br>&emsp;    &emsp;order2： 2,5,8,11…<br>&emsp;    &emsp;order3： 3,6,9,12…<br>&emsp;    &emsp;这样子来达到和分布式id一样的效果</p>
+<h2 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h2><ol>
+<li>简单，额外的编码工作较少</li>
+</ol>
+<h2 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h2><ol>
+<li>水平扩展不方便</li>
+<li>id全部依赖数据库生成，性能会有影响</li>
+</ol>
+<h1 id="redis实现分布式id"><a href="#redis实现分布式id" class="headerlink" title="redis实现分布式id"></a>redis实现分布式id</h1><p>&emsp;    &emsp;redis实现分布式id有多种方式，最简单的直接利用redis的自增key来实现，但这样性能得不到保证，全部依赖一个redis服务器完成工作，所以更多的还是利用redis集群来实现，集群中的每台服务器都可以用来生成id，id的规则可以结合对应redis的信息，多少位用来表示时间戳，多少位用来保存redis机器信息，实现方式比较多样。</p>
+<h2 id="优点-2"><a href="#优点-2" class="headerlink" title="优点"></a>优点</h2><ol>
+<li>id生成不依赖数据库，性能压力转移到redis上</li>
+<li>id规则可以自由实现</li>
+</ol>
+<h2 id="缺点-2"><a href="#缺点-2" class="headerlink" title="缺点"></a>缺点</h2><ol>
+<li>依赖redis,额外的编码工作较多    </li>
+</ol>
+<h1 id="雪花算法（snowflake）"><a href="#雪花算法（snowflake）" class="headerlink" title="雪花算法（snowflake）"></a>雪花算法（snowflake）</h1><p>&emsp;    &emsp;雪花算法是Twitter采用的分布式id实现的算法，它的思路是这样的：<br>&emsp;    &emsp;雪花算法首先会生成一个64位长度的id，对应java中long的数据类型，关于这64位的分配是这样的：</p>
+<p><img src="/2019/10/30/分布式id方案/1.jpg" alt="数据类型示意图"></p>
+<p>&emsp;    &emsp;第1位作为标识位，固定为0<br>&emsp;    &emsp;接下来的41位作为时间戳使用，目前项目中用系统毫秒数作为时间戳使用<br>&emsp;    &emsp;接下来的10位作为机器标识使用，目前这10位项目是这样分配的，前五位作为机房标识，后五位作为机器标识<br>&emsp;    &emsp;最后12位用作序列器，用作同一毫秒中id生成，这样同一毫秒一台机器可以支撑4095个id生成。</p>
+<h2 id="优点-3"><a href="#优点-3" class="headerlink" title="优点"></a>优点</h2><ol>
+<li>性能较多</li>
+<li>算法可靠</li>
+</ol>
+<h2 id="缺点-3"><a href="#缺点-3" class="headerlink" title="缺点"></a>缺点</h2><ol>
+<li>依赖机器时钟，如果机器时钟回拨，可能会导致id重复生成，最终导致主键冲突。</li>
+</ol>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><pre><code>上述方案各有千秋，选择还是要更多的根据实际情况。
+比如我们数据库使用的是mysql，那么它对主键就有所要求，要求尽可能短且递增，所以UUID首先排除，其次我们项目目前还没有实现分库分表，所以利用数据库自增设置步长的方案也不适用，
+redis集群和雪花算法都可以考虑，但考虑我司的redis有宕过的前科，雪花又是经过推特实践的，最终采用了雪花算法来实现分布式id。</code></pre>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/19/线程池（三）源码解析/" rel="next" title="线程池（三）源码解析">
+                <i class="fa fa-chevron-left"></i> 线程池（三）源码解析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JiaWei Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">70</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#UUID"><span class="nav-number">1.</span> <span class="nav-text">UUID</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优点"><span class="nav-number">1.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺点"><span class="nav-number">1.2.</span> <span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据库自增id-设置步长"><span class="nav-number">2.</span> <span class="nav-text">数据库自增id+设置步长</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优点-1"><span class="nav-number">2.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺点-1"><span class="nav-number">2.2.</span> <span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#redis实现分布式id"><span class="nav-number">3.</span> <span class="nav-text">redis实现分布式id</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优点-2"><span class="nav-number">3.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺点-2"><span class="nav-number">3.2.</span> <span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#雪花算法（snowflake）"><span class="nav-number">4.</span> <span class="nav-text">雪花算法（snowflake）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优点-3"><span class="nav-number">4.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缺点-3"><span class="nav-number">4.2.</span> <span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JiaWei Liu</span>
+
+  
+</div>
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
