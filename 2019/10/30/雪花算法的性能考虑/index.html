@@ -79,21 +79,17 @@
 
 
 
-<meta name="description" content="&amp;emsp;    &amp;emsp;    在介绍成员变量和局部变量之前，先看一段简单的代码，如果不能很明确的给出答案的话，请看完全文。 123456789101112131415161718192021package com.ljw.field;  /** * Created by liujiawei on 2018/7/17. */public class TestFields &amp;#123;">
+<meta name="description" content="&amp;emsp;    &amp;emsp;在项目采用了雪花算法作为分布式id的实现以后，那么就需要考虑一下性能是否足够支撑业务需求，下面整理下我分析的思路。 &amp;emsp;    &amp;emsp;部门最核心的内容就是订单入库的处理，根据统计，818当天的部门订单量达到了165w，目前生产上共部署了16台jboss服务器。&amp;emsp;    &amp;emsp;我们就以这个数据为基础分析雪花算法是否能够满足当前的需要：&amp;e">
 <meta property="og:type" content="article">
-<meta property="og:title" content="java基础之成员变量和局部变量">
-<meta property="og:url" content="http://yoursite.com/2018/07/18/java基础之成员变量和局部变量/index.html">
+<meta property="og:title" content="雪花算法的性能考虑">
+<meta property="og:url" content="http://yoursite.com/2019/10/30/雪花算法的性能考虑/index.html">
 <meta property="og:site_name" content="刘老c&#39;s blog">
-<meta property="og:description" content="&amp;emsp;    &amp;emsp;    在介绍成员变量和局部变量之前，先看一段简单的代码，如果不能很明确的给出答案的话，请看完全文。 123456789101112131415161718192021package com.ljw.field;  /** * Created by liujiawei on 2018/7/17. */public class TestFields &amp;#123;">
+<meta property="og:description" content="&amp;emsp;    &amp;emsp;在项目采用了雪花算法作为分布式id的实现以后，那么就需要考虑一下性能是否足够支撑业务需求，下面整理下我分析的思路。 &amp;emsp;    &amp;emsp;部门最核心的内容就是订单入库的处理，根据统计，818当天的部门订单量达到了165w，目前生产上共部署了16台jboss服务器。&amp;emsp;    &amp;emsp;我们就以这个数据为基础分析雪花算法是否能够满足当前的需要：&amp;e">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/2018/07/18/java基础之成员变量和局部变量/1.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/18/java基础之成员变量和局部变量/2.png">
-<meta property="og:image" content="http://yoursite.com/2018/07/18/java基础之成员变量和局部变量/3.png">
-<meta property="og:updated_time" content="2019-10-05T13:42:08.000Z">
+<meta property="og:updated_time" content="2019-10-30T12:09:31.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="java基础之成员变量和局部变量">
-<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;    在介绍成员变量和局部变量之前，先看一段简单的代码，如果不能很明确的给出答案的话，请看完全文。 123456789101112131415161718192021package com.ljw.field;  /** * Created by liujiawei on 2018/7/17. */public class TestFields &amp;#123;">
-<meta name="twitter:image" content="http://yoursite.com/2018/07/18/java基础之成员变量和局部变量/1.png">
+<meta name="twitter:title" content="雪花算法的性能考虑">
+<meta name="twitter:description" content="&amp;emsp;    &amp;emsp;在项目采用了雪花算法作为分布式id的实现以后，那么就需要考虑一下性能是否足够支撑业务需求，下面整理下我分析的思路。 &amp;emsp;    &amp;emsp;部门最核心的内容就是订单入库的处理，根据统计，818当天的部门订单量达到了165w，目前生产上共部署了16台jboss服务器。&amp;emsp;    &amp;emsp;我们就以这个数据为基础分析雪花算法是否能够满足当前的需要：&amp;e">
 
 
 
@@ -123,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/07/18/java基础之成员变量和局部变量/">
+  <link rel="canonical" href="http://yoursite.com/2019/10/30/雪花算法的性能考虑/">
 
 
 
 
 
-  <title>java基础之成员变量和局部变量 | 刘老c's blog</title>
+  <title>雪花算法的性能考虑 | 刘老c's blog</title>
   
 
 
@@ -266,7 +262,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/07/18/java基础之成员变量和局部变量/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/30/雪花算法的性能考虑/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="JiaWei Liu">
@@ -283,7 +279,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">java基础之成员变量和局部变量</h1>
+          <h1 class="post-title" itemprop="name headline">雪花算法的性能考虑</h1>
         
 
         <div class="post-meta">
@@ -295,8 +291,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-18T22:35:41+08:00">
-                2018-07-18
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-30T20:07:21+08:00">
+                2019-10-30
               </time>
             
 
@@ -318,8 +314,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java/" itemprop="url" rel="index">
-                    <span itemprop="name">java</span>
+                  <a href="/categories/分布式/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式</span>
                   </a>
                 </span>
 
@@ -355,26 +351,21 @@
       
 
       
-        <p>&emsp;    &emsp;    在介绍成员变量和局部变量之前，先看一段简单的代码，如果不能很明确的给出答案的话，请看完全文。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.field;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/17.</span><br><span class="line"> */</span><br><span class="line">public class TestFields &#123;</span><br><span class="line">    public static String str = &quot;实例变量&quot;;</span><br><span class="line"> </span><br><span class="line">    static &#123;</span><br><span class="line">        str = &quot;代码块中的局部变量&quot;;</span><br><span class="line">        System.out.println(&quot;这个时候的str对象是&quot; + str);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        str = &quot;方法中的局部变量&quot;;</span><br><span class="line">        System.out.println(&quot;这个时候的str对象是&quot; + str);</span><br><span class="line">        System.out.println(&quot;这个时候的str对象是&quot; + TestFields.str);</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <p>&emsp;    &emsp;在项目采用了雪花算法作为分布式id的实现以后，那么就需要考虑一下性能是否足够支撑业务需求，下面整理下我分析的思路。<br> &emsp;    &emsp;部门最核心的内容就是订单入库的处理，根据统计，818当天的部门订单量达到了165w，目前生产上共部署了16台jboss服务器。<br>&emsp;    &emsp;我们就以这个数据为基础分析雪花算法是否能够满足当前的需要：<br>&emsp;    &emsp;根据二八法则：即80%的访问量发生在20%的时间里，不妨设置的再极限一点，165w订单全部由一台服务器进行处理，且在一小时内完成。<br>&emsp;    &emsp;那么每秒需要处理的数据即为：</p>
+<blockquote>
+<p>QPS = 165w / 3600s  = 458.333333**</p>
+</blockquote>
+<p>&emsp;    &emsp;在这种比较极端的情况下，大概每秒需要提供458个id，相当于之前的理论分析来说，性能应该是绰绰有余了，但考虑到项目的雪花算法是实时计算生成的，这部分性能也需要考虑，所以再本地写一个测试demo看下性能情况：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">public static void main(String[] args) throws InterruptedException &#123;</span><br><span class="line">    //计时开始时间</span><br><span class="line">    long start = System.currentTimeMillis();</span><br><span class="line">    //让100个线程同时进行</span><br><span class="line">    final CountDownLatch latch = new CountDownLatch(100);</span><br><span class="line">    //判断生成的20万条记录是否有重复记录</span><br><span class="line">    final Map&lt;Long, Integer&gt; map = new ConcurrentHashMap();</span><br><span class="line">    for (int i = 0; i &lt; 100; i++) &#123;</span><br><span class="line">        //创建100个线程</span><br><span class="line">        new Thread(new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                for (int s = 0; s &lt; 2000; s++) &#123;</span><br><span class="line">                    long snowID = SnowflakeIdWorker.instance().nextId();</span><br><span class="line">                    LOGGER.info(&quot;生成雪花ID=&#123;&#125;&quot;, snowID);</span><br><span class="line">                    Integer put = map.put(snowID, 1);</span><br><span class="line">                    if (put != null) &#123;</span><br><span class="line">                        throw new RuntimeException(&quot;主键重复&quot;);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                latch.countDown();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line">    //让上面100个线程执行结束后，在走下面输出信息</span><br><span class="line">    latch.await();</span><br><span class="line">    LOGGER.info(&quot;生成20万条雪花ID总用时=&#123;&#125;&quot;, System.currentTimeMillis() - start);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>运行结果：<br><img src="/2018/07/18/java基础之成员变量和局部变量/1.png" alt="数据类型示意图"></p>
-<p>&emsp;    &emsp;    java中，根据变量定义位置的不同来区分变量，主要分为成员变量和局部变量，具体的结构用下图进行概括：<br><img src="/2018/07/18/java基础之成员变量和局部变量/2.png" alt="数据类型示意图"></p>
-<h1 id="成员变量和局部变量理解"><a href="#成员变量和局部变量理解" class="headerlink" title="成员变量和局部变量理解"></a>成员变量和局部变量理解</h1><p>&emsp;    &emsp;    我们知道java加载类有一个缓存机制，也就是每一个类只会被加载一次，然后就会将这个类编译的class被放到缓冲区中，其中成员变量的类变量使用static修饰符进行修饰，不需要实例化对象就可以访问，也就是说在jvm完成类的初始化的时候，类变量就已经被赋值保存在堆中了，而实例变量需要通过对象来进行访问，也就是实例变量的值是随着对象保存在堆中对应的位置，每个对象都有属于自己的堆空间。举个例子：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">package com.ljw.field;</span><br><span class="line"> </span><br><span class="line">/**</span><br><span class="line"> * Created by liujiawei on 2018/7/18.</span><br><span class="line"> */</span><br><span class="line">public class A &#123;</span><br><span class="line">    public static String type = &quot;A&quot;;</span><br><span class="line"> </span><br><span class="line">    String name;</span><br><span class="line"> </span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        System.out.println(A.type);</span><br><span class="line">        A a = new A();</span><br><span class="line">        a.name = &quot;a&quot;;</span><br><span class="line">        A a2 = new A();</span><br><span class="line">        a2.name = &quot;a2&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>&emsp;    &emsp;    一个A类，里面声明了两个成员变量，一个是类变量，一个是实例变量，main方法中，new了两个A的实例，分别设置了name属性，我们看下在内存中存储是怎样的：<br><img src="/2018/07/18/java基础之成员变量和局部变量/3.png" alt="数据类型示意图"></p>
-<p>&emsp;    &emsp;    当通过A类首次访问类变量type时，jvm会加载这个类，同时为类变量完成初始化，通过new　A()的方式实例对象时，会在堆中重新分配一块区域用来存放对象，为实例对象分配内存，分配默认值。如图所示。而局部变量只会在栈中分配空间，方法结束空间随之释放。</p>
-<h1 id="成员变量和局部变量的区别"><a href="#成员变量和局部变量的区别" class="headerlink" title="成员变量和局部变量的区别"></a>成员变量和局部变量的区别</h1><ol>
-<li><p>定义的位置不同；</p>
-</li>
-<li><p>生命周期不同，类变量随着类对象，成员变量随着对象，局部变量随着方法；</p>
-</li>
-<li><p>在内存保存位置不同，成员变量在堆中，局部变量在栈中</p>
-</li>
-<li><p>初始化不同，成员变量因为保存在堆中，所以jvm会分配默认值，局部变量需要自己完成初始化。</p>
-</li>
-</ol>
+<p>&emsp;    &emsp;运行结果：</p>
+<blockquote>
+<p>2019-10-24 15:00:06.232 [http-apr-8080-exec-6] INFO  -生成20万条雪花ID总用时=11641ms</p>
+</blockquote>
+<blockquote>
+<p>2019-10-24 15:01:04.095 [http-apr-8080-exec-4] INFO  -生成20万条雪花ID总用时=11214ms</p>
+</blockquote>
+<p>&emsp;    &emsp;在我本地的渣渣机器上100个线程大概需要11秒左右可以生成20w个雪花id，在服务器上的性能会更好。<br>&emsp;    &emsp;综上，雪花算法是足够支撑我们项目目前的场景的。</p>
 
       
     </div>
@@ -399,8 +390,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/07/15/java基础之数据类型/" rel="next" title="java基础之数据类型">
-                <i class="fa fa-chevron-left"></i> java基础之数据类型
+              <a href="/2019/10/30/分布式id方案/" rel="next" title="分布式id方案">
+                <i class="fa fa-chevron-left"></i> 分布式id方案
               </a>
             
           </div>
@@ -408,10 +399,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/07/22/java基础之final关键字/" rel="prev" title="java基础之final关键字">
-                java基础之final关键字 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -463,17 +450,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -524,22 +502,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#成员变量和局部变量理解"><span class="nav-number">1.</span> <span class="nav-text">成员变量和局部变量理解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#成员变量和局部变量的区别"><span class="nav-number">2.</span> <span class="nav-text">成员变量和局部变量的区别</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
