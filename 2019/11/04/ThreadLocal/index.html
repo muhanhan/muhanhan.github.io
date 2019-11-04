@@ -87,7 +87,8 @@
 <meta property="og:description" content="&amp;emsp;&amp;emsp;java中synchronized关键字可以让我们实现线程安全，通过对对象监视器的操作保证多个线程操作同一个变量时的安全问题。ThreadLocal的作用与之相反，它用来处理线程之间的隔离。这是什么意思呢？我们通过ThreadLocal的set()方法可以设置一个值，通过get()方法可以获取这个值，需要注意的地方是，设置的变量值是和我们操作是的线程绑定的，也就是说每个线程">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2019/11/04/ThreadLocal/1.png">
-<meta property="og:updated_time" content="2019-11-04T13:25:45.000Z">
+<meta property="og:image" content="http://yoursite.com/2019/11/04/ThreadLocal/2.png">
+<meta property="og:updated_time" content="2019-11-04T13:30:35.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ThreadLocal">
 <meta name="twitter:description" content="&amp;emsp;&amp;emsp;java中synchronized关键字可以让我们实现线程安全，通过对对象监视器的操作保证多个线程操作同一个变量时的安全问题。ThreadLocal的作用与之相反，它用来处理线程之间的隔离。这是什么意思呢？我们通过ThreadLocal的set()方法可以设置一个值，通过get()方法可以获取这个值，需要注意的地方是，设置的变量值是和我们操作是的线程绑定的，也就是说每个线程">
@@ -358,48 +359,39 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public class TestThreadLocal &#123;</span><br><span class="line">    private static ThreadLocal&lt;String&gt; nameResource = new ThreadLocal&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        Thread tA = new Thread(new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                nameResource.set(Thread.currentThread().getName());</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + &quot;绑定的nameResource值为 &quot; + nameResource.get());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, &quot;线程A&quot;);</span><br><span class="line"></span><br><span class="line">        Thread tB = new Thread(new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                nameResource.set(Thread.currentThread().getName());</span><br><span class="line">                System.out.println(Thread.currentThread().getName() + &quot;绑定的nameResource值为 &quot; + nameResource.get());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, &quot;线程B&quot;);</span><br><span class="line"></span><br><span class="line">        tA.start();</span><br><span class="line">        tB.start();</span><br><span class="line"></span><br><span class="line">        System.out.println(Thread.currentThread().getName() + &quot;绑定的nameResource值为 &quot; + nameResource.get());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>我们看下运行的结果。<br><img src="/2019/11/04/ThreadLocal/1.png" alt="数据类型示意图"></p>
-<p>&emsp;&emsp;可以看到，虽然是对同一个ThreadLocal对象进行了操作，但是获取到的结果是不一致的，也就是ThreadLocal隔离性的体现。</p>
-<h1 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h1><pre><code>这里从1.7源码的角度分析下ThreadLocal的实现原理：</code></pre><h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2>{% codeblock %}
-    public ThreadLocal() {
-    }
-{% endcodeblock %}
+<p>&emsp;    &emsp;可以看到，虽然是对同一个ThreadLocal对象进行了操作，但是获取到的结果是不一致的，也就是ThreadLocal隔离性的体现。</p>
+<h1 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h1><p>&emsp;    &emsp;这里从1.7源码的角度分析下ThreadLocal的实现原理：</p>
+<h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">public ThreadLocal() &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<pre><code>可以看到初始化是空的，也就是ThreadLocal有可能将初始化的过程延迟到了第一次塞值的时候，我们直接看下set方法</code></pre><h2 id="set"><a href="#set" class="headerlink" title="set"></a>set</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public void set(T value) &#123;</span><br><span class="line">    Thread t = Thread.currentThread();</span><br><span class="line">    ThreadLocalMap map = getMap(t);</span><br><span class="line">    if (map != null)</span><br><span class="line">        map.set(this, value);</span><br><span class="line">    else</span><br><span class="line">        createMap(t, value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;    &emsp;可以看到初始化是空的，也就是ThreadLocal有可能将初始化的过程延迟到了第一次塞值的时候，我们直接看下set方法</p>
+<h2 id="set"><a href="#set" class="headerlink" title="set"></a>set</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public void set(T value) &#123;</span><br><span class="line">    Thread t = Thread.currentThread();</span><br><span class="line">    ThreadLocalMap map = getMap(t);</span><br><span class="line">    if (map != null)</span><br><span class="line">        map.set(this, value);</span><br><span class="line">    else</span><br><span class="line">        createMap(t, value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<pre><code>这里我们看到出现了一个ThreadLocalMap对象，这是在ThreadLocal内部定义的一个对象，我们set的值其实就是保存在这个对象里面，在这个ThreadLocalMap对象里面还有一个Entry对象用来存放具体的线程本地变量：</code></pre>{% codeblock %} 
-        static class Entry extends WeakReference<threadlocal<?>> {
-            /** The value associated with this ThreadLocal. */
-            Object value;
+<p>&emsp;&emsp;这里我们看到出现了一个ThreadLocalMap对象，这是在ThreadLocal内部定义的一个对象，我们set的值其实就是保存在这个对象里面，在这个ThreadLocalMap对象里面还有一个Entry对象用来存放具体的线程本地变量：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line">static class Entry extends WeakReference&lt;ThreadLocal&lt;?&gt;&gt; &#123;</span><br><span class="line">    /** The value associated with this ThreadLocal. */</span><br><span class="line">    Object value;</span><br><span class="line"></span><br><span class="line">    Entry(ThreadLocal&lt;?&gt; k, Object v) &#123;</span><br><span class="line">        super(k);</span><br><span class="line">        value = v;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>      
 
-            Entry(ThreadLocal<?> k, Object v) {
-                super(k);
-                value = v;
-            }
-        }
-{% endcodeblock %}      
-
-<pre><code>Entry对象是一个key-value结构的数据，它的key就是我们的ThreadLocal对象，value则是我们通过set()方法传入的值，ThreadLocalMap中持有一个由Entry对象组成的数组，用来保存一组ThreadLocal变量。有关数组具体的下标</code></pre><p>  通过内部的计算方法得到：</p>
+<p>&emsp;&emsp;Entry对象是一个key-value结构的数据，它的key就是我们的ThreadLocal对象，value则是我们通过set()方法传入的值，ThreadLocalMap中持有一个由Entry对象组成的数组，用来保存一组ThreadLocal变量。有关数组具体的下标通过内部的计算方法得到：</p>
 <blockquote>
 <p>int i = firstKey.threadLocalHashCode &amp; (INITIAL_CAPACITY - 1);</p>
 </blockquote>
-<p>在我们第一次set时，会创建一个ThreadLocalMap对象用来保存这个参数值，同时通过以下方法将它和具体的线程关联起来：</p>
+<p>&emsp;&emsp;在我们第一次set时，会创建一个ThreadLocalMap对象用来保存这个参数值，同时通过以下方法将它和具体的线程关联起来：</p>
 <blockquote>
 <p>t.threadLocals = new ThreadLocalMap(this, firstValue);</p>
 </blockquote>
-<p>Thread中的其中一个成员变量就是用来和线程本地变量值绑定的。</p>
-<h3 id="hash冲突"><a href="#hash冲突" class="headerlink" title="hash冲突"></a>hash冲突</h3><p>ThreadLocalMap类似一个定制化的hashmap，也会存在着hash冲突的情况，在不同ThreadLocal对象计算得到的下标相同时，就会发生hash冲突，看下这种情况是怎么处理的：</p>
+<p>&emsp;&emsp;Thread中的其中一个成员变量就是用来和线程本地变量值绑定的。</p>
+<h3 id="hash冲突"><a href="#hash冲突" class="headerlink" title="hash冲突"></a>hash冲突</h3><p>&emsp;&emsp;ThreadLocalMap类似一个定制化的hashmap，也会存在着hash冲突的情况，在不同ThreadLocal对象计算得到的下标相同时，就会发生hash冲突，看下这种情况是怎么处理的：</p>
 <blockquote>
 <p>for (Entry e = tab[i]; e != null; e = tab[i = nextIndex(i, len)]) </p>
 </blockquote>
-<p>在set的时候会判断位置是否有对象存在，有的话则去下一个位置查找，这种解决hash冲突的方法区分于hashmap的拉链法，叫做线性探测，它会自己根据步长寻找之后空闲的位置来塞值。</p>
-<h2 id="get"><a href="#get" class="headerlink" title="get"></a>get</h2><pre><code>上面已经知道set()的值是如何和线程关联起来的，get的话只需要去线程的threadLocals属性中取根据ThreadLocal对象计算出来的下标获取对应的value即可：</code></pre><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">   </span><br><span class="line">public T get() &#123;</span><br><span class="line">    Thread t = Thread.currentThread();</span><br><span class="line">    ThreadLocalMap map = getMap(t);</span><br><span class="line">    if (map != null) &#123;</span><br><span class="line">        ThreadLocalMap.Entry e = map.getEntry(this);</span><br><span class="line">        if (e != null) &#123;</span><br><span class="line">            @SuppressWarnings(&quot;unchecked&quot;)</span><br><span class="line">            T result = (T)e.value;</span><br><span class="line">            return result;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return setInitialValue();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>   
+<p>&emsp;&emsp;在set的时候会判断位置是否有对象存在，有的话则去下一个位置查找，这种解决hash冲突的方法区分于hashmap的拉链法，叫做线性探测，它会自己根据步长寻找之后空闲的位置来塞值。</p>
+<h2 id="get"><a href="#get" class="headerlink" title="get"></a>get</h2><p>&emsp;&emsp;上面已经知道set()的值是如何和线程关联起来的，get的话只需要去线程的threadLocals属性中取根据ThreadLocal对象计算出来的下标获取对应的value即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">   </span><br><span class="line">public T get() &#123;</span><br><span class="line">    Thread t = Thread.currentThread();</span><br><span class="line">    ThreadLocalMap map = getMap(t);</span><br><span class="line">    if (map != null) &#123;</span><br><span class="line">        ThreadLocalMap.Entry e = map.getEntry(this);</span><br><span class="line">        if (e != null) &#123;</span><br><span class="line">            @SuppressWarnings(&quot;unchecked&quot;)</span><br><span class="line">            T result = (T)e.value;</span><br><span class="line">            return result;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return setInitialValue();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>   
 
 <p><strong>getEntry</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">   </span><br><span class="line">private Entry getEntry(ThreadLocal&lt;?&gt; key) &#123;</span><br><span class="line">    int i = key.threadLocalHashCode &amp; (table.length - 1);</span><br><span class="line">    Entry e = table[i];</span><br><span class="line">    if (e != null &amp;&amp; e.get() == key)</span><br><span class="line">        return e;</span><br><span class="line">    else</span><br><span class="line">        return getEntryAfterMiss(key, i, e);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>   
 
 <p>&emsp;&emsp;整个逻辑还是很清晰的。</p>
 <h1 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h1><p>&emsp;&emsp;通过对上面源码的分析以后，我们对ThreadLocal已经有了基本的了解，我们用一副图来表示下它的内部结构来方便我们的记忆：</p>
-<p>！2.png</p>
+<p><img src="/2019/11/04/ThreadLocal/2.png" alt="数据类型示意图"></p>
 <h1 id="ThreadLocal的生命周期"><a href="#ThreadLocal的生命周期" class="headerlink" title="ThreadLocal的生命周期"></a>ThreadLocal的生命周期</h1><p>&emsp;&emsp;还记得Entry对象是怎么定义的么：</p>
 <blockquote>
 <p>static class Entry extends WeakReference<threadlocal></threadlocal></p>
@@ -410,7 +402,7 @@
 <p>&emsp;&emsp;想一下，如果线程一直不被销毁呢，比例线程池的核心线程，我们没有指定核心线程的存活时间的情况下，这部分线程是会一直存在的，那么在这种情况，线程关联的ThreadLocal是不会被释放，如果使用不当的话，有可能<br>会导致内存泄漏，这种情况我们可以通过ThreadLocal提供的remove()方法解决：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public void remove() &#123;</span><br><span class="line">    ThreadLocalMap m = getMap(Thread.currentThread());</span><br><span class="line">    if (m != null)</span><br><span class="line">        m.remove(this);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>内部通过设置null的方式删除引用:</p>
+<p>&emsp;&emsp;内部通过设置null的方式删除引用:</p>
 <p><strong>remove()</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Remove the entry for key.</span><br><span class="line"> */</span><br><span class="line">private void remove(ThreadLocal key) &#123;</span><br><span class="line">    Entry[] tab = table;</span><br><span class="line">    int len = tab.length;</span><br><span class="line">    int i = key.threadLocalHashCode &amp; (len-1);</span><br><span class="line">    for (Entry e = tab[i];</span><br><span class="line">         e != null;</span><br><span class="line">         e = tab[i = nextIndex(i, len)]) &#123;</span><br><span class="line">        if (e.get() == key) &#123;</span><br><span class="line">            e.clear();</span><br><span class="line">            expungeStaleEntry(i);</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -418,7 +410,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public void clear() &#123;</span><br><span class="line">    this.referent = null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>&emsp;&emsp;ThreadLocal用来处理线程之间的隔离，也就是通过ThradLocal对象，每个线程可以绑定一个属于自己的变量，它通过内部的ThreadLocalMap对象来实现，每个线程都会有一个属于自己的ThreadLocalMap对象，<br>这个map的key就是ThreadLocal对象，value就是我们通过set()方法设置的值,设计成map就是为了一个线程可以绑定多个ThreadLocal对象，在发生hash冲突时，采用线性探测的方法来解决，就是根据一个固<br>定的算法来计算来寻找下一个空闲位置，在hash冲突严重时，这种方法性能较低。</p>
-</threadlocal<?>
+
       
     </div>
     
